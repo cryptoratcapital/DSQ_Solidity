@@ -1,0 +1,32 @@
+[
+  {
+    "contractAddress": "0x2a2Be0C7AF27f9c92c36e7e5f568ED218462A6a8",
+    "beneficiary": "0x713511412bd42639F13a9EAbA771f1Ca9C871b33",
+    "amount": 7.222222222222222e21
+  },
+  {
+    "contractAddress": "0x277530e9E7510ac6a4a752fBE2FD2B2057E576BA",
+    "beneficiary": "0xA983021A0EDDC41A4135587Ef419515782327838",
+    "amount": 7.222222222222222e21
+  },
+  {
+    "contractAddress": "0x47509057F4e6dBE56cAB6DDd882E88584bA1A766",
+    "beneficiary": "0xAe8a8Ea7E2C2B373A46b719d5943F641a54dDd07",
+    "amount": 7.222222222222222e21
+  },
+  {
+    "contractAddress": "0x36302C1A41387cbD0a2cF19Dcc666277b7B17f13",
+    "beneficiary": "0x5AD9b1ccF6383F5Fa2541cbCEDd63e9366D6f52B",
+    "amount": 7.222222222222222e21
+  },
+  {
+    "contractAddress": "0x7f115fCB6C91f42603e232d954eBa0c16b94f8BD",
+    "beneficiary": "0xE35F59733F9427395dDB01F0635E55542DB7Be03",
+    "amount": 7.222222222222222e21
+  },
+  {
+    "contractAddress": "0x321A00B1f10dE32B55790DCf34fb7A9C9d5BB405",
+    "beneficiary": "0x32308C35b895FfF789c1cCf0230b3b29E21b8C3d",
+    "amount": 7.222222222222222e21
+  }
+]

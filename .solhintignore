@@ -1,0 +1,14 @@
+# directories
+
+**/artifacts
+**/node_modules
+contracts/test/
+contracts/trader/external/
+
+# --- frozen contracts ---
+
+contracts/sales/PrivateContribution.sol
+contracts/sales/TokenSale.sol
+contracts/sales/TokenSalePhase4.sol
+
+contracts/tokenomics/esDSQToken.sol

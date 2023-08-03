@@ -1,0 +1,13 @@
+extends:
+  - "eslint:recommended"
+  - "plugin:mocha/recommended"
+  - "prettier"
+parser: espree
+parserOptions: { "ecmaVersion": "latest" }
+plugins:
+  - "mocha"
+root: true
+rules:
+  "mocha/no-exclusive-tests": "error"
+  "no-undef": "off"
+  "no-unused-vars": "off"

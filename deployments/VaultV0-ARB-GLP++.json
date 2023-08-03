@@ -1,0 +1,11 @@
+{
+  "address": "0xbE68C8b9FcE054FedcF605b5c0F2c373505F407A",
+  "constructorArguments": [
+    "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8",
+    "GLP++",
+    "GLP++",
+    "0x025eE90FD50B992fFC4c5344e30F3f81A6B23252",
+    "20000000000"
+  ],
+  "whitelistedAddresses": ["0x8EbFC950776fAF2eaAc66f767ca083aA88f320Cb", "0xDd51221f1218B8d1897e161Ce2Cc2ec8A1139230"]
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "contractAddress": "0x68C3A0Daf05464bC8C1f099074fD537e2B77B5a0",
+    "beneficiary": "0xCC82B02898B330c5bA74A722541BD154DA0D4688",
+    "amount": 1.875e21
+  },
+  {
+    "contractAddress": "0x0589F7846bAe4c8553a48A443d276C523c0ce071",
+    "beneficiary": "0xCC1f318c412b90FE627AeA04C46CF2b93C0330ce",
+    "amount": 562500000000000000000
+  },
+  {
+    "contractAddress": "0x9C4A8347862Fdb87f407A528724eca22D14db0A2",
+    "beneficiary": "0x9a56B289f936580028e150583786C0ebB01d127D",
+    "amount": 375000000000000000000
+  }
+]

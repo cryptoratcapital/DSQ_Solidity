@@ -1,0 +1,4 @@
+{
+  "filter_paths": "(interfaces/|archive/|mocks/|test/|node_modules/|TestFixtures/)",
+  "solc_remaps": "@openzeppelin=node_modules/@openzeppelin solmate=node_modules/solmate"
+}

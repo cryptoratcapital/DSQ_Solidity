@@ -1,0 +1,25 @@
+name: Backup repo to Cloudflare R2
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  r2-backup:
+    name: Upload source code to Cloudflare R2
+    runs-on: ubuntu-latest
+    env:
+      BUCKET_NAME: d-squared-repos
+      REPO_NAME: solidity
+      CLOUDFLARE_ACCOUNT_ID: f4654b2c0d95f24439ad04611364303e
+    steps:
+      - uses: actions/checkout@v3
+      - name: R2 Backup
+        uses: peter-evans/s3-backup@v1
+        env:
+          MIRROR_TARGET: ${{ env.BUCKET_NAME }}/${{ env.REPO_NAME }}
+          ACCESS_KEY_ID: ${{ secrets.R2_REPO_BACKUP_ACCESS_KEY_ID }}
+          SECRET_ACCESS_KEY: ${{ secrets.R2_REPO_BACKUP_SECRET_ACCESS_KEY }}
+          STORAGE_SERVICE_URL: https://${{ env.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com
+        with:
+          args: --overwrite --remove
