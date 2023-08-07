@@ -34,9 +34,9 @@ contract VaultV1 is ERC4626, Ownable {
     uint256 public constant MIN_FUNDING_DURATION = 2 days;
 
     struct Epoch {
-        uint256 fundingStart;
-        uint256 epochStart;
-        uint256 epochEnd;
+        uint80 fundingStart;
+        uint80 epochStart;
+        uint80 epochEnd;
     }
 
     mapping(uint256 => Epoch) public epochs;
@@ -74,19 +74,19 @@ contract VaultV1 is ERC4626, Ownable {
 
     modifier duringFunding() {
         Epoch storage epoch = epochs[epochId.current()];
-        require(block.timestamp >= epoch.fundingStart && block.timestamp < epoch.epochStart, "!funding");
+        require(uint80(block.timestamp) >= epoch.fundingStart && uint80(block.timestamp) < epoch.epochStart, "!funding");
         _;
     }
 
     modifier notDuringEpoch() {
         Epoch storage epoch = epochs[epochId.current()];
-        require(block.timestamp < epoch.epochStart || block.timestamp >= epoch.epochEnd, "during");
+        require(uint80(block.timestamp) < epoch.epochStart || uint80(block.timestamp) >= epoch.epochEnd, "during");
         _;
     }
 
     modifier duringEpoch() {
         Epoch storage epoch = epochs[epochId.current()];
-        require(block.timestamp >= epoch.epochStart && block.timestamp < epoch.epochEnd, "!during");
+        require(uint80(block.timestamp) >= epoch.epochStart && uint80(block.timestamp) < epoch.epochEnd, "!during");
         _;
     }
 
@@ -119,10 +119,10 @@ contract VaultV1 is ERC4626, Ownable {
      * @param   _epochStart   Start timestamp of the epoch in unix epoch seconds
      * @param   _epochEnd     End timestamp of the epoch in unix epoch seconds
      */
-    function startEpoch(uint256 _fundingStart, uint256 _epochStart, uint256 _epochEnd) external onlyOwner notDuringEpoch {
+    function startEpoch(uint80 _fundingStart, uint80 _epochStart, uint80 _epochEnd) external onlyOwner notDuringEpoch {
         require(!started || !custodied, "!allowed");
         require(
-            _epochEnd > _epochStart && _epochStart >= _fundingStart + MIN_FUNDING_DURATION && _fundingStart >= block.timestamp,
+            _epochEnd > _epochStart && _epochStart >= _fundingStart + MIN_FUNDING_DURATION && _fundingStart >= uint80(block.timestamp),
             "!timing"
         );
         require(_epochEnd <= _epochStart + MAX_EPOCH_DURATION, "!epochLen");
@@ -180,7 +180,7 @@ contract VaultV1 is ERC4626, Ownable {
 
         uint256 currentEpoch = getCurrentEpoch();
         Epoch storage epoch = epochs[currentEpoch];
-        epoch.epochEnd = block.timestamp;
+        epoch.epochEnd = uint80(block.timestamp);
 
         custodiedAmount = 0;
         custodied = false;
@@ -214,7 +214,7 @@ contract VaultV1 is ERC4626, Ownable {
      */
     function isFunding() external view returns (bool) {
         Epoch storage epoch = epochs[epochId.current()];
-        return block.timestamp >= epoch.fundingStart && block.timestamp < epoch.epochStart;
+        return uint80(block.timestamp) >= epoch.fundingStart && uint80(block.timestamp) < epoch.epochStart;
     }
 
     /**
@@ -223,7 +223,7 @@ contract VaultV1 is ERC4626, Ownable {
      */
     function isInEpoch() external view returns (bool) {
         Epoch storage epoch = epochs[epochId.current()];
-        return block.timestamp >= epoch.epochStart && block.timestamp < epoch.epochEnd;
+        return uint80(block.timestamp) >= epoch.epochStart && uint80(block.timestamp) < epoch.epochEnd;
     }
 
     /**
@@ -232,7 +232,7 @@ contract VaultV1 is ERC4626, Ownable {
      */
     function notCustodiedAndDuringFunding() public view returns (bool) {
         Epoch storage epoch = epochs[epochId.current()];
-        return (!custodied && (block.timestamp >= epoch.fundingStart && block.timestamp < epoch.epochStart));
+        return (!custodied && (uint80(block.timestamp) >= epoch.fundingStart && uint80(block.timestamp) < epoch.epochStart));
     }
 
     /**
@@ -241,7 +241,7 @@ contract VaultV1 is ERC4626, Ownable {
      */
     function notCustodiedAndNotDuringEpoch() public view returns (bool) {
         Epoch storage epoch = epochs[epochId.current()];
-        return (!custodied && (block.timestamp < epoch.epochStart || block.timestamp >= epoch.epochEnd));
+        return (!custodied && (uint80(block.timestamp) < epoch.epochStart || uint80(block.timestamp) >= epoch.epochEnd));
     }
 
     // ----- Overrides -----

@@ -60,11 +60,11 @@ TODO: Review, decide, implement
 
 12. Malicious user can DoS deposits of other users
 
-TODO
+Acknowledged. The protocol has elected not to add per-user deposit limits or other such features.
 
 13. maxDeposits can be circumvented
 
-TODO
+Acknowledged. Maximum deposit limits are for risk management purposes, not accounting. Should such a deposit-based bypass take place it would not be critical.
 
 14. Reliance on underlying validations
 
@@ -76,8 +76,6 @@ Acknowledged. A bespoke frontend monitoring tool has been developed to provide a
 
 16. Typographical issues
 
-TODO
-
-Implemented the recommended changes.
+Implemented the suggested change.
 
 ## Base/TraderV0
