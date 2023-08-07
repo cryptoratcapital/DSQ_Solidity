@@ -68,7 +68,7 @@ Acknowledged. Maximum deposit limits are for risk management purposes, not accou
 
 14. Reliance on underlying validations
 
-TODO
+This is a global recommendation, not related to VaultV1. Acknowledged. Post-deploy scripts will be developed.
 
 15. Frontend phishing risk
 
