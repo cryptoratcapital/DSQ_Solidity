@@ -19,6 +19,9 @@ abstract contract TraderV0_Cutter is DiamondWritableInternal, ERC165Base {
      * @param   _traderV0Params     Initialization parameters
      */
     function cut_TraderV0(address _traderFacet, TraderV0InitializerParams memory _traderV0Params) internal {
+        // solhint-disable-next-line reason-string
+        require(_traderFacet != address(0), "TraderV0_Cutter: _traderFacet must not be 0 address");
+
         uint256 selectorIndex;
         // Register TraderV0
         bytes4[] memory traderSelectors = new bytes4[](20);

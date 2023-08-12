@@ -35,8 +35,6 @@ Implementation (aka. "facet") contracts are intended for delegate call only. The
 
 7. Lack of validation for `_facet`
 
-TODO: Implement
-
 Implemented the suggested change.
 
 8. tx.origin usage by projects

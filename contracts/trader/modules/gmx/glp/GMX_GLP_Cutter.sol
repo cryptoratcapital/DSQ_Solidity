@@ -18,6 +18,9 @@ abstract contract GMX_GLP_Cutter is DiamondWritableInternal, ERC165Base {
      * @param   _facet  GMX_GLP_Module address
      */
     function cut_GMX_GLP(address _facet) internal {
+        // solhint-disable-next-line reason-string
+        require(_facet != address(0), "GMX_GLP_Cutter: _facet cannot be 0 address");
+
         uint256 selectorIndex;
         // Register
         bytes4[] memory selectors = new bytes4[](7);

@@ -18,6 +18,9 @@ abstract contract Camelot_V3_Cutter is DiamondWritableInternal, ERC165Base {
      * @param   _facet  Camelot_V3_Module address
      */
     function cut_Camelot_V3(address _facet) internal {
+        // solhint-disable-next-line reason-string
+        require(_facet != address(0), "Camelot_V3_Cutter: _facet cannot be 0 address");
+
         uint256 selectorIndex;
         // Register
         bytes4[] memory selectors = new bytes4[](8);
