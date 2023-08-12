@@ -108,6 +108,7 @@ contract TraderV0 is ITraderV0, AccessControl, ReentrancyGuard, DSQ_Common_Roles
      */
     function custodyFunds() external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         TraderV0Storage storage s = getTraderV0Storage();
+        require(s.totalFees == 0, "!fees");
         s.custodyTime = block.timestamp;
         s.custodiedAmount = s.vault.custodyFunds();
     }

@@ -93,7 +93,9 @@ Implemented the recommended change.
 
 20. Fees might flow into profit
 
-TODO: Review if there's an easy fix, if not acknowledge
+TODO: Revisit this to make sure there are no DOS paths (potential issue with mistaken/partial withdraw + fee miscalculation leading to DOS and locked funds)
+
+Implemented the recommended change to block custody unless fees have been withdrawn.
 
 21. Lack of validation
 
