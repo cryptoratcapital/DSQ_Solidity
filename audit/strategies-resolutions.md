@@ -99,9 +99,7 @@ Implemented the recommended change to block custody unless fees have been withdr
 
 21. Lack of validation
 
-TODO
-
-Implemented the recommended change.
+Implemented the recommended change to validate the fee receiver. The recommendation to validate the maximum fee vs. a hardcoded limit was not implemented, as the fee structure may vary between strategy mandates. Post-deployment validation will be developed to ensure that the maximums are appropriately set.
 
 22. Typographical issue
 

@@ -178,6 +178,7 @@ contract TraderV0 is ITraderV0, AccessControl, DSQ_Common_Roles, DSQ_Trader_Stor
      * @param   _feeReceiver   Address which will receive fees from the contract
      */
     function setFeeReceiver(address _feeReceiver) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_feeReceiver != address(0), "!zeroAddress");
         TraderV0Storage storage s = getTraderV0Storage();
         emit FeeReceiverSet(s.feeReceiver, _feeReceiver);
         s.feeReceiver = _feeReceiver;
