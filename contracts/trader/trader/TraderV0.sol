@@ -2,7 +2,6 @@
 pragma solidity ^0.8.13;
 
 import "@solidstate/contracts/access/access_control/AccessControl.sol";
-import "@solidstate/contracts/utils/ReentrancyGuard.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -19,7 +18,7 @@ import "./ITraderV0.sol";
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole
  */
-contract TraderV0 is ITraderV0, AccessControl, ReentrancyGuard, DSQ_Common_Roles, DSQ_Trader_Storage {
+contract TraderV0 is ITraderV0, AccessControl, DSQ_Common_Roles, DSQ_Trader_Storage {
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.AddressSet;
 

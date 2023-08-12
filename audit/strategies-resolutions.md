@@ -105,8 +105,6 @@ Implemented the recommended change.
 
 22. Typographical issue
 
-TODO
-
 Implemented the recommended change.
 
 23. `getAllowedTokens` and `getAllowedSpenders` can run out of gas
