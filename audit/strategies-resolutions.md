@@ -89,8 +89,6 @@ Acknowledged.
 19. High `managementFeeRate`/long custody time can DoS the return of
     funds
 
-TODO
-
 Implemented the recommended change.
 
 20. Fees might flow into profit

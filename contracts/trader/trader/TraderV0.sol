@@ -127,6 +127,12 @@ contract TraderV0 is ITraderV0, AccessControl, ReentrancyGuard, DSQ_Common_Roles
             365 days /
             FEE_DENOMINATOR;
 
+        // If fees exceed balance, take no fees
+        if (performanceFee + managementFee > balance) {
+            performanceFee = 0;
+            managementFee = 0;
+        }
+
         s.totalFees = s.totalFees + performanceFee + managementFee;
         s.custodiedAmount = 0;
         s.custodyTime = 0;

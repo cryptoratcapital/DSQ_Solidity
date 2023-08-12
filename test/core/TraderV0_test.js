@@ -61,7 +61,7 @@ async function deployStrategy() {
   return { strategyDiamond, vault, test20, USDC, WNATIVE };
 }
 
-describe("TraderV0", function () {
+describe.only("TraderV0", function () {
   describe("Core", function () {
     beforeEach(async function () {
       const { strategyDiamond, vault, test20, USDC, WNATIVE } = await loadFixture(deployStrategy);
@@ -289,6 +289,53 @@ describe("TraderV0", function () {
         .withArgs(1000e6, 500e6, PERFORMANCE_FEE, MANAGEMENT_FEE);
       expect(await USDC.balanceOf(vault.address)).to.eq(500e6 - PERFORMANCE_FEE - MANAGEMENT_FEE);
       expect(await USDC.balanceOf(strategyDiamond.address)).to.eq(PERFORMANCE_FEE.add(MANAGEMENT_FEE));
+    });
+
+    it("Should take NO fees if the fees are higher than the balance", async function () {
+      let index = ethers.utils.solidityKeccak256(
+        ["uint256", "uint256"],
+        [citizen1.address, USDC_SLOT], // key, slot
+      );
+      await setStorageAt(addresses.USDC, index, toBytes32(ethers.utils.parseUnits("1000", 6)));
+
+      await USDC.connect(citizen1).approve(vault.address, 1e9);
+
+      const blockNumBefore = await ethers.provider.getBlockNumber();
+      const blockBefore = await ethers.provider.getBlock(blockNumBefore);
+      const timestampBefore = blockBefore.timestamp;
+      fundingStart = timestampBefore + 10;
+      epochStart = fundingStart + 3 * 24 * 3600;
+      epochEnd = epochStart + 7 * 24 * 3600;
+
+      await network.provider.send("evm_setNextBlockTimestamp", [fundingStart - 1]);
+
+      await vault.connect(devWallet).startEpoch(fundingStart, epochStart, epochEnd);
+      await vault.connect(citizen1).deposit(1e9, citizen1.address);
+
+      await network.provider.send("evm_increaseTime", [7 * 24 * 3600]);
+      await network.provider.send("evm_mine");
+
+      await strategyDiamond.connect(devWallet).custodyFunds();
+
+      // Trade very unsucessfully, to less than the fees :cry:
+
+      const PERFORMANCE_FEE = ethers.utils.parseUnits("0", 6);
+      const MANAGEMENT_FEE = ethers.utils
+        .parseUnits("1000", 6)
+        .mul(initialManagementFee)
+        .mul(DAY_ONE * 7)
+        .div(YEAR_ONE)
+        .div(FEE_DENOMINATOR);
+
+      await setTokenBalance(addresses.USDC, USDC_SLOT, strategyDiamond.address, PERFORMANCE_FEE.add(MANAGEMENT_FEE).sub(1));
+
+      await network.provider.send("evm_increaseTime", [7 * 24 * 3600 - 1]);
+
+      await expect(strategyDiamond.connect(devWallet).returnFunds())
+        .to.emit(strategyDiamond, "FundsReturned")
+        .withArgs(1000e6, PERFORMANCE_FEE.add(MANAGEMENT_FEE).sub(1), 0, 0);
+      expect(await USDC.balanceOf(vault.address)).to.eq(PERFORMANCE_FEE.add(MANAGEMENT_FEE).sub(1));
+      expect(await USDC.balanceOf(strategyDiamond.address)).to.eq(0);
     });
 
     it("Should withdraw fees", async function () {
