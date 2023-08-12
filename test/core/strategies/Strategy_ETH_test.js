@@ -49,13 +49,13 @@ if (forkConfig !== undefined) {
     addresses.GMX_POSITIONROUTER,
     addresses.GMX_ORDERBOOK,
     addresses.CAMELOT_ROUTER,
+    addresses.CAMELOT_POSITION_MANAGER,
+    addresses.CAMELOT_ODOS_ROUTER,
     addresses.AAVE_POOL,
     addresses.GMX_GLP_MANAGER,
     addresses.INCH_AGGREGATION_ROUTER,
     addresses.LYRA_LIQUIDITY_POOL_WETH,
     addresses.LYRA_WETH_OPTION_MARKET,
-    addresses.RYSK_LIQUIDITY_POOL,
-    addresses.RYSK_ALPHA_OPTION_HANDLER,
     addresses.TRADERJOE_LBROUTER,
     addresses.TRADERJOE_LEGACY_LBROUTER,
   ];
@@ -101,6 +101,9 @@ async function deployStrategy() {
   CamelotSwapFacet = await ethers.getContractFactory("Camelot_Swap_Module");
   camelotSwapFacet = await CamelotSwapFacet.deploy(addresses.CAMELOT_ROUTER);
 
+  CamelotV3Facet = await ethers.getContractFactory("Camelot_V3_Module");
+  camelotV3Facet = await CamelotV3Facet.deploy(addresses.CAMELOT_POSITION_MANAGER, addresses.CAMELOT_ODOS_ROUTER);
+
   CamelotStorageFacet = await ethers.getContractFactory("Camelot_Storage_Module");
   camelotStorageFacet = await CamelotStorageFacet.deploy(addresses.CAMELOT_NFTPOOL_FACTORY);
 
@@ -112,12 +115,6 @@ async function deployStrategy() {
 
   LyraOptionsFacet = await ethers.getContractFactory("Lyra_Options_Module");
   lyraOptionsFacet = await LyraOptionsFacet.deploy();
-
-  RyskLPFacet = await ethers.getContractFactory("Rysk_LP_Module");
-  ryskLPFacet = await RyskLPFacet.deploy(addresses.RYSK_LIQUIDITY_POOL);
-
-  RyskOptionsFacet = await ethers.getContractFactory("Rysk_Options_Module");
-  ryskOptionsFacet = await RyskOptionsFacet.deploy(addresses.RYSK_ALPHA_OPTION_HANDLER);
 
   AaveLendingFacet = await ethers.getContractFactory("Aave_Lending_Module");
   aaveLendingFacet = await AaveLendingFacet.deploy(addresses.AAVE_POOL);
@@ -147,12 +144,11 @@ async function deployStrategy() {
     camelotNFTPoolFacet.address,
     camelotNitroPoolFacet.address,
     camelotSwapFacet.address,
+    camelotV3Facet.address,
     camelotStorageFacet.address,
     lyraStorageFacet.address,
     lyraLPFacet.address,
     lyraOptionsFacet.address,
-    ryskLPFacet.address,
-    ryskOptionsFacet.address,
     aaveLendingFacet.address,
     traderJoeSwapFacet.address,
     traderJoeLegacyLPFacet.address,
@@ -209,7 +205,7 @@ async function deployStrategy() {
   };
 }
 
-describe("ETH++ Strategy", function () {
+describe.only("ETH++ Strategy", function () {
   before(async function () {
     if (await forkOrSkip(forkConfig)) this.skip();
   });
@@ -222,7 +218,7 @@ describe("ETH++ Strategy", function () {
     it("Should link the expected facet addresses", async function () {
       let expectedFacets = [strategy.address, traderFacet.address];
       expectedFacets = expectedFacets.concat(facets);
-      expect(expectedFacets.length).to.eq(22);
+      expect(expectedFacets.length).to.eq(21);
       expect(await strategy.facetAddresses()).to.deep.eq(expectedFacets);
     });
 
@@ -279,6 +275,9 @@ describe("ETH++ Strategy", function () {
 
       selectors = ["0x2863d91c", "0xf1c0f63e"];
       expect(await strategy.facetFunctionSelectors(camelotStorageFacet.address)).to.deep.eq(selectors);
+
+      selectors = ["0x9b7c1910", "0x4341f600", "0x73d57d9c", "0x2100c0b6", "0x1e9e1c45", "0xf846f74b"];
+      expect(await strategy.facetFunctionSelectors(camelotV3Facet.address)).to.deep.eq(selectors);
     });
 
     it("Aave: Should correctly assign selectors to their facet", async function () {
@@ -295,14 +294,6 @@ describe("ETH++ Strategy", function () {
 
       selectors = ["0x58fef3cf", "0x10e3cae8", "0xd83610c0"];
       expect(await strategy.facetFunctionSelectors(lyraStorageFacet.address)).to.deep.eq(selectors);
-    });
-
-    it("Rysk: Should correctly assign selectors to their facet", async function () {
-      let selectors = ["0x329eda77", "0x89c8e6b1", "0x4c72302a", "0xf6a79a62"];
-      expect(await strategy.facetFunctionSelectors(ryskLPFacet.address)).to.deep.eq(selectors);
-
-      selectors = ["0x512d6e04", "0xce3eeb88", "0xe1ca3b0a"];
-      expect(await strategy.facetFunctionSelectors(ryskOptionsFacet.address)).to.deep.eq(selectors);
     });
 
     it("Trader Joe: Should correctly assign selectors to their facet", async function () {

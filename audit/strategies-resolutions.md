@@ -113,15 +113,13 @@ Acknowledged. Considering a case where multiple protocols are integrated, each p
 
 24. Camelot V3 is not cut
 
-TODO
-
 Implemented the recommended change.
 
 25. Rysk module is implemented
 
-TODO
+TODO: Selector tests started failing unexpectedly, resolve
 
-Implemented the recommended change. While this strategy is intended to provide investment into Rysk, the module is not available for audit due to anticipated Rysk protocol upgrades. It has been removed to prevent accidental inclusion into a production environment.
+Implemented the recommended change. While this strategy is ultimately intended to provide investment into Rysk, the module is not production ready nor available for audit due to anticipated Rysk protocol upgrades. It has been removed from the strategy to prevent accidental inclusion into a production environment.
 
 26. Lack of validation for `_admin`
 

@@ -12,12 +12,11 @@ import "../modules/camelot/lp/Camelot_LP_Cutter.sol";
 import "../modules/camelot/nftpool/Camelot_NFTPool_Cutter.sol";
 import "../modules/camelot/nitropool/Camelot_NitroPool_Cutter.sol";
 import "../modules/camelot/swap/Camelot_Swap_Cutter.sol";
+import "../modules/camelot/v3/Camelot_V3_Cutter.sol";
 import "../modules/camelot/storage/Camelot_Storage_Cutter.sol";
 import "../modules/lyra/storage/Lyra_Storage_Cutter.sol";
 import "../modules/lyra/lp/Lyra_LP_Cutter.sol";
 import "../modules/lyra/options/Lyra_Options_Cutter.sol";
-import "../modules/rysk/lp/Rysk_LP_Cutter.sol";
-import "../modules/rysk/options/Rysk_Options_Cutter.sol";
 import "../modules/aave/Aave_Lending_Cutter.sol";
 import "../modules/traderjoe/swap/TraderJoe_Swap_Cutter.sol";
 import "../modules/traderjoe/legacy_lp/TraderJoe_Legacy_LP_Cutter.sol";
@@ -40,9 +39,6 @@ import "../modules/inch/limitorder/Inch_LimitOrder_Cutter.sol";
  *              - Swap
  *              - LP
  *          - Lyra
- *              - Options
- *              - LP
- *          - Rysk
  *              - Options
  *              - LP
  *          - Aave
@@ -70,12 +66,11 @@ contract Strategy_ETH is
     Camelot_NFTPool_Cutter,
     Camelot_NitroPool_Cutter,
     Camelot_Swap_Cutter,
+    Camelot_V3_Cutter,
     Camelot_Storage_Cutter,
     Lyra_Storage_Cutter,
     Lyra_LP_Cutter,
     Lyra_Options_Cutter,
-    Rysk_LP_Cutter,
-    Rysk_Options_Cutter,
     Aave_Lending_Cutter,
     TraderJoe_Swap_Cutter,
     TraderJoe_Legacy_LP_Cutter,
@@ -100,17 +95,16 @@ contract Strategy_ETH is
         cut_Camelot_NFTPool(_facets[5]);
         cut_Camelot_NitroPool(_facets[6]);
         cut_Camelot_Swap(_facets[7]);
-        cut_Camelot_Storage(_facets[8]);
-        cut_Lyra_Storage(_facets[9]);
-        cut_Lyra_LP(_facets[10]);
-        cut_Lyra_Options(_facets[11]);
-        cut_Rysk_LP(_facets[12]);
-        cut_Rysk_Options(_facets[13]);
-        cut_Aave_Lending(_facets[14]);
-        cut_TraderJoe_Swap(_facets[15]);
-        cut_TraderJoe_Legacy_LP(_facets[16]);
-        cut_TraderJoe_LP(_facets[17]);
-        cut_Inch_Swap(_facets[18]);
-        cut_Inch_LimitOrder(_facets[19], _assets, _oracles);
+        cut_Camelot_V3(_facets[8]);
+        cut_Camelot_Storage(_facets[9]);
+        cut_Lyra_Storage(_facets[10]);
+        cut_Lyra_LP(_facets[11]);
+        cut_Lyra_Options(_facets[12]);
+        cut_Aave_Lending(_facets[13]);
+        cut_TraderJoe_Swap(_facets[14]);
+        cut_TraderJoe_Legacy_LP(_facets[15]);
+        cut_TraderJoe_LP(_facets[16]);
+        cut_Inch_Swap(_facets[17]);
+        cut_Inch_LimitOrder(_facets[18], _assets, _oracles);
     }
 }

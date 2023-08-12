@@ -61,7 +61,7 @@ async function deployStrategy() {
   return { strategyDiamond, vault, test20, USDC, WNATIVE };
 }
 
-describe.only("TraderV0", function () {
+describe("TraderV0", function () {
   describe("Core", function () {
     beforeEach(async function () {
       const { strategyDiamond, vault, test20, USDC, WNATIVE } = await loadFixture(deployStrategy);
