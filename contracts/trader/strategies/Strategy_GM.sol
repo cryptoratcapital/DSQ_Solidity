@@ -2,7 +2,6 @@
 pragma solidity ^0.8.13;
 
 import "../diamonds/StrategyDiamond.sol";
-import "../trader/ITraderV0.sol";
 import "../trader/TraderV0_Cutter.sol";
 import "../modules/gmx/swap/GMX_Swap_Cutter.sol";
 import "../modules/gmx/position/GMX_PositionRouter_Cutter.sol";

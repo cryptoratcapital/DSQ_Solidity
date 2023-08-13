@@ -129,7 +129,7 @@ Acknowledged. The `DEFAULT_ADMIN_ROLE` is only to be granted to a multisignature
 
 27. Camelot V3 is not cut
 
-TODO
+TODO: Escalate - V3 has LP functions, this strategy does not have Camelot LP in its mandates. Will have to change the module or the mandate.
 
 Implemented the recommended change.
 
@@ -149,13 +149,9 @@ Implemented the recommended changes.
 
 31. Lack of validation for `_admin`
 
-TODO: check zero address
-
-Acknowledged. The `DEFAULT_ADMIN_ROLE` is only to be granted to a multisignature wallet.
+Acknowledged. The `DEFAULT_ADMIN_ROLE` is only to be granted to a multisignature wallet. Zero address validation for `_admin` has also been added to the `StrategyDiamond.sol` contract.
 
 32. Typgraphical issues
-
-TODO
 
 Implemented the recommended changes.
 
