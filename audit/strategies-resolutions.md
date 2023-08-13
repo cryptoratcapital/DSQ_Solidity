@@ -135,15 +135,11 @@ Implemented the recommended change.
 
 28. Rysk module is implemented
 
-TODO
-
 Implemented the recommended change. While this strategy is intended to provide investment into Rysk, the module is not available for audit due to anticipated Rysk protocol upgrades. It has been removed to prevent accidental inclusion into a production environment.
 
 29. Lack of validation for `_admin`
 
-TODO: check zero address
-
-Acknowledged. The `DEFAULT_ADMIN_ROLE` is only to be granted to a multisignature wallet.
+Acknowledged. The `DEFAULT_ADMIN_ROLE` is only to be granted to a multisignature wallet. Zero address validation for `_admin` has also been added to the `StrategyDiamond.sol` contract.
 
 30. Typgraphical issues
 

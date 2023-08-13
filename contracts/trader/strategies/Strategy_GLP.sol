@@ -11,7 +11,6 @@ import "../modules/camelot/swap/Camelot_Swap_Cutter.sol";
 import "../modules/lyra/storage/Lyra_Storage_Cutter.sol";
 import "../modules/lyra/lp/Lyra_LP_Cutter.sol";
 import "../modules/lyra/options/Lyra_Options_Cutter.sol";
-import "../modules/rysk/options/Rysk_Options_Cutter.sol";
 import "../modules/aave/Aave_Lending_Cutter.sol";
 import "../modules/traderjoe/swap/TraderJoe_Swap_Cutter.sol";
 import "../modules/traderjoe/legacy_lp/TraderJoe_Legacy_LP_Cutter.sol";
@@ -35,8 +34,6 @@ import "../modules/inch/limitorder/Inch_LimitOrder_Cutter.sol";
  *          - Lyra
  *              - Options
  *              - LP
- *          - Rysk
- *              - Options
  *          - Aave
  *              - Lending and borrowing
  *          - TraderJoe
@@ -62,7 +59,6 @@ contract Strategy_GLP is
     Lyra_Storage_Cutter,
     Lyra_LP_Cutter,
     Lyra_Options_Cutter,
-    Rysk_Options_Cutter,
     Aave_Lending_Cutter,
     TraderJoe_Swap_Cutter,
     TraderJoe_Legacy_LP_Cutter,
@@ -87,12 +83,11 @@ contract Strategy_GLP is
         cut_Lyra_Storage(_facets[5]);
         cut_Lyra_LP(_facets[6]);
         cut_Lyra_Options(_facets[7]);
-        cut_Rysk_Options(_facets[8]);
-        cut_Aave_Lending(_facets[9]);
-        cut_TraderJoe_Swap(_facets[10]);
-        cut_TraderJoe_Legacy_LP(_facets[11]);
-        cut_TraderJoe_LP(_facets[12]);
-        cut_Inch_Swap(_facets[13]);
-        cut_Inch_LimitOrder(_facets[14], _assets, _oracles);
+        cut_Aave_Lending(_facets[8]);
+        cut_TraderJoe_Swap(_facets[9]);
+        cut_TraderJoe_Legacy_LP(_facets[10]);
+        cut_TraderJoe_LP(_facets[11]);
+        cut_Inch_Swap(_facets[12]);
+        cut_Inch_LimitOrder(_facets[13], _assets, _oracles);
     }
 }
