@@ -76,18 +76,18 @@ abstract contract Aave_Lending_Base is AccessControl, ReentrancyGuard, DSQ_Commo
      * @param   amount              Amount of asset to borrow
      * @param   interestRateMode    Interest rate mode
      * @param   referralCode        Aave referral code
-     * @param   to                  Recipient of borrow
+     * @param   onBehalfOf          Recipient of borrow
      */
     function aave_borrow(
         address asset,
         uint256 amount,
         uint256 interestRateMode,
         uint16 referralCode,
-        address to
+        address onBehalfOf
     ) external onlyRole(EXECUTOR_ROLE) nonReentrant {
-        inputGuard_aave_borrow(asset, amount, interestRateMode, referralCode, to);
+        inputGuard_aave_borrow(asset, amount, interestRateMode, referralCode, onBehalfOf);
 
-        aave_pool.borrow(asset, amount, interestRateMode, referralCode, to);
+        aave_pool.borrow(asset, amount, interestRateMode, referralCode, onBehalfOf);
     }
 
     /**
@@ -95,12 +95,17 @@ abstract contract Aave_Lending_Base is AccessControl, ReentrancyGuard, DSQ_Commo
      * @param   asset               Address of asset to repay
      * @param   amount              Amount of asset to repay
      * @param   interestRateMode    Interest rate mode
-     * @param   to                  Repayment recipient
+     * @param   onBehalfOf          Repayment recipient
      */
-    function aave_repay(address asset, uint256 amount, uint256 interestRateMode, address to) external onlyRole(EXECUTOR_ROLE) nonReentrant {
-        inputGuard_aave_repay(asset, amount, interestRateMode, to);
+    function aave_repay(
+        address asset,
+        uint256 amount,
+        uint256 interestRateMode,
+        address onBehalfOf
+    ) external onlyRole(EXECUTOR_ROLE) nonReentrant {
+        inputGuard_aave_repay(asset, amount, interestRateMode, onBehalfOf);
 
-        aave_pool.repay(asset, amount, interestRateMode, to);
+        aave_pool.repay(asset, amount, interestRateMode, onBehalfOf);
     }
 
     /**

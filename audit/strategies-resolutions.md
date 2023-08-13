@@ -211,8 +211,6 @@ Acknowledged.
 
 42. Typographical issue
 
-TODO
-
 Implemented the recommended changes.
 
 ## Camelot_LP_Module
