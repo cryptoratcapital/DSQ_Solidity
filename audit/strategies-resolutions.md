@@ -197,8 +197,6 @@ Implemented the recommended changes.
 
 37. `EXECUTOR_ROLE` can be set during contract deployment
 
-TODO
-
 Implemented the recommended changes.
 
 38. `IAccessControl` interface is not supported
