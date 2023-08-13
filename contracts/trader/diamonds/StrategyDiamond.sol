@@ -20,6 +20,8 @@ abstract contract StrategyDiamond is DiamondBase, DiamondFallback, DiamondReadab
     bytes32 internal constant DEFAULT_ADMIN_ROLE = 0x00; // Declared because it is not visible in AccessControl library
 
     constructor(address _admin) {
+        require(_admin != address(0), "StrategyDiamond: Zero address");
+
         bytes4[] memory selectors = new bytes4[](7);
         uint256 selectorIndex;
 

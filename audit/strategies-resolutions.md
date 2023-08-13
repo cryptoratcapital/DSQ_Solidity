@@ -123,9 +123,7 @@ Implemented the recommended change. While this strategy is ultimately intended t
 
 26. Lack of validation for `_admin`
 
-TODO: check zero address
-
-Acknowledged. The `DEFAULT_ADMIN_ROLE` is only to be granted to a multisignature wallet.
+Acknowledged. The `DEFAULT_ADMIN_ROLE` is only to be granted to a multisignature wallet. Zero address validation for `_admin` has also been added to the `StrategyDiamond.sol` contract.
 
 ## Strategies/StrategyGLP
 
