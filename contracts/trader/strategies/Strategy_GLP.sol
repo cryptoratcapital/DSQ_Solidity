@@ -2,17 +2,12 @@
 pragma solidity ^0.8.13;
 
 import "../diamonds/StrategyDiamond.sol";
-import "../trader/ITraderV0.sol";
 import "../trader/TraderV0_Cutter.sol";
 import "../modules/gmx/swap/GMX_Swap_Cutter.sol";
 import "../modules/gmx/position/GMX_PositionRouter_Cutter.sol";
 import "../modules/gmx/orderbook/GMX_OrderBook_Cutter.sol";
 import "../modules/gmx/glp/GMX_GLP_Cutter.sol";
-import "../modules/camelot/lp/Camelot_LP_Cutter.sol";
-import "../modules/camelot/nftpool/Camelot_NFTPool_Cutter.sol";
-import "../modules/camelot/nitropool/Camelot_NitroPool_Cutter.sol";
 import "../modules/camelot/swap/Camelot_Swap_Cutter.sol";
-import "../modules/camelot/storage/Camelot_Storage_Cutter.sol";
 import "../modules/lyra/storage/Lyra_Storage_Cutter.sol";
 import "../modules/lyra/lp/Lyra_LP_Cutter.sol";
 import "../modules/lyra/options/Lyra_Options_Cutter.sol";

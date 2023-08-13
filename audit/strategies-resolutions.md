@@ -147,8 +147,6 @@ Acknowledged. The `DEFAULT_ADMIN_ROLE` is only to be granted to a multisignature
 
 30. Typgraphical issues
 
-TODO
-
 Implemented the recommended changes.
 
 ## Strategies/StrategyGM
@@ -167,7 +165,7 @@ Implemented the recommended changes.
 
 ## Strategies/StrategyARB
 
-While the issue is not numbered, the report references that the issues from `StrategyETH` are all valid here. Each issue listed therein has been mitigated in the same manner for this contract.
+While the issue is not numbered, the report references that the issues from `StrategyETH` are all valid here. Each issue listed therein has been mitigated in the same manner for this contract. TODO
 
 ## Solidstate/DiamondReadable
 
@@ -185,7 +183,7 @@ TODO: Review
 
 35. `DiamondFallback` cannot be set or used
 
-TODO
+TODO: Review fallback logic
 
 Implemented the recommendation to remove the fallback functionality.
 
