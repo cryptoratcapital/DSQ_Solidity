@@ -191,7 +191,7 @@ Implemented the recommendation to remove the fallback functionality.
 
 36. Missing function selectors
 
-TODO
+TODO: Review fallback logic more fully
 
 Implemented the recommended changes.
 
@@ -200,8 +200,6 @@ Implemented the recommended changes.
 Implemented the recommended changes.
 
 38. `IAccessControl` interface is not supported
-
-TODO
 
 Implemented the recommended changes.
 

@@ -55,6 +55,16 @@ abstract contract StrategyDiamond is
 
         _setSupportsInterface(type(IERC165).interfaceId, true);
 
+        // register AccessControl
+
+        selectors[selectorIndex++] = IAccessControl.hasRole.selector;
+        selectors[selectorIndex++] = IAccessControl.getRoleAdmin.selector;
+        selectors[selectorIndex++] = IAccessControl.grantRole.selector;
+        selectors[selectorIndex++] = IAccessControl.revokeRole.selector;
+        selectors[selectorIndex++] = IAccessControl.renounceRole.selector;
+
+        _setSupportsInterface(type(IAccessControl).interfaceId, true);
+
         // diamond cut
 
         FacetCut[] memory facetCuts = new FacetCut[](1);
