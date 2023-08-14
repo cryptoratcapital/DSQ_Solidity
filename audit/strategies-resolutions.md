@@ -400,8 +400,6 @@ Acknowledged.
 
 75. Unused IERC20 import
 
-TODO
-
 Implemented the recommended changes.
 
 76. Referrer can be an arbitrary address
