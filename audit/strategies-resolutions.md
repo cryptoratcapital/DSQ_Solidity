@@ -300,11 +300,11 @@ Implemented the recommended changes.
 
 56. Underlying risk: isDepositToken can be set to false
 
-Acknowledged. The protocol confirms the need to monitor the integrated protocols for any issue on this front.
+Acknowledged. The protocol confirms the need to monitor the integrated GMX contracts for any issue on this front.
 
 57. Unnecessary `inputGuards`
 
-TODO: Review code praxis about keeping empty guards
+No change made. Leaving these unused is per the codebase style convention which mandates `Base`-type contracts always declare an empty input guard, wherever inputs are present, and `Module`-type contracts may choose to override the input guard, or not.
 
 ## GMX_OrderBook_Module
 
