@@ -296,8 +296,6 @@ Implemented the recommended changes.
 
 55. `gmx_mintAndStakeGlpETH` is payable
 
-TODO
-
 Implemented the recommended changes.
 
 56. Underlying risk: isDepositToken can be set to false
