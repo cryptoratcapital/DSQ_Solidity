@@ -323,9 +323,9 @@ TODO: Review but probably acknowledge
 
 61. Missing warning in the `init_GMX_orderBook` NatSpec
 
-TODO
+This finding is disputed. The router address and order book address are immutable in the facet. If the `init_GMX_OrderBook` function was added to the selectors (with the correct facet address), all that could be done would be to again call `approvePlugin` with the correct hardcoded parameters. No harm would thus result.
 
-Implemented the recommended changes.
+The recommendation to add a natspec warning against adding the function to selectors has been implemented anyway, for good luck.
 
 62. Necessary approvals
 

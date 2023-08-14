@@ -46,7 +46,8 @@ abstract contract GMX_OrderBook_Base is AccessControl, ReentrancyGuard, DSQ_Comm
     // solhint-enable var-name-mixedcase
 
     /**
-     * @notice Approves the GMX Order Book plugin in the GMX router
+     * @notice  Approves the GMX Order Book plugin in the GMX router
+     * @dev     This is an initialization function which should not be added to any diamond's selectors
      */
     function init_GMX_OrderBook() external {
         gmx_router.approvePlugin(address(gmx_orderBook));
