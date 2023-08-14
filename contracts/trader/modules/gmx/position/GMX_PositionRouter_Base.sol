@@ -50,6 +50,7 @@ abstract contract GMX_PositionRouter_Base is AccessControl, ReentrancyGuard, DSQ
 
     /**
      * @notice  Approves the GMX PositionRouter plugin on the GMX Router
+     * @dev     This is an initialization function which should not be added to any diamond's selectors
      */
     function init_GMX_PositionRouter() external {
         gmx_router.approvePlugin(address(gmx_positionRouter));
