@@ -6,6 +6,8 @@ import "./Lyra_LP_Base.sol";
 /**
  * @title   DSquared Lyra LP Module
  * @notice  Allows depositing and withdrawing via the Lyra LiquidityPool Contract
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

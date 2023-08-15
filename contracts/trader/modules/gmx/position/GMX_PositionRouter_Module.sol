@@ -18,6 +18,8 @@ import "../../dsq/DSQ_Trader_Storage.sol";
  * @dev     Several functions are payable to allow passing an execution fee to the Position Router.
  *          Execution fee ETH may be provided with msg.value or as a general pool in this contract's balance.
  *          This contract does not pass through msg.value or enforce a dedicated fee fund pool.
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

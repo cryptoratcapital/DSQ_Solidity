@@ -9,6 +9,8 @@ import "../../../external/camelot_interfaces/INonfungiblePositionManager.sol";
  * @title   DSquared Camelot V3 Module
  * @notice  Allows adding and removing liquidity via the NonfungiblePositionManager contract
  * @notice  Allows swapping via the OdosRouter contract
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

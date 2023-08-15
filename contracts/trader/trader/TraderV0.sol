@@ -14,6 +14,8 @@ import "./ITraderV0.sol";
 /**
  * @title   DSquared Trader V0 Core
  * @notice  Interfaces with the Vault contract, handling custody, returning, and fee-taking
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

@@ -11,6 +11,8 @@ import "../../../external/lyra_interfaces/ILyraRegistry.sol";
 /**
  * @title   DSquared Lyra Storage Module
  * @notice  Manage supported Lyra markets
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

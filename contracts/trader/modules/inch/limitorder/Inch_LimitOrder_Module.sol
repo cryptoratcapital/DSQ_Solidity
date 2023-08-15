@@ -11,6 +11,8 @@ import "../../../external/inch_interfaces/IAggregationExecutor.sol";
 /**
  * @title   HessianX Inch LimitOrder Module
  * @notice  Validates inputs from Inch_LimitOrder_Base functions
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

@@ -10,6 +10,8 @@ import "../../../external/inch_interfaces/IPool.sol";
  * @title   DSquared Inch Swap Module
  * @notice  Allows adding and removing liquidity via the 1Inch AggregationRouter contract
  * @dev     "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" MUST be an allowed token in the strategy mandate
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

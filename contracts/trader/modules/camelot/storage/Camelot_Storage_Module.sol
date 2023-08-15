@@ -12,6 +12,8 @@ import "../../../external/camelot_interfaces/INFTPoolFactory.sol";
 /**
  * @title   DSquared Camelot Storage Module
  * @notice  Manage Camelot storage
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

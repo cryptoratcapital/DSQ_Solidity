@@ -8,6 +8,8 @@ import "../../../external/camelot_interfaces/INitroPoolFactory.sol";
 /**
  * @title   DSquared Camelot NitroPool Module
  * @notice  Allows integration with Camelot Nitro Pools
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

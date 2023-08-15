@@ -6,6 +6,8 @@ import "./Rysk_LP_Base.sol";
 /**
  * @title   DSquared Rysk LP Module
  * @notice  Allows depositing, redeeming and withdrawing via the Rysk LiquidityPool Contract
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

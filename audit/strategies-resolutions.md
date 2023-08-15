@@ -29,8 +29,6 @@ TODO: Review and decide
 
 6. Implementations can be directly called
 
-TODO: Implement.
-
 Implementation (aka. "facet") contracts are intended for delegate call only. The protocol has elected not to add protections preventing users from calling the contracts directly for gas efficiency reasons. Language has been added to the natspec of each implementation warning users against direct interaction.
 
 7. Lack of validation for `_facet`
