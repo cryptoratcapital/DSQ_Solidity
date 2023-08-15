@@ -43,7 +43,10 @@ abstract contract Lyra_Rewards_Base is AccessControl, ReentrancyGuard, Lyra_Comm
      */
     constructor(address _multi_distributor, address _arb_token, address _lyra_token, address _camelot_router) {
         // solhint-disable-next-line reason-string
-        require(_multi_distributor != address(0), "Lyra_Rewards_Module: Zero address");
+        require(
+            _multi_distributor != address(0) && _arb_token != address(0) && _lyra_token != address(0) && _camelot_router != address(0),
+            "Lyra_Rewards_Module: Zero address"
+        );
         multi_distributor = IMultiDistributor(_multi_distributor);
         arb_token = IERC20(_arb_token);
         lyra_token = IERC20(_lyra_token);
