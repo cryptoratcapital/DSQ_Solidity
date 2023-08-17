@@ -25,7 +25,7 @@ abstract contract Lyra_Common_Storage is DSQ_Common_Roles {
     }
 
     /// @dev    EIP-2535 Diamond Storage struct location
-    bytes32 internal constant LYRA_POSITION = keccak256("Lyra_Common.storage");
+    bytes32 internal constant LYRA_POSITION = bytes32(uint256(keccak256("Lyra_Common.storage")) - 1);
 
     /**
      * @return  storageStruct   LyraCommonStorage storage pointer

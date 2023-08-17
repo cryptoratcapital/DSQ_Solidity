@@ -15,9 +15,7 @@ Acknowledge the need to carefully validate that all reward tokens, LP tokens, et
 
 3. Potential storage collision
 
-TODO: Implement
-
-Implemented the suggested change.
+Implemented the suggested change according to the pattern of EIP-1967.
 
 4. Architectural risk for missing approvals
 
