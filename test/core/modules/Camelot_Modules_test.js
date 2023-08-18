@@ -160,12 +160,20 @@ describe("Camelot Modules", function () {
       expect(await strategyDiamond.getAllowedExecutors()).to.deep.equal([]);
     });
 
+    it("Should NOT manageExecutors with zero address", async function () {
+      await expect(strategyDiamond.manageExecutors([ethers.constants.AddressZero], [true])).to.be.revertedWith('Camelot_Storage_Module: Zero address');
+    });
+
     it("Should manageReceivers", async function () {
       expect(await strategyDiamond.getAllowedReceivers()).to.deep.equal([]);
       await strategyDiamond.manageReceivers([citizen1.address], [true]);
       expect(await strategyDiamond.getAllowedReceivers()).to.deep.equal([citizen1.address]);
       await strategyDiamond.manageReceivers([citizen1.address], [false]);
       expect(await strategyDiamond.getAllowedReceivers()).to.deep.equal([]);
+    });
+
+    it("Should NOT manageReceivers with zero address", async function () {
+      await expect(strategyDiamond.manageReceivers([ethers.constants.AddressZero], [true])).to.be.revertedWith('Camelot_Storage_Module: Zero address');
     });
   });
 

@@ -89,6 +89,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      */
     function _manageNitroPool(address _pool, bool _status) internal {
         if (_status) {
+            // @todo Add Check for nitro pool
             getCamelotCommonStorage().allowedNitroPools.add(_pool);
         } else {
             getCamelotCommonStorage().allowedNitroPools.remove(_pool);
@@ -117,6 +118,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _status       Status
      */
     function _manageExecutor(address _executor, bool _status) internal {
+        require(_executor != address(0), 'Camelot_Storage_Module: Zero address');
         if (_status) {
             getCamelotCommonStorage().allowedExecutors.add(_executor);
         } else {
@@ -146,6 +148,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _status       Status
      */
     function _manageReceiver(address _receiver, bool _status) internal {
+        require(_receiver != address(0), 'Camelot_Storage_Module: Zero address');
         if (_status) {
             getCamelotCommonStorage().allowedReceivers.add(_receiver);
         } else {
