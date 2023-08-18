@@ -25,6 +25,8 @@ Acknowledged. Post-deploy scripts will be developed.
 
 TODO: Review and decide
 
+The recommendation suggests requiring `msg.value == 0` for functions which are not intended to receive value. It seems that this is not possible, as the external (intended for delegatecall) functions in the facets which are not marked as payable cannot invoke `msg.value`. Making all functions payable and then requiring `msg.value == 0` feels hacky and gross. PoC suggests that it may not be possible to send value with a payable delegatecall function.
+
 6. Implementations can be directly called
 
 Implementation (aka. "facet") contracts are intended for delegate call only. The protocol has elected not to add protections preventing users from calling the contracts directly for gas efficiency reasons. Language has been added to the natspec of each implementation warning users against direct interaction.

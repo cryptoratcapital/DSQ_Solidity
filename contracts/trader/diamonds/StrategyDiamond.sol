@@ -30,7 +30,7 @@ abstract contract StrategyDiamond is
     constructor(address _admin) {
         require(_admin != address(0), "StrategyDiamond: Zero address");
 
-        bytes4[] memory selectors = new bytes4[](7);
+        bytes4[] memory selectors = new bytes4[](12);
         uint256 selectorIndex;
 
         // register DiamondFallback

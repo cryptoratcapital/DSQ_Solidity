@@ -293,4 +293,39 @@ describe("Aave Modules", function () {
       ).to.changeTokenBalance(USDC, strategyDiamond, 700e6);
     });
   });
+
+  describe("Payable simulation", function () {
+    beforeEach(async function () {
+      const { strategyDiamond, vault, test20, USDC, WETH, DAI, pool, aaveMath } = await loadFixture(deployStrategy);
+
+      const index = getSlot(strategyDiamond.address, USDC_SLOT);
+      const daiIndex = getSlot(strategyDiamond.address, DAI_SLOT);
+
+      await setStorageAt(USDC.address, index, toBytes32(initialUSDCBalance));
+      await setStorageAt(DAI.address, daiIndex, toBytes32(parseEther("100")));
+      await setBalance(strategyDiamond.address, initialWETHBalance);
+
+      await strategyDiamond.approve(USDC.address, pool.address, initialUSDCBalance);
+
+      reserveData = await pool.getReserveData(USDC.address);
+      aToken = await ethers.getContractAt("TestFixture_ERC20", reserveData.aTokenAddress);
+
+      timestamp = (await ethers.provider.getBlock()).timestamp;
+    });
+
+    it("Should not supply with value", async function () {
+      expect(await USDC.balanceOf(strategyDiamond.address)).to.eq(10000e6);
+
+      aave_supply_interface = new ethers.utils.Interface([
+        "function aave_supply(address asset,uint256 amount, address onBehalfOf,uint16 referralCode) payable",
+      ]);
+      const calldata = aave_supply_interface.encodeFunctionData("aave_supply", [
+        USDC.address,
+        initialUSDCBalance,
+        strategyDiamond.address,
+        0,
+      ]);
+      await devWallet.sendTransaction({ to: strategyDiamond.address, data: calldata, value: 1000 });
+    });
+  });
 });

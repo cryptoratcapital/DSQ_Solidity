@@ -205,7 +205,7 @@ async function deployStrategy() {
   };
 }
 
-describe.only("ETH++ Strategy", function () {
+describe("ETH++ Strategy", function () {
   before(async function () {
     if (await forkOrSkip(forkConfig)) this.skip();
   });
