@@ -108,14 +108,6 @@ abstract contract Inch_LimitOrder_Base is AccessControl, ReentrancyGuard, Inch_L
             takingAmount,
             skipPermitAndThresholdAmount
         );
-
-        (, int256 makerPrice, , , ) = getInchLimitOrderStorage().assetToOracle[order.makerAsset].latestRoundData();
-        (, int256 takerPrice, , , ) = getInchLimitOrderStorage().assetToOracle[order.takerAsset].latestRoundData();
-
-        uint256 makingValue = actualMakingAmount * uint256(makerPrice);
-        uint256 takingValue = actualTakingAmount * uint256(takerPrice);
-        // solhint-disable-next-line reason-string
-        require(makingValue > (takingValue.mulDiv(SLIPPAGE_PERCENTAGE, 100, Math.Rounding.Up)), "GuardError: Invalid order parameters");
     }
 
     /**

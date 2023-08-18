@@ -44,6 +44,22 @@ contract Inch_LimitOrder_Module is Inch_LimitOrder_Base, DSQ_Trader_Storage {
     ) internal view override {
         validateToken(order.makerAsset);
         validateToken(order.takerAsset);
+
+        (, int256 makerPrice, , , ) = getInchLimitOrderStorage().assetToOracle[order.makerAsset].latestRoundData();
+        (, int256 takerPrice, , , ) = getInchLimitOrderStorage().assetToOracle[order.takerAsset].latestRoundData();
+
+        uint256 makingValue = order.makingAmount * uint256(makerPrice);
+        uint256 takingValue = order.takingAmount * uint256(takerPrice);
+        uint16 makerDecimals = IERC20Decimals(order.makerAsset).decimals();
+        uint16 takerDecimals = IERC20Decimals(order.takerAsset).decimals();
+
+        if (makerDecimals > takerDecimals) {
+            takingValue = takingValue * 10 ** (makerDecimals - takerDecimals);
+        } else if (takerDecimals > makerDecimals) {
+            makingValue = makingValue * 10 ** (takerDecimals - makerDecimals);
+        }
+        // solhint-disable-next-line reason-string
+        require(takingValue > (makingValue.mulDiv(SLIPPAGE_PERCENTAGE, 100, Math.Rounding.Up)), "GuardError: Invalid order parameters");
     }
 
     /// @inheritdoc Inch_LimitOrder_Base
