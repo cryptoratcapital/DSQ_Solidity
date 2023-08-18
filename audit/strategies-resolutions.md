@@ -380,8 +380,6 @@ Acknowledged.
 
 72. Flawed token validation
 
-TODO
-
 Implemented the recommended changes.
 
 ## Lyra_LP_Module

@@ -56,7 +56,7 @@ contract Inch_Swap_Module is Inch_Swap_Base, DSQ_Trader_Storage {
         uint256[] calldata pools
     ) internal view override {
         uint len = pools.length;
-        if (len == 0) {
+        if (len == 1) {
             IPool pool = IPool(address(uint160(pools[0])));
             validateToken(pool.token0());
             validateToken(pool.token1());
