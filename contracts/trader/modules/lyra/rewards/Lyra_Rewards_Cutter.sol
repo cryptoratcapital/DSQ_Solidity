@@ -23,9 +23,10 @@ abstract contract Lyra_Rewards_Cutter is DiamondWritableInternal, ERC165Base {
 
         uint256 selectorIndex;
         // Register
-        bytes4[] memory selectors = new bytes4[](2);
+        bytes4[] memory selectors = new bytes4[](3);
 
         selectors[selectorIndex++] = ILyra_Rewards_Module.lyra_claimRewards.selector;
+        selectors[selectorIndex++] = ILyra_Rewards_Module.lyra_claimAndDump.selector;
         selectors[selectorIndex++] = ILyra_Rewards_Module.lyra_dump.selector;
 
         _setSupportsInterface(type(ILyra_Rewards_Module).interfaceId, true);

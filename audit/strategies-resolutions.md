@@ -406,17 +406,13 @@ Acknowledged.
 
 77. Hardcoded swap path might not be the most optimal/liquid one
 
-TODO
-
 Implemented the recommended changes.
 
 78. No flexibility for token claims
 
-TODO: Review
+Implemented the recommended changes.
 
 79. Lack of referrer setting
-
-TODO
 
 Implemented the recommended changes.
 

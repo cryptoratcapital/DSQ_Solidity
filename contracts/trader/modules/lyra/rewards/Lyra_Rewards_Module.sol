@@ -9,6 +9,8 @@ import "../../dsq/DSQ_Trader_Storage.sol";
  * @notice  Allows claiming rewards from Lyra MultiDistributor
  * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
  *          Calling it directly may produce unintended or undesirable results.
+ * @dev     Claiming tokens without auto-dumping may result in stuck funds.
+ *          The diamond must include another module capable of handling these tokens.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole
@@ -32,9 +34,52 @@ contract Lyra_Rewards_Module is Lyra_Rewards_Base, DSQ_Trader_Storage {
 
     // solhint-enable no-empty-blocks, var-name-mixedcase
 
-    // (address _outputToken, uint256 _arbSwapMinOut, uint256 _lyraSwapMinOut)
     /// @inheritdoc Lyra_Rewards_Base
-    function inputGuard_lyra_dump(address _outputToken, uint256, uint256) internal view override {
-        validateToken(_outputToken);
+    function inputGuard_lyra_claimRewards(IERC20[] memory tokens) internal view override {
+        for (uint256 i; i < tokens.length; ) {
+            validateToken(address(tokens[i]));
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /// @inheritdoc Lyra_Rewards_Base
+    function inputGuard_lyra_claimAndDump(IERC20[] memory _tokens, SwapInput[] memory _inputs) internal view override {
+        for (uint256 i; i < _inputs.length; ) {
+            require(_inputs[i].path.length > 0, "Lyra_Rewards_Module: Empty path");
+            // solhint-disable-next-line reason-string
+            require(_inputs[i].path[0] == address(_tokens[i]), "Lyra_Rewards_Module: Claim token does not start path");
+
+            // The first token is allowed to not be in the mandate, but all others in the path must be
+            for (uint256 j = 1; j < _inputs[i].path.length; ) {
+                validateToken(address(_inputs[i].path[j]));
+                unchecked {
+                    ++j;
+                }
+            }
+
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /// @inheritdoc Lyra_Rewards_Base
+    function inputGuard_lyra_dump(SwapInput[] memory _inputs) internal view override {
+        for (uint256 i; i < _inputs.length; ) {
+            require(_inputs[i].path.length > 0, "Lyra_Rewards_Module: Empty path");
+
+            for (uint256 j; j < _inputs[i].path.length; ) {
+                validateToken(address(_inputs[i].path[j]));
+                unchecked {
+                    ++j;
+                }
+            }
+
+            unchecked {
+                ++i;
+            }
+        }
     }
 }
