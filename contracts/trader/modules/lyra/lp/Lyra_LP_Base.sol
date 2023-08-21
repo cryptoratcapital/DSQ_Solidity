@@ -11,7 +11,7 @@ import "../../../external/lyra_interfaces/ILiquidityPool.sol";
 /**
  * @title   HessianX Lyra LP Base
  * @notice  Allows depositing and withdrawing liquidity via the Lyra LiquidityPool Contract
- * @dev     Requires USDC. Any integrating strategy must have USDC in its token mandate.
+ * @dev     All known Lyra pools require USDC. Any integrating strategy must have USDC in its token mandate.
  * @dev     The inputGuard functions are designed to be overriden by the inheriting contract.
  *          Key assumptions:
  *              1. Inheritor MUST ensure that the pools are valid
@@ -24,18 +24,6 @@ import "../../../external/lyra_interfaces/ILiquidityPool.sol";
  * @custom:developer    BowTiedOriole
  */
 abstract contract Lyra_LP_Base is AccessControl, ReentrancyGuard, Lyra_Common_Storage {
-    /// @notice USDC address
-    IERC20 public immutable usdc;
-
-    /**
-     * @notice  Sets the address of the USDC token
-     * @param   _usdc   USDC token address
-     */
-    constructor(address _usdc) {
-        require(_usdc != address(0), "Lyra_LP_Module: Zero address");
-        usdc = IERC20(_usdc);
-    }
-
     // ---------- Functions ----------
 
     /**
@@ -47,7 +35,8 @@ abstract contract Lyra_LP_Base is AccessControl, ReentrancyGuard, Lyra_Common_St
     function lyra_initiateDeposit(address pool, address beneficiary, uint256 amountQuote) external onlyRole(EXECUTOR_ROLE) nonReentrant {
         inputGuard_lyra_initiateDeposit(pool, beneficiary, amountQuote);
 
-        usdc.approve(pool, amountQuote);
+        LyraCommonStorage storage s = getLyraCommonStorage();
+        IERC20(s.lyraPoolToQuoteAsset[pool]).approve(pool, amountQuote);
         ILiquidityPool(pool).initiateDeposit(beneficiary, amountQuote);
     }
 

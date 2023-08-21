@@ -406,17 +406,25 @@ Acknowledged.
 
 77. Hardcoded swap path might not be the most optimal/liquid one
 
+TODO: Test fully
+
 Implemented the recommended changes.
 
 78. No flexibility for token claims
+
+TODO: Test fully
 
 Implemented the recommended changes.
 
 79. Lack of referrer setting
 
+TODO: Test fully
+
 Implemented the recommended changes.
 
 80. Lack of validation
+
+TODO: Test fully
 
 Implemented the recommended changes.
 
@@ -428,9 +436,9 @@ Acknowledged.
 
 82. Missing safeguards when adding Lyra components
 
-TODO
+TODO: Test fully
 
-Implemented the recommended change to verify that `quoteAsset` and `baseAsset` are in `allowedTokens`.
+Implemented the recommended change to verify that `quoteAsset` and `baseAsset` are in `allowedTokens`. Implemented the recommended change to remove USDC hardcoded address and store the quote asset of each lyra pool.
 
 ## TraderJoe_LP_Module
 

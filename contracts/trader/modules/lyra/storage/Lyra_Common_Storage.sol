@@ -22,6 +22,8 @@ abstract contract Lyra_Common_Storage is DSQ_Common_Roles {
         EnumerableSet.AddressSet allowedLyraMarkets;
         /// @notice Allowed Lyra pools
         EnumerableSet.AddressSet allowedLyraPools;
+        /// @notice Lyra pool to quote asset mapping
+        mapping(address => address) lyraPoolToQuoteAsset;
     }
 
     /// @dev    EIP-2535 Diamond Storage struct location
@@ -43,7 +45,7 @@ abstract contract Lyra_Common_Storage is DSQ_Common_Roles {
      * @param   _market Lyra market address
      */
     function validateLyraMarket(address _market) internal view {
-        require(getLyraCommonStorage().allowedLyraMarkets.contains(_market), "Invalid market");
+        require(getLyraCommonStorage().allowedLyraMarkets.contains(_market), "Lyra: Invalid market");
     }
 
     /**
@@ -51,6 +53,6 @@ abstract contract Lyra_Common_Storage is DSQ_Common_Roles {
      * @param   _pool   Lyra pool address
      */
     function validateLyraPool(address _pool) internal view {
-        require(getLyraCommonStorage().allowedLyraPools.contains(_pool), "Invalid pool");
+        require(getLyraCommonStorage().allowedLyraPools.contains(_pool), "Lyra: Invalid pool");
     }
 }

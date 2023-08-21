@@ -6,6 +6,7 @@ import "@solidstate/contracts/access/access_control/AccessControl.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
 import "./Lyra_Common_Storage.sol";
+import "../../dsq/DSQ_Trader_Storage.sol";
 import "../../../external/lyra_interfaces/ILyraRegistry.sol";
 
 /**
@@ -17,12 +18,13 @@ import "../../../external/lyra_interfaces/ILyraRegistry.sol";
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole
  */
-contract Lyra_Storage_Module is AccessControl, Lyra_Common_Storage {
+contract Lyra_Storage_Module is AccessControl, Lyra_Common_Storage, DSQ_Trader_Storage {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     // ----- Events -----
 
     event NewLyraMarket(address market, address pool);
+    event RemovedLyraMarket(address market, address pool);
 
     // ----- State Variables -----
 
@@ -51,10 +53,26 @@ contract Lyra_Storage_Module is AccessControl, Lyra_Common_Storage {
      */
     function addLyraMarket(address _optionMarket) external onlyRole(EXECUTOR_ROLE) {
         ILyraRegistry.OptionMarketAddresses memory addresses = lyra_registry.getMarketAddresses(_optionMarket);
+        validateToken(address(addresses.quoteAsset));
+        validateToken(address(addresses.baseAsset));
         LyraCommonStorage storage s = getLyraCommonStorage();
         s.allowedLyraMarkets.add(addresses.optionMarket);
         s.allowedLyraPools.add(addresses.liquidityPool);
+        s.lyraPoolToQuoteAsset[addresses.liquidityPool] = address(addresses.quoteAsset);
         emit NewLyraMarket(addresses.optionMarket, addresses.liquidityPool);
+    }
+
+    /**
+     * @notice  Removes a Lyra market from allowedLyraMarkets
+     * @param   _optionMarket   Lyra option market address
+     */
+    function removeLyraMarket(address _optionMarket) external onlyRole(EXECUTOR_ROLE) {
+        ILyraRegistry.OptionMarketAddresses memory addresses = lyra_registry.getMarketAddresses(_optionMarket);
+        LyraCommonStorage storage s = getLyraCommonStorage();
+        s.allowedLyraMarkets.remove(addresses.optionMarket);
+        s.allowedLyraPools.remove(addresses.liquidityPool);
+        delete s.lyraPoolToQuoteAsset[addresses.liquidityPool];
+        emit RemovedLyraMarket(addresses.optionMarket, addresses.liquidityPool);
     }
 
     // --------- Views ---------
@@ -71,5 +89,13 @@ contract Lyra_Storage_Module is AccessControl, Lyra_Common_Storage {
      */
     function getAllowedLyraPools() external view returns (address[] memory) {
         return getLyraCommonStorage().allowedLyraPools.values();
+    }
+
+    /**
+     * @notice  Returns the quote asset of a Lyra pool
+     * @param   _pool   Lyra pool address
+     */
+    function getLyraPoolQuoteAsset(address _pool) external view returns (address) {
+        return getLyraCommonStorage().lyraPoolToQuoteAsset[_pool];
     }
 }

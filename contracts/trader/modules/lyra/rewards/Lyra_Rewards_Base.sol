@@ -11,7 +11,7 @@ import "../../../external/camelot_interfaces/ICamelotRouter.sol";
 
 /**
  * @title   HessianX Lyra Rewards Base
- * @notice  Allows claiming LYRA and ARB rewards from Lyra MultiDistributor
+ * @notice  Allows claiming and swapping rewards from Lyra MultiDistributor
  * @dev     The inputGuard functions are designed to be overriden by the inheriting contract.
  *          Key assumptions:
  *              1. Inheritor MUST ensure that the swap output token is valid.
@@ -27,29 +27,18 @@ abstract contract Lyra_Rewards_Base is AccessControl, ReentrancyGuard, Lyra_Comm
 
     /// @notice Lyra MultiDistributor contract address
     IMultiDistributor public immutable multi_distributor;
-    /// @notice ARB token address
-    IERC20 public immutable arb_token;
-    /// @notice Lyra token address
-    IERC20 public immutable lyra_token;
     /// @notice Camelot router address
     ICamelotRouter public immutable camelot_router;
 
     /**
-     * @notice Sets the address of the Lyra MultiDistributor, ARB token, Lyra token, and Camelot router
+     * @notice Sets the address of the Lyra MultiDistributor and Camelot router
      * @param   _multi_distributor   Lyra MultiDistributor address
-     * @param   _arb_token           ARB Token address
-     * @param   _lyra_token          Lyra token address
      * @param   _camelot_router      Camelot router address
      */
-    constructor(address _multi_distributor, address _arb_token, address _lyra_token, address _camelot_router) {
+    constructor(address _multi_distributor, address _camelot_router) {
         // solhint-disable-next-line reason-string
-        require(
-            _multi_distributor != address(0) && _arb_token != address(0) && _lyra_token != address(0) && _camelot_router != address(0),
-            "Lyra_Rewards_Module: Zero address"
-        );
+        require(_multi_distributor != address(0) && _camelot_router != address(0), "Lyra_Rewards_Module: Zero address");
         multi_distributor = IMultiDistributor(_multi_distributor);
-        arb_token = IERC20(_arb_token);
-        lyra_token = IERC20(_lyra_token);
         camelot_router = ICamelotRouter(_camelot_router);
     }
 
@@ -76,7 +65,7 @@ abstract contract Lyra_Rewards_Base is AccessControl, ReentrancyGuard, Lyra_Comm
     }
 
     /**
-     * @notice  Claims rewards from Lyra MultiDistributor contract and swaps them for output tokens
+     * @notice  Claims rewards from Lyra MultiDistributor contract and swaps them for output tokens via Camelot
      * @param   _tokens     Array of tokens to claim
      * @param   _inputs     Array of SwapInput structs
      */
