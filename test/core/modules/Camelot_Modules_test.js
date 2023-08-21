@@ -380,7 +380,7 @@ describe("Camelot Modules", function () {
         0,
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         timestamp + 100,
       );
       usdcBal = await USDC.balanceOf(strategyDiamond.address);
@@ -422,7 +422,7 @@ describe("Camelot Modules", function () {
         0,
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         timestamp + 100,
       );
       usdcBal = await USDC.balanceOf(strategyDiamond.address);
