@@ -69,7 +69,7 @@ async function deployStrategy() {
   camelotSwapFacet = await CamelotSwapFacet.deploy(addresses.CAMELOT_ROUTER);
 
   CamelotStorageFacet = await ethers.getContractFactory("Camelot_Storage_Module");
-  camelotStorageFacet = await CamelotStorageFacet.deploy(addresses.CAMELOT_NFTPOOL_FACTORY);
+  camelotStorageFacet = await CamelotStorageFacet.deploy(addresses.CAMELOT_NFTPOOL_FACTORY, addresses.CAMELOT_NITROPOOL_FACTORY);
 
   Strategy = await ethers.getContractFactory("TestFixture_Strategy_Camelot");
   strategy = await Strategy.deploy(
@@ -146,10 +146,14 @@ describe("Camelot Modules", function () {
 
     it("Should manageNitroPools", async function () {
       expect(await strategyDiamond.getAllowedNitroPools()).to.deep.equal([]);
-      await strategyDiamond.manageNitroPools([citizen1.address], [true]);
-      expect(await strategyDiamond.getAllowedNitroPools()).to.deep.equal([citizen1.address]);
-      await strategyDiamond.manageNitroPools([citizen1.address], [false]);
+      await strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [true], [0]);
+      expect(await strategyDiamond.getAllowedNitroPools()).to.deep.equal([addresses.CAMELOT_NITROPOOL_INDEX0]);
+      await strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [false], [0]);
       expect(await strategyDiamond.getAllowedNitroPools()).to.deep.equal([]);
+    });
+
+    it('Should NOT add nitro pool with invalid index', async function () {
+      await expect(strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [true], [1])).to.be.revertedWith('Camelot_Storage_Module: Invalid pool');
     });
 
     it("Should manageExecutors", async function () {
@@ -781,7 +785,7 @@ describe("Camelot Modules", function () {
     // Block timestamp needs to be before harvest start time
     // Using block 41600000 for testing
     it("Should create NitroPool position via transferring NFT", async function () {
-      await strategyDiamond.manageNitroPools([nitroPool.address], [true]);
+      await strategyDiamond.manageNitroPools([nitroPool.address], [true], [16]);
       await expect(strategyDiamond.camelot_nitropool_transfer(nitroPool.address, nftPool.address, tokenId)).to.emit(nitroPool, "Deposit");
       expect(await nitroPool.userTokenId(strategyDiamond.address, 0)).to.eq(tokenId);
       expect(await nftPool.ownerOf(tokenId)).to.eq(nitroPool.address);
@@ -794,7 +798,7 @@ describe("Camelot Modules", function () {
     });
 
     it("Should withdraw NitroPool position", async function () {
-      await strategyDiamond.manageNitroPools([nitroPool.address], [true]);
+      await strategyDiamond.manageNitroPools([nitroPool.address], [true], [16]);
       await strategyDiamond.camelot_nitropool_transfer(nitroPool.address, nftPool.address, tokenId);
       await expect(strategyDiamond.camelot_nitropool_withdraw(nitroPool.address, tokenId)).to.emit(nitroPool, "Withdraw");
 
@@ -807,7 +811,7 @@ describe("Camelot Modules", function () {
     });
 
     it("Should emergencyWithdraw from NitroPool", async function () {
-      await strategyDiamond.manageNitroPools([nitroPool.address], [true]);
+      await strategyDiamond.manageNitroPools([nitroPool.address], [true], [16]);
       await strategyDiamond.camelot_nitropool_transfer(nitroPool.address, nftPool.address, tokenId);
       await expect(strategyDiamond.camelot_nitropool_emergencyWithdraw(nitroPool.address, tokenId)).to.emit(nitroPool, "EmergencyWithdraw");
       await expect(nitroPool.userTokenId(strategyDiamond.address, 0)).to.be.revertedWith("EnumerableSet: index out of bounds");
@@ -821,7 +825,7 @@ describe("Camelot Modules", function () {
     });
 
     it("Should harvest NitroPool position", async function () {
-      await strategyDiamond.manageNitroPools([nitroPool.address], [true]);
+      await strategyDiamond.manageNitroPools([nitroPool.address], [true], [16]);
       await strategyDiamond.camelot_nitropool_transfer(nitroPool.address, nftPool.address, tokenId);
 
       harvestStartTime = 1670432400;

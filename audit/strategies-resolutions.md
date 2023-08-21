@@ -238,13 +238,9 @@ Acknowledged. The protocol confirms understanding that this module is not self-s
 46. Missing safeguard for a Nitro pool within the manageNitroPools
     function
 
-TODO
-
 Implemented the recommended changes.
 
 47. Missing safeguard for `address(0)`
-
-TODO
 
 Implemented the recommended changes.
 

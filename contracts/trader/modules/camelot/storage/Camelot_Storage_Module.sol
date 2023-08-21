@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "./Camelot_Common_Storage.sol";
 import "../../../external/camelot_interfaces/INFTPool.sol";
 import "../../../external/camelot_interfaces/INFTPoolFactory.sol";
+import "../../../external/camelot_interfaces/INitroPoolFactory.sol";
 
 /**
  * @title   DSquared Camelot Storage Module
@@ -24,13 +25,16 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
 
     /// @notice Camelot NFT pool factory address
     INFTPoolFactory public immutable camelot_nftpool_factory;
+    /// @notice Camelot Nitro pool factory address
+    INitroPoolFactory public immutable camelot_nitropool_factory;
 
     /**
      * @notice Sets the address of the Camelot nft pool factory
      * @param _camelot_nftpool_factory  Camelot nft pool factory address
      */
-    constructor(address _camelot_nftpool_factory) {
+    constructor(address _camelot_nftpool_factory, address _camelot_nitropool_factory) {
         camelot_nftpool_factory = INFTPoolFactory(_camelot_nftpool_factory);
+        camelot_nitropool_factory = INitroPoolFactory(_camelot_nitropool_factory);
     }
 
     // solhint-enable var-name-mixedcase
@@ -59,7 +63,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
     function _manageNFTPool(address _pool, bool _status) internal {
         if (_status) {
             (address lptoken, , , , , , , ) = INFTPool(_pool).getPoolInfo();
-            require(camelot_nftpool_factory.getPool(lptoken) == _pool, "Invalid pool");
+            require(camelot_nftpool_factory.getPool(lptoken) == _pool, "Camelot_Storage_Module: Invalid pool");
             getCamelotCommonStorage().allowedNFTPools.add(_pool);
         } else {
             getCamelotCommonStorage().allowedNFTPools.remove(_pool);
@@ -71,11 +75,11 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _pools    Array of pool addresses
      * @param _status   Array of statuses
      */
-    function manageNitroPools(address[] calldata _pools, bool[] calldata _status) external onlyRole(EXECUTOR_ROLE) {
+    function manageNitroPools(address[] calldata _pools, bool[] calldata _status, uint256[] calldata _indexes) external onlyRole(EXECUTOR_ROLE) {
         // solhint-disable-next-line reason-string
         require(_pools.length == _status.length, "Camelot_Storage_Module: Length mismatch");
         for (uint256 i; i < _pools.length; ) {
-            _manageNitroPool(_pools[i], _status[i]);
+            _manageNitroPool(_pools[i], _status[i], _indexes[i]);
             unchecked {
                 ++i;
             }
@@ -87,9 +91,10 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _pool     Pool address
      * @param _status   Status
      */
-    function _manageNitroPool(address _pool, bool _status) internal {
+    function _manageNitroPool(address _pool, bool _status, uint256 _index) internal {
         if (_status) {
-            // @todo Add Check for nitro pool
+            address nitroPool = camelot_nitropool_factory.getNitroPool(_index);
+            require(nitroPool == _pool, "Camelot_Storage_Module: Invalid pool");
             getCamelotCommonStorage().allowedNitroPools.add(_pool);
         } else {
             getCamelotCommonStorage().allowedNitroPools.remove(_pool);
