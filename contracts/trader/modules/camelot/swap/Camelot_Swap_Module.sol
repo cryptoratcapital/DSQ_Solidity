@@ -29,11 +29,12 @@ contract Camelot_Swap_Module is Camelot_Swap_Base, DSQ_Trader_Storage {
         uint, // amountOutMin
         address[] calldata path,
         address to,
-        address, // referrer
+        address referrer,
         uint // deadline
     ) internal view override {
         validateSwapPath(path);
         require(to == address(this), "GuardError: Invalid recipient");
+        require(referrer == address(this), "GuardError: Invalid referrer");
     }
 
     /// @inheritdoc Camelot_Swap_Base
@@ -42,11 +43,12 @@ contract Camelot_Swap_Module is Camelot_Swap_Base, DSQ_Trader_Storage {
         uint, // amountOutMin
         address[] calldata path,
         address to,
-        address, // referrer
+        address referrer,
         uint // deadline
     ) internal view override {
         validateSwapPath(path);
         require(to == address(this), "GuardError: Invalid recipient");
+        require(referrer == address(this), "GuardError: Invalid referrer");
     }
 
     /// @inheritdoc Camelot_Swap_Base
@@ -55,10 +57,11 @@ contract Camelot_Swap_Module is Camelot_Swap_Base, DSQ_Trader_Storage {
         uint, // amountOutMin
         address[] calldata path,
         address to,
-        address, // referrer
+        address referrer,
         uint // deadline
     ) internal view override {
         validateSwapPath(path);
         require(to == address(this), "GuardError: Invalid recipient");
+        require(referrer == address(this), "GuardError: Invalid referrer");
     }
 }

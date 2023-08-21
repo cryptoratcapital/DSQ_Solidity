@@ -206,7 +206,7 @@ describe("Camelot Modules", function () {
         0,
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         timestamp + 100,
       );
 
@@ -223,7 +223,7 @@ describe("Camelot Modules", function () {
           0,
           badSwapPath,
           strategyDiamond.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.be.revertedWith("Invalid swap path");
@@ -233,10 +233,20 @@ describe("Camelot Modules", function () {
           0,
           swapPath,
           devWallet.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.be.revertedWith("GuardError: Invalid recipient");
+      await expect(
+        strategyDiamond.camelot_swapExactTokensForTokens(
+          initialUSDCBalance,
+          0,
+          swapPath,
+          strategyDiamond.address,
+          citizen1.address,
+          timestamp + 100,
+        ),
+      ).to.be.revertedWith("GuardError: Invalid referrer");
     });
 
     it("Should swapExactETHForTokens", async function () {
@@ -250,7 +260,7 @@ describe("Camelot Modules", function () {
           0,
           swapPath,
           strategyDiamond.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.changeEtherBalance(strategyDiamond, parseEther("-1"));
@@ -266,7 +276,7 @@ describe("Camelot Modules", function () {
           0,
           badSwapPath,
           strategyDiamond.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.be.revertedWith("Invalid swap path");
@@ -276,10 +286,20 @@ describe("Camelot Modules", function () {
           0,
           swapPath,
           devWallet.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.be.revertedWith("GuardError: Invalid recipient");
+      await expect(
+        strategyDiamond.camelot_swapExactETHForTokens(
+          parseEther("1"),
+          0,
+          swapPath,
+          strategyDiamond.address,
+          citizen1.address,
+          timestamp + 100,
+        ),
+      ).to.be.revertedWith("GuardError: Invalid referrer");
     });
 
     it("Should swapExactTokensForETH", async function () {
@@ -292,7 +312,7 @@ describe("Camelot Modules", function () {
         0,
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         timestamp + 100,
       );
       expect(await ethers.provider.getBalance(strategyDiamond.address)).to.eq(amountOut.add(initialBalance));
@@ -308,7 +328,7 @@ describe("Camelot Modules", function () {
           0,
           badSwapPath,
           strategyDiamond.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.be.revertedWith("Invalid swap path");
@@ -318,10 +338,20 @@ describe("Camelot Modules", function () {
           0,
           swapPath,
           devWallet.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.be.revertedWith("GuardError: Invalid recipient");
+      await expect(
+        strategyDiamond.camelot_swapExactTokensForETH(
+          initialUSDCBalance,
+          0,
+          swapPath,
+          strategyDiamond.address,
+          citizen1.address,
+          timestamp + 100,
+        ),
+      ).to.be.revertedWith("GuardError: Invalid referrer");
     });
   });
 

@@ -252,6 +252,8 @@ The DSquared protocol is aware of the architectural vulnerability to a malicious
 
 TODO: Review if we might ever not use `address(this)` as referrer and implement
 
+Implemented address(this) as referrer
+
 49. Limited swap path can create various issues
 
 Acknowledged. The protocol has elected to enforce that all tokens in the swap path are in the mandate to avoid a malicious executor routing a swap through a honeypot of any sort. A separate storage pattern for allowed intermediate tokens as recommended could be used to allow more flexibility, but has been deemed unnecessary at this time.
