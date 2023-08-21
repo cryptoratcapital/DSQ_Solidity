@@ -225,6 +225,8 @@ Acknowledged. The protocol confirms the need to explicitly validate that a suita
 
 TODO: Review
 
+Acknowledge. The protocol confirms understanding that we are preventing the creation of new liquidity positions after an epoch has ended.
+
 ## Camelot_NitroPool_Module
 
 45. Reward token might get locked
