@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import "@solidstate/contracts/access/access_control/AccessControl.sol";
 import "@solidstate/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "../storage/Camelot_Common_Storage.sol";
 import "../../../external/camelot_interfaces/INonfungiblePositionManager.sol";
@@ -26,7 +25,6 @@ import "../../../external/camelot_interfaces/IOdosRouter.sol";
  */
 abstract contract Camelot_V3_Base is AccessControl, ReentrancyGuard, Camelot_Common_Storage {
     // solhint-disable var-name-mixedcase
-    using SafeERC20 for IERC20;
 
     /// @notice Algebra position manager address
     INonfungiblePositionManager public immutable position_manager;

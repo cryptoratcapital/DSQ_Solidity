@@ -278,8 +278,6 @@ Added functionality to farm Camelot V3 positions
 
 53. Unused SafeERC20 import
 
-TODO
-
 Implemented the recommended changes.
 
 ## GMX_GLP_Module
