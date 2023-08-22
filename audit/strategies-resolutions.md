@@ -215,15 +215,11 @@ Implemented the recommended changes.
 
 43. Liquidity can be added to malicious pools
 
-TODO: Review
-
 Acknowledged. The protocol confirms the need to explicitly validate that a suitable pool exists for all permutation pairs of tokens in the mandate.
 
 ## Camelot_NFTPool_Module
 
 44. Positions cannot be created outside of epoch
-
-TODO: Review
 
 Acknowledge. The protocol confirms understanding that we are preventing the creation of new liquidity positions after an epoch has ended.
 
@@ -231,9 +227,7 @@ Acknowledge. The protocol confirms understanding that we are preventing the crea
 
 45. Reward token might get locked
 
-TODO: Confirm
-
-Acknowledged. The protocol confirms understanding that this module is not self-sufficient and must be deployed alongside another.
+Acknowledged. The protocol confirms understanding that this module is not self-sufficient and must be deployed alongside another which is capable of handling all reward tokens.
 
 ## Camelot_Storage_Module
 
@@ -250,17 +244,13 @@ Implemented the recommended changes.
 
 48. A malicious EXECUTOR can steal tokens
 
-The DSquared protocol is aware of the architectural vulnerability to a malicious executor using a personal address as a counterparty to extract value. This is an intractable problem due to the inclusion of non-atomic options trades in most strategies.
+The DSquared protocol is aware of the vulnerability to a malicious executor using a personal address as a counterparty to extract value. This is acknowledged as an intractable architectural problem due to the inclusion of non-atomic options trades in most strategies.
 
-TODO: Review if we might ever not use `address(this)` as referrer and implement
-
-Implemented address(this) as referrer
+Implemented the recommendation to use `address(this)` as referrer.
 
 49. Limited swap path can create various issues
 
 Acknowledged. The protocol has elected to enforce that all tokens in the swap path are in the mandate to avoid a malicious executor routing a swap through a honeypot of any sort. A separate storage pattern for allowed intermediate tokens as recommended could be used to allow more flexibility, but has been deemed unnecessary at this time.
-
-TODO confirm
 
 ## Camelot_V3_Module
 
