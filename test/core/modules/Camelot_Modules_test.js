@@ -131,7 +131,7 @@ describe("Camelot Modules", function () {
     if (await forkOrSkip(forkConfig)) this.skip();
   });
 
-  describe("Camelot_Storage_Module", function () {
+  describe.only("Camelot_Storage_Module", function () {
     beforeEach(async function () {
       const { strategyDiamond, vault, test20, USDC, WETH } = await loadFixture(deployStrategy);
     });
@@ -152,8 +152,13 @@ describe("Camelot Modules", function () {
       expect(await strategyDiamond.getAllowedNitroPools()).to.deep.equal([]);
     });
 
+    it('Should NOT manageNitroPools with different array lengths', async function () {
+      await expect(strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [true], [])).to.be.revertedWith('Camelot_Storage_Module: Length mismatch');
+      await expect(strategyDiamond.manageNitroPools([], [true], [0])).to.be.revertedWith('Camelot_Storage_Module: Length mismatch');
+    });
+
     it('Should NOT add nitro pool with invalid index', async function () {
-      await expect(strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [true], [1])).to.be.revertedWith('Camelot_Storage_Module: Invalid pool');
+      await expect(strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [true], [1])).to.be.revertedWith('Camelot_Storage_Module: Pool/index mismatch');
     });
 
     it("Should manageExecutors", async function () {

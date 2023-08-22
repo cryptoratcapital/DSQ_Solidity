@@ -77,8 +77,9 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      */
     function manageNitroPools(address[] calldata _pools, bool[] calldata _status, uint256[] calldata _indexes) external onlyRole(EXECUTOR_ROLE) {
         // solhint-disable-next-line reason-string
-        require(_pools.length == _status.length, "Camelot_Storage_Module: Length mismatch");
-        for (uint256 i; i < _pools.length; ) {
+        uint256 poolsLen = _pools.length;
+        require(poolsLen == _status.length && poolsLen == _indexes.length, "Camelot_Storage_Module: Length mismatch");
+        for (uint256 i; i < poolsLen; ) {
             _manageNitroPool(_pools[i], _status[i], _indexes[i]);
             unchecked {
                 ++i;
@@ -94,7 +95,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
     function _manageNitroPool(address _pool, bool _status, uint256 _index) internal {
         if (_status) {
             address nitroPool = camelot_nitropool_factory.getNitroPool(_index);
-            require(nitroPool == _pool, "Camelot_Storage_Module: Invalid pool");
+            require(nitroPool == _pool, "Camelot_Storage_Module: Pool/index mismatch");
             getCamelotCommonStorage().allowedNitroPools.add(_pool);
         } else {
             getCamelotCommonStorage().allowedNitroPools.remove(_pool);
