@@ -131,7 +131,7 @@ describe("Camelot Modules", function () {
     if (await forkOrSkip(forkConfig)) this.skip();
   });
 
-  describe.only("Camelot_Storage_Module", function () {
+  describe("Camelot_Storage_Module", function () {
     beforeEach(async function () {
       const { strategyDiamond, vault, test20, USDC, WETH } = await loadFixture(deployStrategy);
     });
@@ -152,13 +152,17 @@ describe("Camelot Modules", function () {
       expect(await strategyDiamond.getAllowedNitroPools()).to.deep.equal([]);
     });
 
-    it('Should NOT manageNitroPools with different array lengths', async function () {
-      await expect(strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [true], [])).to.be.revertedWith('Camelot_Storage_Module: Length mismatch');
-      await expect(strategyDiamond.manageNitroPools([], [true], [0])).to.be.revertedWith('Camelot_Storage_Module: Length mismatch');
+    it("Should NOT manageNitroPools with different array lengths", async function () {
+      await expect(strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [true], [])).to.be.revertedWith(
+        "Camelot_Storage_Module: Length mismatch",
+      );
+      await expect(strategyDiamond.manageNitroPools([], [true], [0])).to.be.revertedWith("Camelot_Storage_Module: Length mismatch");
     });
 
-    it('Should NOT add nitro pool with invalid index', async function () {
-      await expect(strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [true], [1])).to.be.revertedWith('Camelot_Storage_Module: Pool/index mismatch');
+    it("Should NOT add nitro pool with invalid index", async function () {
+      await expect(strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [true], [1])).to.be.revertedWith(
+        "Camelot_Storage_Module: Pool/index mismatch",
+      );
     });
 
     it("Should manageExecutors", async function () {
@@ -170,7 +174,9 @@ describe("Camelot Modules", function () {
     });
 
     it("Should NOT manageExecutors with zero address", async function () {
-      await expect(strategyDiamond.manageExecutors([ethers.constants.AddressZero], [true])).to.be.revertedWith('Camelot_Storage_Module: Zero address');
+      await expect(strategyDiamond.manageExecutors([ethers.constants.AddressZero], [true])).to.be.revertedWith(
+        "Camelot_Storage_Module: Zero address",
+      );
     });
 
     it("Should manageReceivers", async function () {
@@ -182,7 +188,9 @@ describe("Camelot Modules", function () {
     });
 
     it("Should NOT manageReceivers with zero address", async function () {
-      await expect(strategyDiamond.manageReceivers([ethers.constants.AddressZero], [true])).to.be.revertedWith('Camelot_Storage_Module: Zero address');
+      await expect(strategyDiamond.manageReceivers([ethers.constants.AddressZero], [true])).to.be.revertedWith(
+        "Camelot_Storage_Module: Zero address",
+      );
     });
   });
 
@@ -892,7 +900,7 @@ describe("Camelot Modules", function () {
         BigInt("994885234205369377265"),
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         1674208841,
       );
       expect(await DAI.balanceOf(strategyDiamond.address)).to.eq(BigInt("999884657492833544990"));
@@ -915,7 +923,7 @@ describe("Camelot Modules", function () {
         BigInt("1960790537961317471"),
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         1672823076,
       );
       expect(await GMX.balanceOf(strategyDiamond.address)).to.eq(BigInt("1970643756745042685"));
@@ -939,7 +947,7 @@ describe("Camelot Modules", function () {
         BigInt("3917190689050743341"),
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         1672824320,
       );
       expect(await GMX.balanceOf(strategyDiamond.address)).to.eq(BigInt("3936875064372606373"));

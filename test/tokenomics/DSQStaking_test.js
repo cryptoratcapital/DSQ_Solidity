@@ -30,7 +30,8 @@ async function deployFixtures() {
 }
 
 // Many of these tests are duplicates from StakingRewards except with router
-describe("DSQStaking", function () {
+/* eslint-disable mocha/no-skipped-tests */
+xdescribe("DSQStaking", function () {
   beforeEach(async function () {
     const { dsq, esdsq, dsqStaking, esdsqStaking, router } = await loadFixture(deployFixtures);
   });

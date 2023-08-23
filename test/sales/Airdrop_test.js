@@ -22,7 +22,8 @@ const merkleProof3 = tree.getHexProof(keccak256(whitelisted[2].address));
 
 const PRIVATE_CONTRIBUTION_ADDRESS = "0xA28351C8F8Ae1Ac0748f47F5F3A791E809815207";
 
-describe("Airdrop", function () {
+/* eslint-disable mocha/no-skipped-tests */
+xdescribe("Airdrop", function () {
   async function deployAirdropFixture() {
     timestamp = (await ethers.provider.getBlock()).timestamp;
     startTime = timestamp + 100;

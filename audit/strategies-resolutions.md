@@ -276,9 +276,24 @@ Implemented the recommended changes.
 
 54. Compounded funds will be locked forever
 
-TODO: check validity
+For auditor's reference: the various `RewardTracker` contracts daisy-chain into each other.
 
-Implemented the recommended changes.
+Example of a user [unstaking](https://arbiscan.io/tx/0x3ef811790e9b53560673042a14f6091251575f5ef6f2a79ce2a232a72b5354ad) and [staking](https://arbiscan.io/tx/0x96d5903c11f6e87337b5202f7258279b2e35e6cf2571c03d5698d730fc97ae46) show the multiple transfers of these tokens.
+
+You can see this in `RewardRouterV2.sol::397-404` here: https://vscode.blockscan.com/arbitrum-one/0xa906f338cb21815cbc4bc87ace9e68c87ef8d8f1
+
+```solidity
+    function _unstakeGmx(address _account, address _token, uint256 _amount, bool _shouldReduceBnGmx) private {
+        require(_amount > 0, "RewardRouter: invalid _amount");
+
+        uint256 balance = IRewardTracker(stakedGmxTracker).stakedAmounts(_account);
+
+        IRewardTracker(feeGmxTracker).unstakeForAccount(_account, bonusGmxTracker, _amount, _account);
+        IRewardTracker(bonusGmxTracker).unstakeForAccount(_account, stakedGmxTracker, _amount, _account);
+        IRewardTracker(stakedGmxTracker).unstakeForAccount(_account, _token, _amount, _account);
+```
+
+As such, the direct thrust of the issue, namely lacking a way to interact with the RewardTracker contracts, is not correct. However, it is true that the contract lacks an entry point to unstake from the GMX reward router contract.
 
 55. `gmx_mintAndStakeGlpETH` is payable
 

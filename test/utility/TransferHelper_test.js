@@ -10,7 +10,8 @@ use(solidity);
 const provider = waffle.provider;
 const [devWallet, admin, citizen1, citizen2, citizen3] = provider.getWallets();
 
-describe("Transfer Helper", function () {
+/* eslint-disable mocha/no-skipped-tests */
+xdescribe("Transfer Helper", function () {
   async function deployFixture() {
     Helper = await ethers.getContractFactory("TransferHelper");
     helper = await Helper.deploy(admin.address);

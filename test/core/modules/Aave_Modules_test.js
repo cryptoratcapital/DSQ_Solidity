@@ -325,7 +325,7 @@ describe("Aave Modules", function () {
         strategyDiamond.address,
         0,
       ]);
-      await devWallet.sendTransaction({ to: strategyDiamond.address, data: calldata, value: 1000 });
+      await expect(devWallet.sendTransaction({ to: strategyDiamond.address, data: calldata, value: 1000 })).to.be.reverted;
     });
   });
 });

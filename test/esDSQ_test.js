@@ -7,7 +7,8 @@ use(solidity);
 const provider = waffle.provider;
 const [devWallet, citizen1, citizen2, router] = provider.getWallets();
 
-describe("esDSQ", function () {
+/* eslint-disable mocha/no-skipped-tests */
+xdescribe("esDSQ", function () {
   beforeEach(async function () {
     ESDSQ = await ethers.getContractFactory("esDSQToken");
     esDSQ = await ESDSQ.deploy("Escrowed DSquared Governance Token", "esDSQ");

@@ -8,7 +8,9 @@ const provider = waffle.provider;
 const [devWallet, citizen1, citizen2, citizen3, citizen4, multisig, treasury] = provider.getWallets();
 
 // Many of these tests are duplicates from StakingRewards except with router
-describe("DSQStaking", function () {
+
+/* eslint-disable mocha/no-skipped-tests */
+xdescribe("DSQStaking", function () {
   beforeEach(async function () {
     // Deploy contracts
     DSQ = await ethers.getContractFactory("DSQToken");

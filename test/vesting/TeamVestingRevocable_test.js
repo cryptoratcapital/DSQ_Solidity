@@ -24,6 +24,7 @@ duration = endTime - startTime;
 wrongAccumulationStart = otcUnlockTime + 10;
 wrongOtcUnlockTime = startTime + 10;
 
+/* eslint-disable mocha/no-skipped-tests */
 xdescribe("TeamVestingRevocable", function () {
   async function deployVestingRevocableFixture() {
     Vesting = await ethers.getContractFactory("TeamVestingRevocable");

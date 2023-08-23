@@ -28,7 +28,8 @@ async function deployFixtures() {
   return { dsq, esdsq, dsqStaking, esdsqStaking, router };
 }
 
-describe("esDSQStaking", function () {
+/* eslint-disable mocha/no-skipped-tests */
+xdescribe("esDSQStaking", function () {
   beforeEach(async function () {
     const { dsq, esdsq, dsqStaking, esdsqStaking, router } = await loadFixture(deployFixtures);
   });

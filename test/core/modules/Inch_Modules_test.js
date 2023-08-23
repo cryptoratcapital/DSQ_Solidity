@@ -125,7 +125,44 @@ describe("1Inch Modules", function () {
           assets,
           [addresses.CHAINLINK_DAI_USD, addresses.CHAINLINK_USDC_USD],
         ),
-      ).to.be.revertedWith("Inch_LimitOrder_Base: Invalid input");
+      ).to.be.revertedWith("Inch_LimitOrder_Cutter: arrays must be the same length");
+    });
+
+    it("Should NOT deploy with facet as zero address", async function () {
+      TraderV0 = await ethers.getContractFactory("TraderV0");
+      traderFacet = await TraderV0.deploy(maxPerformanceFee, maxManagementFee);
+
+      InchSwapFacet = await ethers.getContractFactory("Inch_Swap_Module");
+      inchSwapFacet = await InchSwapFacet.deploy(addresses.INCH_AGGREGATION_ROUTER, addresses.INCH_CLIPPER_EXCHANGE);
+
+      InchLimitOrderFacet = await ethers.getContractFactory("Inch_LimitOrder_Module");
+      inchLimitOrderFacet = await InchLimitOrderFacet.deploy(addresses.INCH_AGGREGATION_ROUTER);
+
+      Strategy = await ethers.getContractFactory("TestFixture_Strategy_InchModule");
+
+      await expect(
+        Strategy.deploy(
+          devWallet.address,
+          traderFacet.address,
+          traderInitializerParams,
+          inchSwapFacet.address,
+          ethers.constants.AddressZero,
+          assets,
+          oracles,
+        ),
+      ).to.be.revertedWith("Inch_LimitOrder_Cutter: _facet cannot be 0 address");
+
+      await expect(
+        Strategy.deploy(
+          devWallet.address,
+          traderFacet.address,
+          traderInitializerParams,
+          ethers.constants.AddressZero,
+          inchLimitOrderFacet.address,
+          assets,
+          oracles,
+        ),
+      ).to.be.revertedWith("Inch_Swap_Cutter: _facet cannot be 0 address");
     });
   });
 
