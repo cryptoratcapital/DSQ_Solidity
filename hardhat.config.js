@@ -239,7 +239,7 @@ module.exports = {
     },
     {
       name: "StrategyDiamond_TestFixture_Inch",
-      include: ["TraderV0", "Inch_Swap_Module"],
+      include: ["TraderV0", "Inch_Swap_Module", "Inch_LimitOrder_Module"],
       strict: true,
       filter: diamondAbi_filter(),
     },

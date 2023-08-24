@@ -63,18 +63,18 @@ async function deployStrategy() {
   lyraStorageFacet = await LyraStorageFacet.deploy(addresses.LYRA_REGISTRY);
 
   LyraLPFacet = await ethers.getContractFactory("Lyra_LP_Module");
-  lyraLPFacet = await LyraLPFacet.deploy(addresses.USDC);
+  lyraLPFacet = await LyraLPFacet.deploy();
+  console.log(1);
 
   LyraOptionsFacet = await ethers.getContractFactory("Lyra_Options_Module");
   lyraOptionsFacet = await LyraOptionsFacet.deploy();
 
+  console.log(1.1);
+
   LyraRewardsFacet = await ethers.getContractFactory("Lyra_Rewards_Module");
-  lyraRewardsFacet = await LyraRewardsFacet.deploy(
-    addresses.LYRA_MULTI_DISTRIBUTOR,
-    addresses.ARB,
-    addresses.LYRA,
-    addresses.CAMELOT_ROUTER,
-  );
+  lyraRewardsFacet = await LyraRewardsFacet.deploy(addresses.LYRA_MULTI_DISTRIBUTOR, addresses.CAMELOT_ROUTER);
+
+  console.log(1.2);
 
   Strategy = await ethers.getContractFactory("TestFixture_Strategy_Lyra");
   strategy = await Strategy.deploy(
@@ -86,6 +86,8 @@ async function deployStrategy() {
     lyraOptionsFacet.address,
     lyraRewardsFacet.address,
   );
+
+  console.log(2);
 
   strategyDiamond = await ethers.getContractAt("StrategyDiamond_TestFixture_Lyra", strategy.address);
 
@@ -113,7 +115,7 @@ async function deployStrategy() {
 }
 
 // Tests have to be on blockNumber - 70171432
-describe("Lyra", function () {
+describe.only("Lyra", function () {
   before(async function () {
     if (await forkOrSkip(forkConfig)) this.skip();
   });
