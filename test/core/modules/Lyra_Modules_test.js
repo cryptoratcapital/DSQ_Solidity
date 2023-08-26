@@ -473,11 +473,11 @@ describe.only("Lyra", function () {
     });
 
     it("Should lyra_claimRewards", async function () {
-      await expect(() => strategyDiamond.lyra_claimRewards()).to.changeTokenBalance(lyra, strategyDiamond, parseEther("100"));
+      await expect(() => strategyDiamond.lyra_claimRewards([lyra.address])).to.changeTokenBalance(lyra, strategyDiamond, parseEther("100"));
     });
 
     it("Should lyra_dump lyra", async function () {
-      await strategyDiamond.lyra_claimRewards();
+      await strategyDiamond.lyra_claimRewards([lyra.address]);
       amountOut = await lyra_weth_pair.getAmountOut(parseEther("100"), lyra.address);
 
       await expect(() => strategyDiamond.lyra_dump(WETH.address, 0, amountOut)).to.changeTokenBalance(
@@ -489,7 +489,7 @@ describe.only("Lyra", function () {
     });
 
     it("Should NOT lyra_dump lyra if less than amountOut", async function () {
-      await strategyDiamond.lyra_claimRewards();
+      await strategyDiamond.lyra_claimRewards([lyra.address]);
       amountOut = await lyra_weth_pair.getAmountOut(parseEther("100"), lyra.address);
 
       await expect(strategyDiamond.lyra_dump(WETH.address, 0, amountOut.add(1))).to.be.revertedWith(
@@ -521,7 +521,7 @@ describe.only("Lyra", function () {
     });
 
     it("Should lyra_dump arb & lyra", async function () {
-      await strategyDiamond.lyra_claimRewards();
+      await strategyDiamond.lyra_claimRewards([lyra.address]);
       const index = getSlot(strategyDiamond.address, ARB_SLOT);
       await setStorageAt(arb.address, index, toBytes32(parseEther("100")));
       arbOut = await arb_weth_pair.getAmountOut(parseEther("100"), arb.address);
