@@ -115,7 +115,7 @@ async function deployStrategy() {
 }
 
 // Tests have to be on blockNumber - 70171432
-describe.only("Lyra", function () {
+describe("Lyra", function () {
   before(async function () {
     if (await forkOrSkip(forkConfig)) this.skip();
   });

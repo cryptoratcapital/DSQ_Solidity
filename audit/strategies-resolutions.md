@@ -336,11 +336,11 @@ Acknowledged.
 
 63. Privileged address has full control of funds
 
-TODO: Execution fee upper bound
+Acknowledged.
 
 64. Cancellation allows for arbitrary `executionFee` receiver
 
-TODO: Review
+Removed the ability for the strategy to pay for its own execution fees, fees must now be paid by the executor. Fee recipients do not have to be `msg.sender`, but must have an executor or admin role. This eliminates the value leak path described in the issue.
 
 65. Missing warning in the `init_GMX_positionRouter` NatSpec
 
