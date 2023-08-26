@@ -452,7 +452,7 @@ Acknowledged.
 84. Any liquidity deposit to the active id may experience losses if they
     do not follow the active composition
 
-TODO Review
+Acknowledged. The protocol has elected to retain the ability to add at non-composition ratios in the contract, but checks will be added to the frontend executor interface.
 
 ## TraderJoe_Swap_Module
 
