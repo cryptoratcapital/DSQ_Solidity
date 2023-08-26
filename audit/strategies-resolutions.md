@@ -353,7 +353,7 @@ The recommendation to add a natspec warning against adding the function to selec
 66. Not validating that `_minOut` is not 0 could enable maximum
     slippage on the order
 
-TODO: Review but probably acknowledge
+Acknowledged. A check like `_minOut > 0` could be circumvented by `_minOut = 1` or some other extremely low value. The alternative would be to use an oracle or other USD-denominating value check, or a hardcoded slippage value. The protocol has elected not to pursue these paths.
 
 67. Critical necessary approvals
 
