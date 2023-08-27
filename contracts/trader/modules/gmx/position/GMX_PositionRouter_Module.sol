@@ -16,8 +16,7 @@ import "../../dsq/DSQ_Trader_Storage.sol";
  *              5. Input guards MUST revert if their criteria are not met.
  *          Failure to meet these assumptions may result in unsafe behavior!
  * @dev     Several functions are payable to allow passing an execution fee to the Position Router.
- *          Execution fee ETH may be provided with msg.value or as a general pool in this contract's balance.
- *          This contract does not pass through msg.value or enforce a dedicated fee fund pool.
+ *          Execution fee ETH must be provided with msg.value.
  * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
  *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX

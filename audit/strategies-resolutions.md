@@ -307,15 +307,17 @@ Acknowledged. The protocol confirms the need to monitor the integrated GMX contr
 
 No change made. Leaving these unused is per the codebase style convention which mandates `Base`-type contracts always declare an empty input guard, wherever inputs are present, and `Module`-type contracts may choose to override the input guard, or not.
 
+TODO: Review
+
 ## GMX_OrderBook_Module
 
 58. Privileged address has full control of funds
 
-TODO: Execution fee upper bound
+Acknowledged. The recommendation to enforce a cap on `_executionFee` has been partially implemented by way of no longer allowing the `_executionFee` to access strategy funds. The executor may specify any execution fee they wish, but it must be passed as `msg.value`.
 
 59. ExecutionFee is refunded to the proxy
 
-TODO: Review
+Implemented the recommended change. The refunded execution fee will go to the caller of the cancellation function, regardless of who created the order. This introduces a vector for executors to steal execution fees from each other by immediately canceling each other's orders, but the protocol deems this acceptable given the trust model of the protocol.
 
 60. Not validating that `_minOut` is not 0 could enable maximum
     slippage on the order
@@ -336,7 +338,7 @@ Acknowledged.
 
 63. Privileged address has full control of funds
 
-Acknowledged.
+Acknowledged. The recommendation to enforce a cap on `_executionFee` has been partially implemented by way of no longer allowing the `_executionFee` to access strategy funds. The executor may specify any execution fee they wish, but it must be passed as `msg.value`.
 
 64. Cancellation allows for arbitrary `executionFee` receiver
 

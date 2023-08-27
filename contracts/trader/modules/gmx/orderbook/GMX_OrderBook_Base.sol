@@ -18,8 +18,7 @@ import "../../../external/gmx_interfaces/IRouter.sol";
  *              3. Input guards MUST revert if their criteria are not met.
  *          Failure to meet these assumptions may result in unsafe behavior!
  * @dev     Several functions are payable to allow passing an execution fee to the Order Book.
- *          Execution fee ETH may be provided with msg.value or as a general pool in this contract's balance.
- *          This contract does not pass through msg.value or enforce a dedicated fee fund pool.
+ *          The base contract does not enforce a source of execution fee ETH.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole
@@ -242,36 +241,58 @@ abstract contract GMX_OrderBook_Base is AccessControl, ReentrancyGuard, DSQ_Comm
 
     /**
      * @notice Cancels a GMX increase order
+     * @dev    The refunded execution fee is sent to the caller irrespective of who created the order
      * @param _orderIndex   Order index
      */
     function gmx_cancelIncreaseOrder(uint256 _orderIndex) external onlyRole(EXECUTOR_ROLE) nonReentrant {
         inputGuard_gmx_cancelIncreaseOrder(_orderIndex);
 
+        uint256 startingBalance = address(this).balance;
         gmx_orderBook.cancelIncreaseOrder(_orderIndex);
+        uint256 refund = address(this).balance - startingBalance;
+
+        if (refund > 0) {
+            payable(msg.sender).transfer(refund);
+        }
     }
 
     /**
      * @notice Cancels a GMX decrease order
+     * @dev    The refunded execution fee is sent to the caller irrespective of who created the order
      * @param _orderIndex   Order index
      */
     function gmx_cancelDecreaseOrder(uint256 _orderIndex) external onlyRole(EXECUTOR_ROLE) nonReentrant {
         inputGuard_gmx_cancelDecreaseOrder(_orderIndex);
 
+        uint256 startingBalance = address(this).balance;
         gmx_orderBook.cancelDecreaseOrder(_orderIndex);
+        uint256 refund = address(this).balance - startingBalance;
+
+        if (refund > 0) {
+            payable(msg.sender).transfer(refund);
+        }
     }
 
     /**
      * @notice Cancels a GMX swap order
+     * @dev    The refunded execution fee is sent to the caller irrespective of who created the order
      * @param _orderIndex   Order index
      */
     function gmx_cancelSwapOrder(uint256 _orderIndex) external onlyRole(EXECUTOR_ROLE) nonReentrant {
         inputGuard_gmx_cancelSwapOrder(_orderIndex);
 
+        uint256 startingBalance = address(this).balance;
         gmx_orderBook.cancelSwapOrder(_orderIndex);
+        uint256 refund = address(this).balance - startingBalance;
+
+        if (refund > 0) {
+            payable(msg.sender).transfer(refund);
+        }
     }
 
     /**
      * @notice Cancels multiple GMX orders
+     * @dev    The refunded execution fee is sent to the caller irrespective of who created the order
      * @param _swapOrderIndexes         Array of swap order indexes
      * @param _increaseOrderIndexes     Array of increase order indexes
      * @param _decreaseOrderIndexes     Array of decrease order indexes
@@ -283,7 +304,13 @@ abstract contract GMX_OrderBook_Base is AccessControl, ReentrancyGuard, DSQ_Comm
     ) external onlyRole(EXECUTOR_ROLE) nonReentrant {
         inputGuard_gmx_cancelMultiple(_swapOrderIndexes, _increaseOrderIndexes, _decreaseOrderIndexes);
 
+        uint256 startingBalance = address(this).balance;
         gmx_orderBook.cancelMultiple(_swapOrderIndexes, _increaseOrderIndexes, _decreaseOrderIndexes);
+        uint256 refund = address(this).balance - startingBalance;
+
+        if (refund > 0) {
+            payable(msg.sender).transfer(refund);
+        }
     }
 
     // ---------- Hooks ----------

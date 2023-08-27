@@ -14,8 +14,7 @@ import "../../dsq/DSQ_Trader_Storage.sol";
  *              3. Input guards MUST revert if their criteria are not met.
  *          Failure to meet these assumptions may result in unsafe behavior!
  * @dev     Several functions are payable to allow passing an execution fee to the Order Book.
- *          Execution fee ETH may be provided with msg.value or as a general pool in this contract's balance.
- *          This contract does not pass through msg.value or enforce a dedicated fee fund pool.
+ *          Execution fee ETH must be provided with msg.value.
  * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
  *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
@@ -44,12 +43,13 @@ contract GMX_OrderBook_Module is GMX_OrderBook_Base, DSQ_Trader_Storage {
         bool, // _isLong
         uint256, // _triggerPrice
         bool, // _triggerAboveThreshold
-        uint256, // _executionFee
+        uint256 _executionFee,
         bool // _shouldWrap
     ) internal view virtual override {
         validateSwapPath(_path);
         validateToken(_indexToken);
         validateToken(_collateralToken);
+        require(_executionFee == msg.value, "GuardError: GMX execution fee");
     }
 
     /// @inheritdoc GMX_OrderBook_Base
@@ -61,10 +61,11 @@ contract GMX_OrderBook_Module is GMX_OrderBook_Base, DSQ_Trader_Storage {
         bool, // _isLong
         uint256, // _triggerPrice
         bool, // _triggerAboveThreshold
-        uint256 // _executionFee
+        uint256 _executionFee
     ) internal view virtual override {
         validateToken(_indexToken);
         validateToken(_collateralToken);
+        require(_executionFee == msg.value, "GuardError: GMX execution fee");
     }
 
     /// @inheritdoc GMX_OrderBook_Base
@@ -74,10 +75,11 @@ contract GMX_OrderBook_Module is GMX_OrderBook_Base, DSQ_Trader_Storage {
         uint256, // _minOut
         uint256, // _triggerRatio // tokenB / tokenA
         bool, // _triggerAboveThreshold
-        uint256, // _executionFee
+        uint256 _executionFee,
         bool, // _shouldWrap
         bool // _shouldUnwrap
     ) internal view virtual override {
         validateSwapPath(_path);
+        require(_executionFee == msg.value, "GuardError: GMX execution fee");
     }
 }
