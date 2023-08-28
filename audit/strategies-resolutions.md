@@ -155,7 +155,7 @@ Implemented the recommended changes.
 
 ## Strategies/StrategyARB
 
-While the issue is not numbered, the report references that the issues from `StrategyETH` are all valid here. Each issue listed therein has been mitigated in the same manner for this contract. TODO
+While the issues are not numbered, the report references that the issues from `StrategyETH` are all valid here. Each issue listed therein has been mitigated in the same manner for this contract.
 
 ## Solidstate/DiamondReadable
 
@@ -167,7 +167,7 @@ Acknowledged.
 
 34. `setRoleAdmin` functionality is missing
 
-TODO: Review
+Acknowledged. The protocol confirms that tiered role systems will not be used, only the default admin role. Exposing `_setroleAdmin` is not required.
 
 ## StrategyDiamond
 
@@ -293,7 +293,7 @@ You can see this in `RewardRouterV2.sol::397-404` here: https://vscode.blockscan
         IRewardTracker(stakedGmxTracker).unstakeForAccount(_account, _token, _amount, _account);
 ```
 
-As such, the direct thrust of the issue, namely lacking a way to interact with the RewardTracker contracts, is not correct. However, it is true that the contract lacks an entry point to unstake from the GMX reward router contract.
+As such, the direct thrust of the issue, namely lacking a way to interact with the RewardTracker contracts, is not correct. However, it is true that the contract lacks an entry point to unstake from the GMX reward router contract. TODO
 
 55. `gmx_mintAndStakeGlpETH` is payable
 
