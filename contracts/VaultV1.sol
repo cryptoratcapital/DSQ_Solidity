@@ -3,10 +3,9 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-
-import "solmate/src/tokens/ERC20.sol";
-import "solmate/src/mixins/ERC4626.sol";
-import "solmate/src/utils/SafeTransferLib.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
 
 /**
  * @title   DSquared Investment Vault V1
@@ -19,7 +18,7 @@ import "solmate/src/utils/SafeTransferLib.sol";
  */
 contract VaultV1 is ERC4626, Ownable {
     using Counters for Counters.Counter;
-    using SafeTransferLib for ERC20;
+    using SafeERC20 for IERC20;
 
     // ----- Events -----
 
@@ -100,12 +99,12 @@ contract VaultV1 is ERC4626, Ownable {
      * @param   _maxDeposits    Initial maximum deposits allowed
      */
     constructor(
-        ERC20 _asset,
+        IERC20 _asset,
         string memory _name,
         string memory _symbol,
         address _trader,
         uint256 _maxDeposits
-    ) ERC4626(_asset, _name, _symbol) {
+    ) ERC4626(_asset) ERC20(_name, _symbol) {
         require(_trader != address(0), "!zeroAddr");
         trader = _trader;
         maxDeposits = _maxDeposits;
@@ -160,7 +159,7 @@ contract VaultV1 is ERC4626, Ownable {
 
         custodied = true;
         custodiedAmount = amount;
-        asset.safeTransfer(trader, amount);
+        IERC20(asset()).safeTransfer(trader, amount);
 
         emit FundsCustodied(epochId.current(), amount);
         return amount;
@@ -176,7 +175,7 @@ contract VaultV1 is ERC4626, Ownable {
     function returnFunds(uint256 _amount) external onlyTrader {
         require(custodied, "!custody");
         require(_amount > 0, "!amount");
-        asset.safeTransferFrom(trader, address(this), _amount);
+        IERC20(asset()).safeTransferFrom(trader, address(this), _amount);
 
         uint256 currentEpoch = getCurrentEpoch();
         Epoch storage epoch = epochs[currentEpoch];
@@ -305,22 +304,35 @@ contract VaultV1 is ERC4626, Ownable {
 
     /// @dev    See EIP-4626
     function totalAssets() public view override returns (uint256) {
-        return custodied ? custodiedAmount : asset.balanceOf(address(this));
+        return custodied ? custodiedAmount : IERC20(asset()).balanceOf(address(this));
     }
 
     /// @dev    See EIP-4626
     // (uint256 assets, uint256 shares)
-    function beforeWithdraw(uint256 assets, uint256) internal override {
+    function _deposit(
+        address caller,
+        address receiver,
+        uint256 assets,
+        uint256 shares
+    ) internal override {
+        super._deposit(caller, receiver, assets, shares);
+        totalDeposits += assets;
+    }
+
+    /// @dev    See EIP-4626
+    // (uint256 assets, uint256 shares)
+    function _withdraw(
+        address caller,
+        address receiver,
+        address owner,
+        uint256 assets,
+        uint256 shares
+    ) internal override {
         if (totalDeposits > assets) {
             totalDeposits -= assets;
         } else {
             totalDeposits = 0;
         }
-    }
-
-    /// @dev    See EIP-4626
-    // (uint256 assets, uint256 shares)
-    function afterDeposit(uint256 assets, uint256) internal override {
-        totalDeposits += assets;
+        super._withdraw(caller, receiver, owner, assets, shares);
     }
 }
