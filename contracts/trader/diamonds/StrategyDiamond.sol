@@ -2,7 +2,6 @@
 pragma solidity ^0.8.13;
 
 import "@solidstate/contracts/proxy/diamond/base/DiamondBase.sol";
-import "@solidstate/contracts/proxy/diamond/fallback/DiamondFallback.sol";
 import "@solidstate/contracts/proxy/diamond/readable/DiamondReadable.sol";
 import "@solidstate/contracts/proxy/diamond/writable/DiamondWritableInternal.sol";
 import "@solidstate/contracts/introspection/ERC165/base/ERC165Base.sol";
@@ -18,27 +17,12 @@ import "../modules/dsq/DSQ_Common_Roles.sol";
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole
  */
-abstract contract StrategyDiamond is
-    DiamondBase,
-    DiamondFallback,
-    DiamondReadable,
-    DiamondWritableInternal,
-    AccessControl,
-    ERC165Base,
-    DSQ_Common_Roles
-{
+abstract contract StrategyDiamond is DiamondBase, DiamondReadable, DiamondWritableInternal, AccessControl, ERC165Base, DSQ_Common_Roles {
     constructor(address _admin) {
         require(_admin != address(0), "StrategyDiamond: Zero address");
 
-        bytes4[] memory selectors = new bytes4[](12);
+        bytes4[] memory selectors = new bytes4[](10);
         uint256 selectorIndex;
-
-        // register DiamondFallback
-
-        selectors[selectorIndex++] = IDiamondFallback.getFallbackAddress.selector;
-        selectors[selectorIndex++] = IDiamondFallback.setFallbackAddress.selector;
-
-        _setSupportsInterface(type(IDiamondFallback).interfaceId, true);
 
         // register DiamondReadable
 
@@ -80,11 +64,4 @@ abstract contract StrategyDiamond is
 
     // solhint-disable-next-line no-empty-blocks
     receive() external payable {}
-
-    /**
-     * @inheritdoc DiamondFallback
-     */
-    function _getImplementation() internal view override(DiamondBase, DiamondFallback) returns (address implementation) {
-        implementation = super._getImplementation();
-    }
 }

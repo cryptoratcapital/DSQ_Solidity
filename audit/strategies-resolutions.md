@@ -173,9 +173,7 @@ Acknowledged. The protocol confirms that tiered role systems will not be used, o
 
 35. `DiamondFallback` cannot be set or used
 
-TODO: Review fallback logic
-
-Implemented the recommendation to remove the fallback functionality.
+Implemented the recommendation to remove the `DiamondFallback` functionality.
 
 36. Missing function selectors
 
