@@ -177,9 +177,7 @@ Implemented the recommendation to remove the `DiamondFallback` functionality.
 
 36. Missing function selectors
 
-TODO: Review fallback logic more fully
-
-Implemented the recommended changes.
+Removed the calls to cut inherited selectors as recommended.
 
 37. `EXECUTOR_ROLE` can be set during contract deployment
 

@@ -21,41 +21,9 @@ abstract contract StrategyDiamond is DiamondBase, DiamondReadable, DiamondWritab
     constructor(address _admin) {
         require(_admin != address(0), "StrategyDiamond: Zero address");
 
-        bytes4[] memory selectors = new bytes4[](10);
-        uint256 selectorIndex;
-
-        // register DiamondReadable
-
-        selectors[selectorIndex++] = IDiamondReadable.facets.selector;
-        selectors[selectorIndex++] = IDiamondReadable.facetFunctionSelectors.selector;
-        selectors[selectorIndex++] = IDiamondReadable.facetAddresses.selector;
-        selectors[selectorIndex++] = IDiamondReadable.facetAddress.selector;
-
         _setSupportsInterface(type(IDiamondReadable).interfaceId, true);
-
-        // register ERC165
-
-        selectors[selectorIndex++] = IERC165.supportsInterface.selector;
-
         _setSupportsInterface(type(IERC165).interfaceId, true);
-
-        // register AccessControl
-
-        selectors[selectorIndex++] = IAccessControl.hasRole.selector;
-        selectors[selectorIndex++] = IAccessControl.getRoleAdmin.selector;
-        selectors[selectorIndex++] = IAccessControl.grantRole.selector;
-        selectors[selectorIndex++] = IAccessControl.revokeRole.selector;
-        selectors[selectorIndex++] = IAccessControl.renounceRole.selector;
-
         _setSupportsInterface(type(IAccessControl).interfaceId, true);
-
-        // diamond cut
-
-        FacetCut[] memory facetCuts = new FacetCut[](1);
-
-        facetCuts[0] = FacetCut({ target: address(this), action: FacetCutAction.ADD, selectors: selectors });
-
-        _diamondCut(facetCuts, address(0), "");
 
         // set roles
         _grantRole(DEFAULT_ADMIN_ROLE, _admin);
