@@ -44,7 +44,7 @@ Acknowledged.
 9. Architectural risk: Potential miscalculation of shares —
    totalDeposit denomination
 
-TODO: Review
+Acknowledged. As noted, this issue is deeply intertwined in the protocol architecture.
 
 10. Governance risk
 
@@ -52,7 +52,9 @@ Acknowledged. These risks are inherent in the architecture, and plain-language r
 
 11. Malicious users can manipulate share calculation
 
-TODO: Review, decide, implement
+TODO: Pending testing by Oriole
+
+Implemented the recommended change to use OpenZeppelin virtual shares pattern. This was done by migrating to the OpenZeppelin ERC-4626 implementation instead of Solmate.
 
 12. Malicious user can DoS deposits of other users
 
@@ -197,7 +199,9 @@ Acknowledged. This module is designed only for use during soft-launch conditions
 
 40. `EXECUTOR_ROLE` can force liquidation
 
-TODO: Review
+Aave V3 employs two levels: LTV and Liquidation Threshold. A user of that protocol cannot borrow and then instantly be liquidated, although they can certainly make risky borrows up to 100% of their LTV.
+
+TODO: Finish out https://vscode.blockscan.com/arbitrum-one/0xbcb167bdcf14a8f791d6f4a6edd964aed2f8813b
 
 41. Allowed tokens can become an issue if bad-debt occurs
 
