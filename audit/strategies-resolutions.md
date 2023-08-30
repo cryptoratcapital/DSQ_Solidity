@@ -305,9 +305,7 @@ Acknowledged. The protocol confirms the need to monitor the integrated GMX contr
 
 57. Unnecessary `inputGuards`
 
-No change made. Leaving these unused is per the codebase style convention which mandates `Base`-type contracts always declare an empty input guard, wherever inputs are present, and `Module`-type contracts may choose to override the input guard, or not.
-
-TODO: Review
+No change made. The design convention mandates `Base`-type contracts always declare an empty input guard, wherever inputs are present, and `Module`-type contracts may choose to override the input guard, or not.
 
 ## GMX_OrderBook_Module
 
