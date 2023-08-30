@@ -23,9 +23,9 @@ Acknowledged. Post-deploy scripts will be developed.
 
 5. Extra safeguards for NATIVE/NON-NATIVE functions
 
-TODO: Review and decide
+This finding is disputed.
 
-The recommendation suggests requiring `msg.value == 0` for functions which are not intended to receive value. It seems that this is not possible, as the external (intended for delegatecall) functions in the facets which are not marked as payable cannot invoke `msg.value`. Making all functions payable and then requiring `msg.value == 0` feels hacky and gross. PoC suggests that it may not be possible to send value with a payable delegatecall function.
+The recommendation suggests requiring `msg.value == 0` for functions which are not intended to receive value. Internal testing was unable to replicate an instance where a nonpayable function could be delegatecalled with `msg.value`. The compiler also disallows use of `msg.value` inside nonpayable facet functions. We suggest that the indicated vulnerability is not possible.
 
 6. Implementations can be directly called
 
