@@ -27,6 +27,13 @@ abstract contract Aave_Lending_Base is AccessControl, ReentrancyGuard, DSQ_Commo
     /// @notice Aave lending pool address
     IPool public immutable aave_pool;
 
+    /// @notice Maximum borrow allowed as mantissa fraction of Aave max LTV (100% = 1e18)
+    uint256 public constant MAX_LTV_FACTOR = 0.8e18;
+    /// @dev Mantissa factor
+    uint256 internal constant MANTISSA_FACTOR = 1e18;
+    /// @dev Basis factor for Aave LTV conversion (100% = 1e4)
+    uint256 internal constant BASIS_FACTOR = 1e4;
+
     /**
      * @notice Sets the address of the Aave lending pool
      * @param _aave_pool Aave lending pool address
@@ -72,6 +79,7 @@ abstract contract Aave_Lending_Base is AccessControl, ReentrancyGuard, DSQ_Commo
 
     /**
      * @notice  Borrows the given amount of asset from the Aave lending pool
+     * @dev     The borrow amount must not cause the total debt to exceed a fraction of Aave's allowable max LTV
      * @param   asset               Address of asset to borrow
      * @param   amount              Amount of asset to borrow
      * @param   interestRateMode    Interest rate mode
@@ -88,6 +96,10 @@ abstract contract Aave_Lending_Base is AccessControl, ReentrancyGuard, DSQ_Commo
         inputGuard_aave_borrow(asset, amount, interestRateMode, referralCode, onBehalfOf);
 
         aave_pool.borrow(asset, amount, interestRateMode, referralCode, onBehalfOf);
+
+        (uint256 totalCollateralBase, uint256 totalDebtBase, , , uint256 ltv, ) = aave_pool.getUserAccountData(onBehalfOf);
+        uint256 maxDebtBase = (totalCollateralBase * ltv * MAX_LTV_FACTOR) / (BASIS_FACTOR * MANTISSA_FACTOR);
+        require(totalDebtBase <= maxDebtBase, "Aave_Lending_Base: Borrow amount exceeds max LTV"); // solhint-disable-line reason-string
     }
 
     /**
