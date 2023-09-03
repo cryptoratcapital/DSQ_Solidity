@@ -7,6 +7,7 @@ async function main() {
   await selectorHelper.lyraSelectors();
   await selectorHelper.traderJoeSelectors();
   await selectorHelper.inchSelectors();
+  await selectorHelper.camelotV3Selectors();
 }
 
 // We recommend this pattern to be able to use async/await everywhere

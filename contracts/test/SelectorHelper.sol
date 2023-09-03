@@ -11,6 +11,8 @@ import "../trader/modules/traderjoe/swap/ITraderJoe_Swap_Module.sol";
 import "../trader/modules/inch/limitorder/IInch_LimitOrder_Module.sol";
 import "../trader/modules/inch/swap/IInch_Swap_Module.sol";
 
+import "../trader/modules/camelot/v3/ICamelot_V3_Module.sol";
+
 import "hardhat/console.sol";
 
 contract SelectorHelper {
@@ -107,6 +109,26 @@ contract SelectorHelper {
         console.logBytes4(IInch_Swap_Module.inch_uniswapV3Swap.selector);
         console.log("inch_clipperSwap ");
         console.logBytes4(IInch_Swap_Module.inch_clipperSwap.selector);
+    }
+
+    function camelotV3Selectors() external view {
+        console.log("\n");
+        console.log("camelot_v3_swap ");
+        console.logBytes4(ICamelot_V3_Module.camelot_v3_swap.selector);
+        console.log("camelot_v3_mint ");
+        console.logBytes4(ICamelot_V3_Module.camelot_v3_mint.selector);
+        console.log("camelot_v3_increaseLiquidity ");
+        console.logBytes4(ICamelot_V3_Module.camelot_v3_increaseLiquidity.selector);
+        console.log("camelot_v3_decreaseLiquidity ");
+        console.logBytes4(ICamelot_V3_Module.camelot_v3_decreaseLiquidity.selector);
+        console.log("camelot_v3_collect ");
+        console.logBytes4(ICamelot_V3_Module.camelot_v3_collect.selector);
+        console.log("camelot_v3_burn ");
+        console.logBytes4(ICamelot_V3_Module.camelot_v3_burn.selector);
+        console.log("camelot_v3_decreaseLiquidityAndCollect ");
+        console.logBytes4(ICamelot_V3_Module.camelot_v3_decreaseLiquidityAndCollect.selector);
+        console.log("camelot_v3_decreaseLiquidityCollectAndBurn");
+        console.logBytes4(ICamelot_V3_Module.camelot_v3_decreaseLiquidityCollectAndBurn.selector);
     }
 
     // solhint-enable no-console

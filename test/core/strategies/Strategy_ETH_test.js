@@ -105,13 +105,13 @@ async function deployStrategy() {
   camelotV3Facet = await CamelotV3Facet.deploy(addresses.CAMELOT_POSITION_MANAGER, addresses.CAMELOT_ODOS_ROUTER);
 
   CamelotStorageFacet = await ethers.getContractFactory("Camelot_Storage_Module");
-  camelotStorageFacet = await CamelotStorageFacet.deploy(addresses.CAMELOT_NFTPOOL_FACTORY);
+  camelotStorageFacet = await CamelotStorageFacet.deploy(addresses.CAMELOT_NFTPOOL_FACTORY, addresses.CAMELOT_NITROPOOL_FACTORY);
 
   LyraStorageFacet = await ethers.getContractFactory("Lyra_Storage_Module");
   lyraStorageFacet = await LyraStorageFacet.deploy(addresses.LYRA_REGISTRY);
 
   LyraLPFacet = await ethers.getContractFactory("Lyra_LP_Module");
-  lyraLPFacet = await LyraLPFacet.deploy(addresses.USDC);
+  lyraLPFacet = await LyraLPFacet.deploy();
 
   LyraOptionsFacet = await ethers.getContractFactory("Lyra_Options_Module");
   lyraOptionsFacet = await LyraOptionsFacet.deploy();
@@ -216,17 +216,17 @@ describe("ETH++ Strategy", function () {
     });
 
     it("Should link the expected facet addresses", async function () {
-      let expectedFacets = [strategy.address, traderFacet.address];
+      let expectedFacets = [traderFacet.address];
       expectedFacets = expectedFacets.concat(facets);
-      expect(expectedFacets.length).to.eq(21);
+      expect(expectedFacets.length).to.eq(20);
       expect(await strategy.facetAddresses()).to.deep.eq(expectedFacets);
     });
 
     it("GMX: Should correctly assign selectors to their facet", async function () {
-      let selectors = ["0xad91c2f7", "0xa00b9bed", "0x49ce42af"];
+      let selectors = ["0xad91c2f7", "0xc86d3ed8", "0x49ce42af"];
       expect(await strategy.facetFunctionSelectors(gmxSwapModule.address)).to.deep.eq(selectors);
 
-      selectors = ["0x6f1efa06", "0x6a1b0bc4", "0xa3d43dc6", "0x06fdfa68", "0x4641c5f5"];
+      selectors = ["0x6f1efa06", "0xcd65badb", "0xa3d43dc6", "0x06fdfa68", "0x4641c5f5"];
       expect(await strategy.facetFunctionSelectors(gmxPositionRouterModule.address)).to.deep.eq(selectors);
 
       selectors = [
@@ -250,7 +250,7 @@ describe("ETH++ Strategy", function () {
       let selectors = ["0xad78f426", "0xfe6f6d1a", "0xa861681f"];
       expect(await strategy.facetFunctionSelectors(camelotSwapFacet.address)).to.deep.eq(selectors);
 
-      selectors = ["0xb2331fb0", "0x999512e3", "0x81cb9594", "0xa2c02ecc"];
+      selectors = ["0xb2331fb0", "0x9e7061fc", "0x81cb9594", "0xa2c02ecc"];
       expect(await strategy.facetFunctionSelectors(camelotLPFacet.address)).to.deep.eq(selectors);
 
       selectors = [
@@ -273,10 +273,10 @@ describe("ETH++ Strategy", function () {
       selectors = ["0x1c231a4c", "0x9111fac8", "0xc194a75f", "0xb1250885"];
       expect(await strategy.facetFunctionSelectors(camelotNitroPoolFacet.address)).to.deep.eq(selectors);
 
-      selectors = ["0x2863d91c", "0xf1c0f63e"];
+      selectors = ["0x3b6a43d7", "0x150c8b37", "0x86009784", "0x5fc484a1", "0x49ed80c4", "0x357f7051", "0xa00906c7", "0xbecfb24f"];
       expect(await strategy.facetFunctionSelectors(camelotStorageFacet.address)).to.deep.eq(selectors);
 
-      selectors = ["0x9b7c1910", "0x4341f600", "0x73d57d9c", "0x2100c0b6", "0x1e9e1c45", "0xf846f74b"];
+      selectors = ["0x84e4a75b", "0xa3392765", "0xd82b60df", "0x269e72ce", "0x2b0d0a4a", "0xb5a7fdac", "0xc59969a6", "0xceeb6619"];
       expect(await strategy.facetFunctionSelectors(camelotV3Facet.address)).to.deep.eq(selectors);
     });
 
@@ -289,10 +289,10 @@ describe("ETH++ Strategy", function () {
       let selectors = ["0xbab15ea0", "0xda6af577"];
       expect(await strategy.facetFunctionSelectors(lyraLPFacet.address)).to.deep.eq(selectors);
 
-      selectors = ["0xf55df137", "0x5ad203d3", "0x84147ece", "0x45c7ce9e"];
+      selectors = ["0x33ab8932", "0x5ad203d3", "0xc0522ead", "0xff648a61"];
       expect(await strategy.facetFunctionSelectors(lyraOptionsFacet.address)).to.deep.eq(selectors);
 
-      selectors = ["0x58fef3cf", "0x10e3cae8", "0xd83610c0"];
+      selectors = ["0x58fef3cf", "0xccfe1624", "0x10e3cae8", "0xd83610c0", "0xffafd099"];
       expect(await strategy.facetFunctionSelectors(lyraStorageFacet.address)).to.deep.eq(selectors);
     });
 

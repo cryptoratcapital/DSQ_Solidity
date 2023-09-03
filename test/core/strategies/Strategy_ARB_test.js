@@ -296,6 +296,9 @@ describe("ARB++ Strategy", function () {
 
       selectors = ["0x3b6a43d7", "0x150c8b37", "0x86009784", "0x5fc484a1", "0x49ed80c4", "0x357f7051", "0xa00906c7", "0xbecfb24f"];
       expect(await strategy.facetFunctionSelectors(camelotStorageFacet.address)).to.deep.eq(selectors);
+
+      selectors = ["0x84e4a75b", "0xa3392765", "0xd82b60df", "0x269e72ce", "0x2b0d0a4a", "0xb5a7fdac", "0xc59969a6", "0xceeb6619"];
+      expect(await strategy.facetFunctionSelectors(camelotV3Facet.address)).to.deep.eq(selectors);
     });
 
     it("Aave: Should correctly assign selectors to their facet", async function () {
