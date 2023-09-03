@@ -100,20 +100,20 @@ async function deployStrategy() {
   CamelotSwapFacet = await ethers.getContractFactory("Camelot_Swap_Module");
   camelotSwapFacet = await CamelotSwapFacet.deploy(addresses.CAMELOT_ROUTER);
 
+  CamelotV3Facet = await ethers.getContractFactory("Camelot_V3_Module");
+  camelotV3Facet = await CamelotV3Facet.deploy(addresses.CAMELOT_POSITION_MANAGER, addresses.CAMELOT_ODOS_ROUTER);
+
   CamelotStorageFacet = await ethers.getContractFactory("Camelot_Storage_Module");
-  camelotStorageFacet = await CamelotStorageFacet.deploy(addresses.CAMELOT_NFTPOOL_FACTORY);
+  camelotStorageFacet = await CamelotStorageFacet.deploy(addresses.CAMELOT_NFTPOOL_FACTORY, addresses.CAMELOT_NITROPOOL_FACTORY);
 
   LyraStorageFacet = await ethers.getContractFactory("Lyra_Storage_Module");
   lyraStorageFacet = await LyraStorageFacet.deploy(addresses.LYRA_REGISTRY);
 
   LyraLPFacet = await ethers.getContractFactory("Lyra_LP_Module");
-  lyraLPFacet = await LyraLPFacet.deploy(addresses.USDC);
+  lyraLPFacet = await LyraLPFacet.deploy();
 
   LyraOptionsFacet = await ethers.getContractFactory("Lyra_Options_Module");
   lyraOptionsFacet = await LyraOptionsFacet.deploy();
-
-  RyskOptionsFacet = await ethers.getContractFactory("Rysk_Options_Module");
-  ryskOptionsFacet = await RyskOptionsFacet.deploy(addresses.RYSK_ALPHA_OPTION_HANDLER);
 
   AaveLendingFacet = await ethers.getContractFactory("Aave_Lending_Module");
   aaveLendingFacet = await AaveLendingFacet.deploy(addresses.AAVE_POOL);
@@ -143,7 +143,6 @@ async function deployStrategy() {
     lyraStorageFacet.address,
     lyraLPFacet.address,
     lyraOptionsFacet.address,
-    ryskOptionsFacet.address,
     aaveLendingFacet.address,
     traderJoeSwapFacet.address,
     traderJoeLegacyLPFacet.address,
@@ -211,17 +210,17 @@ describe("GLP++ Strategy", function () {
     });
 
     it("Should link the expected facet addresses", async function () {
-      let expectedFacets = [strategy.address, traderFacet.address];
+      let expectedFacets = [traderFacet.address];
       expectedFacets = expectedFacets.concat(facets);
-      expect(expectedFacets.length).to.eq(17);
+      expect(expectedFacets.length).to.eq(15);
       expect(await strategy.facetAddresses()).to.deep.eq(expectedFacets);
     });
 
     it("GMX: Should correctly assign selectors to their facet", async function () {
-      let selectors = ["0xad91c2f7", "0xa00b9bed", "0x49ce42af"];
+      let selectors = ["0xad91c2f7", "0xc86d3ed8", "0x49ce42af"];
       expect(await strategy.facetFunctionSelectors(gmxSwapModule.address)).to.deep.eq(selectors);
 
-      selectors = ["0x6f1efa06", "0x6a1b0bc4", "0xa3d43dc6", "0x06fdfa68", "0x4641c5f5"];
+      selectors = ["0x6f1efa06", "0xcd65badb", "0xa3d43dc6", "0x06fdfa68", "0x4641c5f5"];
       expect(await strategy.facetFunctionSelectors(gmxPositionRouterModule.address)).to.deep.eq(selectors);
 
       selectors = [
@@ -263,16 +262,11 @@ describe("GLP++ Strategy", function () {
       let selectors = ["0xbab15ea0", "0xda6af577"];
       expect(await strategy.facetFunctionSelectors(lyraLPFacet.address)).to.deep.eq(selectors);
 
-      selectors = ["0xf55df137", "0x5ad203d3", "0x84147ece", "0x45c7ce9e"];
+      selectors = ["0x33ab8932", "0x5ad203d3", "0xc0522ead", "0xff648a61"];
       expect(await strategy.facetFunctionSelectors(lyraOptionsFacet.address)).to.deep.eq(selectors);
 
-      selectors = ["0x58fef3cf", "0x10e3cae8", "0xd83610c0"];
+      selectors = ["0x58fef3cf", "0xccfe1624", "0x10e3cae8", "0xd83610c0", "0xffafd099"];
       expect(await strategy.facetFunctionSelectors(lyraStorageFacet.address)).to.deep.eq(selectors);
-    });
-
-    it("Rysk: Should correctly assign selectors to their facet", async function () {
-      let selectors = ["0x512d6e04", "0xce3eeb88", "0xe1ca3b0a"];
-      expect(await strategy.facetFunctionSelectors(ryskOptionsFacet.address)).to.deep.eq(selectors);
     });
 
     it("Trader Joe: Should correctly assign selectors to their facet", async function () {

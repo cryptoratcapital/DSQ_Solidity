@@ -95,17 +95,17 @@ describe("GM++", function () {
     });
 
     it("Should link the expected facet addresses", async function () {
-      let expectedFacets = [strategy.address, traderFacet.address];
+      let expectedFacets = [traderFacet.address];
       expectedFacets = expectedFacets.concat(facets);
-      expect(expectedFacets.length).to.eq(5);
+      expect(expectedFacets.length).to.eq(4);
       expect(await strategy.facetAddresses()).to.deep.eq(expectedFacets);
     });
 
     it("GMX: Should correctly assign selectors to their facet", async function () {
-      let selectors = ["0xad91c2f7", "0xa00b9bed", "0x49ce42af"];
+      let selectors = ["0xad91c2f7", "0xc86d3ed8", "0x49ce42af"];
       expect(await strategy.facetFunctionSelectors(gmxSwapModule.address)).to.deep.eq(selectors);
 
-      selectors = ["0x6f1efa06", "0x6a1b0bc4", "0xa3d43dc6", "0x06fdfa68", "0x4641c5f5"];
+      selectors = ["0x6f1efa06", "0xcd65badb", "0xa3d43dc6", "0x06fdfa68", "0x4641c5f5"];
       expect(await strategy.facetFunctionSelectors(gmxPositionRouterModule.address)).to.deep.eq(selectors);
 
       selectors = [
