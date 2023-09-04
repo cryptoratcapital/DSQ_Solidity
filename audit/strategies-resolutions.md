@@ -410,6 +410,7 @@ Acknowledged.
 77. Hardcoded swap path might not be the most optimal/liquid one
 
 TODO: Test fully
+TODO: Fix interface issue
 
 Implemented the recommended changes.
 
