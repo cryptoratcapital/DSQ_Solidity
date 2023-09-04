@@ -43,8 +43,6 @@ async function deployStrategy() {
 
   strategyDiamond = await ethers.getContractAt("StrategyDiamond_TestFixture_TrivialStrategy", strategy.address);
 
-  // await strategyDiamond.initializeTraderV0([traderName, allowedTokens, allowedSpenders, initialPerformanceFee, initialManagementFee]);
-
   Test20 = await ethers.getContractFactory("TestFixture_ERC20");
   test20 = await Test20.deploy("Test20", "Test20");
 
@@ -62,6 +60,35 @@ async function deployStrategy() {
 }
 
 describe("TraderV0", function () {
+  describe("Deployment and initialization", function () {
+    it("Should not deploy with invalid parameters", async function () {
+      setBalance(devWallet.address, parseEther("1000"));
+      Trader = await ethers.getContractFactory("TraderV0");
+      traderFacet = await Trader.deploy(maxPerformanceFee, maxManagementFee);
+
+      Strategy = await ethers.getContractFactory("TestFixture_TrivialStrategy");
+      await expect(Strategy.deploy(ethers.constants.AddressZero, traderFacet.address, traderInitializerParams)).to.be.revertedWith(
+        "StrategyDiamond: Zero address",
+      );
+      await expect(Strategy.deploy(devWallet.address, ethers.constants.AddressZero, traderInitializerParams)).to.be.revertedWith(
+        "TraderV0_Cutter: _traderFacet must not be 0 address",
+      );
+    });
+
+    it("Should not initialize after deployment", async function () {
+      setBalance(devWallet.address, parseEther("1000"));
+      Trader = await ethers.getContractFactory("TraderV0");
+      traderFacet = await Trader.deploy(maxPerformanceFee, maxManagementFee);
+
+      Strategy = await ethers.getContractFactory("TestFixture_TrivialStrategy");
+      strategy = await Strategy.deploy(devWallet.address, traderFacet.address, traderInitializerParams);
+
+      strategyDiamond = await ethers.getContractAt("StrategyDiamond_TestFixture_TrivialStrategy", strategy.address);
+
+      await expect(strategyDiamond.initializeTraderV0(traderInitializerParams)).to.be.revertedWith("Proxy__ImplementationIsNotContract");
+    });
+  });
+
   describe("Core", function () {
     beforeEach(async function () {
       const { strategyDiamond, vault, test20, USDC, WNATIVE } = await loadFixture(deployStrategy);

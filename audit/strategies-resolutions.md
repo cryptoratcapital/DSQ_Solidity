@@ -99,7 +99,7 @@ Implemented the recommended change to block custody unless fees have been withdr
 
 21. Lack of validation
 
-Implemented the recommended change to validate the fee receiver. The recommendation to validate the maximum fee vs. a hardcoded limit was not implemented, as the fee structure may vary between strategy mandates. Post-deployment validation will be developed to ensure that the maximums are appropriately set. TEST PENDING
+Implemented the recommended change to validate the fee receiver. The recommendation to validate the maximum fee vs. a hardcoded limit was not implemented, as the fee structure may vary between strategy mandates. Post-deployment validation will be developed to ensure that the maximums are appropriately set.
 
 22. Typographical issue
 
@@ -121,7 +121,7 @@ Implemented the recommended change. While this strategy is ultimately intended t
 
 26. Lack of validation for `_admin`
 
-Acknowledged. The `DEFAULT_ADMIN_ROLE` is only to be granted to a multisignature wallet. Zero address validation for `_admin` has also been added to the `StrategyDiamond.sol` contract. TEST PENDING
+Acknowledged. The `DEFAULT_ADMIN_ROLE` is only to be granted to a multisignature wallet. Zero address validation for `_admin` has also been added to the `StrategyDiamond.sol` contract.
 
 ## Strategies/StrategyGLP
 
