@@ -175,6 +175,19 @@ describe("Aave Modules", function () {
         .reverted; // Invalid enum
     });
 
+    it.only("Should NOT borrow more than allowed percentage of Aave LTV", async function () {
+      reserveData = await pool.getReserveData(DAI.address);
+      stableDebtToken = await ethers.getContractAt("IStableDebtToken", reserveData.stableDebtTokenAddress);
+      await expect(() =>
+        strategyDiamond.connect(devWallet).aave_supply(USDC.address, initialUSDCBalance, strategyDiamond.address, 0),
+      ).to.changeTokenBalance(USDC, strategyDiamond, -10000e6);
+      await expect(
+        strategyDiamond.connect(devWallet).aave_borrow(DAI.address, parseEther("7500"), 1, 0, strategyDiamond.address),
+      ).to.be.revertedWith("Aave_Lending_Base: Borrow amount exceeds max LTV");
+      await expect(strategyDiamond.connect(devWallet).aave_borrow(DAI.address, parseEther("5000"), 1, 0, strategyDiamond.address)).to.not.be
+        .reverted;
+    });
+
     it("Should repay", async function () {
       reserveData = await pool.getReserveData(DAI.address);
       stableDebtToken = await ethers.getContractAt("IStableDebtToken", reserveData.stableDebtTokenAddress);

@@ -199,8 +199,6 @@ Acknowledged. This module is designed only for use during soft-launch conditions
 
 Aave V3 employs two levels: LTV and Liquidation Threshold. A user of that protocol cannot borrow and then instantly be liquidated, although they are allowed to make risky borrows up to 100% of their LTV. Implemented the recommendation to impose a hardcap as a fraction of Aave's max LTV to give a safety margin.
 
-TODO: Testing TEST PENDING
-
 41. Allowed tokens can become an issue if bad-debt occurs
 
 Acknowledged.
