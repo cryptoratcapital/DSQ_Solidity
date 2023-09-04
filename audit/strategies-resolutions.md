@@ -181,11 +181,11 @@ Removed the calls to cut inherited selectors as recommended.
 
 37. `EXECUTOR_ROLE` can be set during contract deployment
 
-Implemented the recommended changes. TEST PENDING
+Implemented the recommended changes.
 
 38. `IAccessControl` interface is not supported
 
-Implemented the recommended changes. TEST PENDING
+Implemented the recommended changes.
 
 ## DSQ Module/DSQ_Rescue_Module
 

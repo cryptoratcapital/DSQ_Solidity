@@ -87,6 +87,26 @@ describe("TraderV0", function () {
 
       await expect(strategyDiamond.initializeTraderV0(traderInitializerParams)).to.be.revertedWith("Proxy__ImplementationIsNotContract");
     });
+
+    it("Should declare the correct interfaces", async function () {
+      setBalance(devWallet.address, parseEther("1000"));
+      Trader = await ethers.getContractFactory("TraderV0");
+      traderFacet = await Trader.deploy(maxPerformanceFee, maxManagementFee);
+
+      Strategy = await ethers.getContractFactory("TestFixture_TrivialStrategy");
+      strategy = await Strategy.deploy(devWallet.address, traderFacet.address, traderInitializerParams);
+
+      strategyDiamond = await ethers.getContractAt("StrategyDiamond_TestFixture_TrivialStrategy", strategy.address);
+
+      // ITraderV0
+      expect(await strategyDiamond.supportsInterface("0x9cd19de4")).to.eq(true);
+      // IDiamondReadable
+      expect(await strategyDiamond.supportsInterface("0x48e2b093")).to.eq(true);
+      // IERC165Base
+      expect(await strategyDiamond.supportsInterface("0x01ffc9a7")).to.eq(true);
+      // IAccessControl
+      expect(await strategyDiamond.supportsInterface("0xc48a940a")).to.eq(true);
+    });
   });
 
   describe("Core", function () {
@@ -102,6 +122,11 @@ describe("TraderV0", function () {
       expect(data).to.have.same.members(allowedTokens);
       data = await strategyDiamond.getAllowedSpenders();
       expect(data).to.have.same.members(allowedSpenders);
+    });
+
+    it("Should grant roles on construction", async function () {
+      expect(await strategyDiamond.hasRole(traderFacet.EXECUTOR_ROLE(), devWallet.address)).to.eq(true);
+      expect(await strategyDiamond.hasRole(ethers.constants.HashZero, devWallet.address)).to.eq(true);
     });
 
     it("Should NOT set vault a second time", async function () {
