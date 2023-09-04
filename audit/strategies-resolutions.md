@@ -33,7 +33,7 @@ Implementation (aka. "facet") contracts are intended for delegate call only. The
 
 7. Lack of validation for `_facet`
 
-Implemented the suggested change.
+Implemented the suggested change. TEST PENDING
 
 8. tx.origin usage by projects
 
@@ -52,7 +52,7 @@ Acknowledged. These risks are inherent in the architecture, and plain-language r
 
 11. Malicious users can manipulate share calculation
 
-TODO: Pending testing by Oriole
+TODO: Pending testing by Oriole TEST PENDING
 
 Implemented the recommended change to use OpenZeppelin virtual shares pattern. This was done by migrating to the OpenZeppelin ERC-4626 implementation instead of Solmate.
 
@@ -99,7 +99,7 @@ Implemented the recommended change to block custody unless fees have been withdr
 
 21. Lack of validation
 
-Implemented the recommended change to validate the fee receiver. The recommendation to validate the maximum fee vs. a hardcoded limit was not implemented, as the fee structure may vary between strategy mandates. Post-deployment validation will be developed to ensure that the maximums are appropriately set.
+Implemented the recommended change to validate the fee receiver. The recommendation to validate the maximum fee vs. a hardcoded limit was not implemented, as the fee structure may vary between strategy mandates. Post-deployment validation will be developed to ensure that the maximums are appropriately set. TEST PENDING
 
 22. Typographical issue
 
@@ -117,13 +117,11 @@ Implemented the recommended change.
 
 25. Rysk module is implemented
 
-TODO: Selector tests started failing unexpectedly, resolve
-
 Implemented the recommended change. While this strategy is ultimately intended to provide investment into Rysk, the module is not production ready nor available for audit due to anticipated Rysk protocol upgrades. It has been removed from the strategy to prevent accidental inclusion into a production environment.
 
 26. Lack of validation for `_admin`
 
-Acknowledged. The `DEFAULT_ADMIN_ROLE` is only to be granted to a multisignature wallet. Zero address validation for `_admin` has also been added to the `StrategyDiamond.sol` contract.
+Acknowledged. The `DEFAULT_ADMIN_ROLE` is only to be granted to a multisignature wallet. Zero address validation for `_admin` has also been added to the `StrategyDiamond.sol` contract. TEST PENDING
 
 ## Strategies/StrategyGLP
 
@@ -183,11 +181,11 @@ Removed the calls to cut inherited selectors as recommended.
 
 37. `EXECUTOR_ROLE` can be set during contract deployment
 
-Implemented the recommended changes.
+Implemented the recommended changes. TEST PENDING
 
 38. `IAccessControl` interface is not supported
 
-Implemented the recommended changes.
+Implemented the recommended changes. TEST PENDING
 
 ## DSQ Module/DSQ_Rescue_Module
 
@@ -201,7 +199,7 @@ Acknowledged. This module is designed only for use during soft-launch conditions
 
 Aave V3 employs two levels: LTV and Liquidation Threshold. A user of that protocol cannot borrow and then instantly be liquidated, although they are allowed to make risky borrows up to 100% of their LTV. Implemented the recommendation to impose a hardcap as a fraction of Aave's max LTV to give a safety margin.
 
-TODO: Testing
+TODO: Testing TEST PENDING
 
 41. Allowed tokens can become an issue if bad-debt occurs
 
@@ -234,11 +232,11 @@ Acknowledged. The protocol confirms understanding that this module is not self-s
 46. Missing safeguard for a Nitro pool within the manageNitroPools
     function
 
-Implemented the recommended changes.
+Implemented the recommended changes. TEST PENDING
 
 47. Missing safeguard for `address(0)`
 
-Implemented the recommended changes.
+Implemented the recommended changes. TEST PENDING
 
 ## Camelot_Swap_Module
 
@@ -305,17 +303,17 @@ Acknowledged. The protocol confirms the need to monitor the integrated GMX contr
 
 57. Unnecessary `inputGuards`
 
-No change made. The design convention mandates `Base`-type contracts always declare an empty input guard, wherever inputs are present, and `Module`-type contracts may choose to override the input guard, or not.
+No change made. The design convention mandates `Base`-type contracts always declare an empty input guard, wherever inputs are present, and `Module`-type contracts may choose to override the input guard, or not. TODO
 
 ## GMX_OrderBook_Module
 
 58. Privileged address has full control of funds
 
-Acknowledged. The recommendation to enforce a cap on `_executionFee` has been partially implemented by way of no longer allowing the `_executionFee` to access strategy funds. The executor may specify any execution fee they wish, but it must be passed as `msg.value`.
+Acknowledged. The recommendation to enforce a cap on `_executionFee` has been partially implemented by way of no longer allowing the `_executionFee` to access strategy funds. The executor may specify any execution fee they wish, but it must be passed as `msg.value`. TEST PENDING
 
 59. ExecutionFee is refunded to the proxy
 
-Implemented the recommended change. The refunded execution fee will go to the caller of the cancellation function, regardless of who created the order. This introduces a vector for executors to steal execution fees from each other by immediately canceling each other's orders, but the protocol deems this acceptable given the trust model of the protocol.
+Implemented the recommended change. The refunded execution fee will go to the caller of the cancellation function, regardless of who created the order. This introduces a vector for executors to steal execution fees from each other by immediately canceling each other's orders, but the protocol deems this acceptable given the trust model of the protocol. TEST PENDING
 
 60. Not validating that `_minOut` is not 0 could enable maximum
     slippage on the order
@@ -336,11 +334,11 @@ Acknowledged.
 
 63. Privileged address has full control of funds
 
-Acknowledged. The recommendation to enforce a cap on `_executionFee` has been partially implemented by way of no longer allowing the `_executionFee` to access strategy funds. The executor may specify any execution fee they wish, but it must be passed as `msg.value`.
+Acknowledged. The recommendation to enforce a cap on `_executionFee` has been partially implemented by way of no longer allowing the `_executionFee` to access strategy funds. The executor may specify any execution fee they wish, but it must be passed as `msg.value`. TEST PENDING
 
 64. Cancellation allows for arbitrary `executionFee` receiver
 
-Removed the ability for the strategy to pay for its own execution fees, fees must now be paid by the executor. Fee recipients do not have to be `msg.sender`, but must have an executor or admin role. This eliminates the value leak path described in the issue.
+Removed the ability for the strategy to pay for its own execution fees, fees must now be paid by the executor. Fee recipients do not have to be `msg.sender`, but must have an executor or admin role. This eliminates the value leak path described in the issue. TEST PENDING
 
 65. Missing warning in the `init_GMX_positionRouter` NatSpec
 
@@ -369,7 +367,7 @@ Acknowledged.
 
 TODO: Review if `validateLinearOrder` also needs to be done
 
-Implemented the recommended changes. Moved validation from `base` to `module` to match codebase design philosophy.
+Implemented the recommended changes. Moved validation from `base` to `module` to match codebase design philosophy. TEST PENDING
 
 70. Critical necessary approvals
 
@@ -383,7 +381,7 @@ Acknowledged.
 
 72. Flawed token validation
 
-Implemented the recommended changes.
+Implemented the recommended changes. TEST PENDING
 
 ## Lyra_LP_Module
 
@@ -409,7 +407,7 @@ Acknowledged.
 
 77. Hardcoded swap path might not be the most optimal/liquid one
 
-TODO: Test fully
+TODO: Test fully TEST PENDING
 TODO: Fix interface issue
 
 Implemented the recommended changes.
@@ -440,7 +438,7 @@ Acknowledged.
 
 82. Missing safeguards when adding Lyra components
 
-TODO: Test fully
+TODO: Test fully TEST PENDING
 
 Implemented the recommended change to verify that `quoteAsset` and `baseAsset` are in `allowedTokens`. Implemented the recommended change to remove USDC hardcoded address and store the quote asset of each lyra pool.
 

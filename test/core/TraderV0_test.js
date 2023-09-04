@@ -504,6 +504,12 @@ describe("TraderV0", function () {
       await expect(strategyDiamond.connect(citizen1).returnFunds()).to.be.revertedWith("AccessControl:");
       await expect(strategyDiamond.connect(citizen1).withdrawFees()).to.be.revertedWith("AccessControl:");
       await expect(strategyDiamond.connect(citizen1).approve(USDC.address, addresses.GMX_ROUTER, 0)).to.be.revertedWith("AccessControl:");
+      await expect(strategyDiamond.connect(citizen1).setFeeRates(0, 0)).to.be.revertedWith("AccessControl:");
+      await expect(strategyDiamond.connect(citizen1).setFeeReceiver(citizen1.address)).to.be.revertedWith("AccessControl:");
+    });
+
+    it("Should NOT allow setting fee receiver to zero address", async function () {
+      await expect(strategyDiamond.setFeeReceiver(ethers.constants.AddressZero)).to.be.revertedWith("!zeroAddress");
     });
   });
 });
