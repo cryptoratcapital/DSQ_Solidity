@@ -230,11 +230,11 @@ Acknowledged. The protocol confirms understanding that this module is not self-s
 46. Missing safeguard for a Nitro pool within the manageNitroPools
     function
 
-Implemented the recommended changes. TEST PENDING
+Implemented the recommended changes.
 
 47. Missing safeguard for `address(0)`
 
-Implemented the recommended changes. TEST PENDING
+Implemented the recommended changes.
 
 ## Camelot_Swap_Module
 
@@ -307,11 +307,11 @@ No change made. The design convention mandates `Base`-type contracts always decl
 
 58. Privileged address has full control of funds
 
-Acknowledged. The recommendation to enforce a cap on `_executionFee` has been partially implemented by way of no longer allowing the `_executionFee` to access strategy funds. The executor may specify any execution fee they wish, but it must be passed as `msg.value`. TEST PENDING
+Acknowledged. The recommendation to enforce a cap on `_executionFee` has been partially implemented by way of no longer allowing the `_executionFee` to access strategy funds. The executor may specify any execution fee they wish, but it must be passed as `msg.value`.
 
 59. ExecutionFee is refunded to the proxy
 
-Implemented the recommended change. The refunded execution fee will go to the caller of the cancellation function, regardless of who created the order. This introduces a vector for executors to steal execution fees from each other by immediately canceling each other's orders, but the protocol deems this acceptable given the trust model of the protocol. TEST PENDING
+Implemented the recommended change. The refunded execution fee will go to the caller of the cancellation function, regardless of who created the order. This introduces a vector for executors to steal execution fees from each other by immediately canceling each other's orders, but the protocol deems this acceptable given the trust model of the protocol.
 
 60. Not validating that `_minOut` is not 0 could enable maximum
     slippage on the order
@@ -332,11 +332,11 @@ Acknowledged.
 
 63. Privileged address has full control of funds
 
-Acknowledged. The recommendation to enforce a cap on `_executionFee` has been partially implemented by way of no longer allowing the `_executionFee` to access strategy funds. The executor may specify any execution fee they wish, but it must be passed as `msg.value`. TEST PENDING
+Acknowledged. The recommendation to enforce a cap on `_executionFee` has been partially implemented by way of no longer allowing the `_executionFee` to access strategy funds. The executor may specify any execution fee they wish, but it must be passed as `msg.value`.
 
 64. Cancellation allows for arbitrary `executionFee` receiver
 
-Removed the ability for the strategy to pay for its own execution fees, fees must now be paid by the executor. Fee recipients do not have to be `msg.sender`, but must have an executor or admin role. This eliminates the value leak path described in the issue. TEST PENDING
+Removed the ability for the strategy to pay for its own execution fees, fees must now be paid by the executor. Fee recipients do not have to be `msg.sender`, but must have an executor or admin role. This eliminates the value leak path described in the issue.
 
 65. Missing warning in the `init_GMX_positionRouter` NatSpec
 

@@ -75,7 +75,11 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _pools    Array of pool addresses
      * @param _status   Array of statuses
      */
-    function manageNitroPools(address[] calldata _pools, bool[] calldata _status, uint256[] calldata _indexes) external onlyRole(EXECUTOR_ROLE) {
+    function manageNitroPools(
+        address[] calldata _pools,
+        bool[] calldata _status,
+        uint256[] calldata _indexes
+    ) external onlyRole(EXECUTOR_ROLE) {
         // solhint-disable-next-line reason-string
         uint256 poolsLen = _pools.length;
         require(poolsLen == _status.length && poolsLen == _indexes.length, "Camelot_Storage_Module: Length mismatch");
@@ -124,7 +128,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _status       Status
      */
     function _manageExecutor(address _executor, bool _status) internal {
-        require(_executor != address(0), 'Camelot_Storage_Module: Zero address');
+        require(_executor != address(0), "Camelot_Storage_Module: Zero address");
         if (_status) {
             getCamelotCommonStorage().allowedExecutors.add(_executor);
         } else {
@@ -154,7 +158,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _status       Status
      */
     function _manageReceiver(address _receiver, bool _status) internal {
-        require(_receiver != address(0), 'Camelot_Storage_Module: Zero address');
+        require(_receiver != address(0), "Camelot_Storage_Module: Zero address");
         if (_status) {
             getCamelotCommonStorage().allowedReceivers.add(_receiver);
         } else {

@@ -175,7 +175,7 @@ describe("Aave Modules", function () {
         .reverted; // Invalid enum
     });
 
-    it.only("Should NOT borrow more than allowed percentage of Aave LTV", async function () {
+    it("Should NOT borrow more than allowed percentage of Aave LTV", async function () {
       reserveData = await pool.getReserveData(DAI.address);
       stableDebtToken = await ethers.getContractAt("IStableDebtToken", reserveData.stableDebtTokenAddress);
       await expect(() =>
