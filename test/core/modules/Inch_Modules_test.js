@@ -166,7 +166,7 @@ describe.only("1Inch Modules", function () {
     });
   });
 
-  describe("Inch_Swap_Module", function () {
+  describe.only("Inch_Swap_Module", function () {
     beforeEach(async function () {
       const { strategyDiamond, vault, test20, USDC, DAI, WETH, router, executor } = await loadFixture(deployStrategy);
 
@@ -271,6 +271,16 @@ describe.only("1Inch Modules", function () {
         -initialUSDCBalance,
       );
       expect(await WETH.balanceOf(strategyDiamond.address)).to.be.gt(0);
+    });
+
+    it("Should NOT single-pool uniswapV3Swap to or from a token outside the mandate", async function () {
+      pool = "0xcda53b1f66614552f834ceef361a8d12a0b8dad8"; // ARB/USDC
+      uintAddress = convertToUint256Address(false, false, pool);
+      console.log(uintAddress);
+      await expect(strategyDiamond.inch_uniswapV3Swap(0, initialUSDCBalance, 0, [uintAddress])).to.be.revertedWith("Invalid token");
+      uintAddress = convertToUint256Address(true, false, pool);
+      console.log(uintAddress);
+      await expect(strategyDiamond.inch_uniswapV3Swap(0, initialUSDCBalance, 0, [uintAddress])).to.be.revertedWith("Invalid token");
     });
 
     // USDC -> WETH

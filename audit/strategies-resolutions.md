@@ -365,7 +365,7 @@ Acknowledged.
 
 TODO: Review if `validateLinearOrder` also needs to be done
 
-Implemented the recommended changes. Moved validation from `base` to `module` to match codebase design philosophy. TEST PENDING
+Implemented the recommended changes. Moved validation from `base` to `module` to match codebase design philosophy.
 
 70. Critical necessary approvals
 
@@ -379,7 +379,7 @@ Acknowledged.
 
 72. Flawed token validation
 
-Implemented the recommended changes. TEST PENDING
+Implemented the recommended changes.
 
 ## Lyra_LP_Module
 
