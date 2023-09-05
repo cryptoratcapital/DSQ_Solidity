@@ -58,8 +58,9 @@ contract Inch_LimitOrder_Module is Inch_LimitOrder_Base, DSQ_Trader_Storage {
         } else if (takerDecimals > makerDecimals) {
             makingValue = makingValue * 10 ** (takerDecimals - makerDecimals);
         }
+
         // solhint-disable-next-line reason-string
-        require(takingValue > (makingValue.mulDiv(SLIPPAGE_PERCENTAGE, 100, Math.Rounding.Up)), "GuardError: Invalid order parameters");
+        require(makingValue > (takingValue.mulDiv(SLIPPAGE_PERCENTAGE, 100, Math.Rounding.Up)), "GuardError: Invalid order parameters");
     }
 
     /// @inheritdoc Inch_LimitOrder_Base

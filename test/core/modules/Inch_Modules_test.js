@@ -97,7 +97,7 @@ async function deployStrategy() {
   return { strategyDiamond, vault, test20, USDC, DAI, WETH, WBTC, GMX, router, executor };
 }
 
-describe("1Inch Modules", function () {
+describe.only("1Inch Modules", function () {
   before(async function () {
     await resetToDefaultNetwork();
   });
@@ -381,7 +381,7 @@ describe("1Inch Modules", function () {
       await expect(strategyDiamond.connect(citizen1).init_Inch_LimitOrder(assets, oracles)).to.be.reverted; // Proxy__ImplementationIsNotContract
     });
 
-    it("Should allow citizen1 to fill order made by devWallet", async function () {
+    it("inch_addOrder: Should allow citizen1 to fill order made by devWallet", async function () {
       const citizenIndex = getSlot(citizen1.address, DAI_SLOT);
       await setStorageAt(DAI.address, citizenIndex, toBytes32(parseEther("1000")));
       await DAI.connect(citizen1).approve(router.address, ethers.constants.MaxUint256);
@@ -411,33 +411,35 @@ describe("1Inch Modules", function () {
 
     it("Should fillOrder", async function () {
       const citizenIndex = getSlot(citizen1.address, DAI_SLOT);
-      await setStorageAt(DAI.address, citizenIndex, toBytes32(parseEther("100")));
+      await setStorageAt(DAI.address, citizenIndex, toBytes32(parseEther("1000")));
       await DAI.connect(citizen1).approve(router.address, ethers.constants.MaxUint256);
 
       // Citizen1 makes an order and signs it
+      // Offering 1000 DAI for 1000 USDC
       limitOrderBuilder = new LimitOrderBuilder("", 1, ethers.provider);
       limitOrder = limitOrderBuilder.buildLimitOrder({
         makerAssetAddress: DAI.address,
         takerAssetAddress: USDC.address,
         makerAddress: citizen1.address,
-        makingAmount: "1000",
-        takingAmount: "1000",
+        makingAmount: "1000000000000000000000",
+        takingAmount: "1000000000",
         // receiver: ZERO_ADDRESS,
         // allowedSender = ZERO_ADDRESS,
       });
       limitOrderHash = await router.hashOrder(limitOrder);
       signature = ethers.utils.joinSignature(citizen1._signingKey().signDigest(limitOrderHash));
 
-      await expect(() => strategyDiamond.inch_fillOrder(0, limitOrder, signature, "0x00", 0, 500, 0)).to.changeTokenBalance(
+      await expect(() => strategyDiamond.inch_fillOrder(0, limitOrder, signature, "0x00", 0, 500e6, 0)).to.changeTokenBalance(
         USDC,
         strategyDiamond,
-        -500,
+        -500e6,
       );
-      expect(await USDC.balanceOf(citizen1.address)).to.eq(500);
-      expect(await DAI.balanceOf(strategyDiamond.address)).to.eq(500);
+
+      expect(await USDC.balanceOf(citizen1.address)).to.eq(500e6);
+      expect(await DAI.balanceOf(strategyDiamond.address)).to.eq(ethers.utils.parseEther("500"));
     });
 
-    it("Should fillOrder using msg.value", async function () {
+    it("Should fillOrder using valueIn", async function () {
       const citizenIndex = getSlot(citizen1.address, DAI_SLOT);
       await setStorageAt(DAI.address, citizenIndex, toBytes32(parseEther("3500")));
       await DAI.connect(citizen1).approve(router.address, ethers.constants.MaxUint256);
