@@ -96,6 +96,22 @@ abstract contract GMX_GLP_Base is AccessControl, ReentrancyGuard, DSQ_Common_Rol
     }
 
     /**
+     * @notice Unstakes GMX
+     * @param _amount   Amount of GMX to unstake
+     */
+    function gmx_unstakeGmx(uint256 _amount) external onlyRole(EXECUTOR_ROLE) nonReentrant {
+        gmx_GMXRewardRouter.unstakeGmx(_amount);
+    }
+
+    /**
+     * @notice Unstakes esGMX
+     * @param _amount   Amount of esGMX to unstake
+     */
+    function gmx_unstakeEsGmx(uint256 _amount) external onlyRole(EXECUTOR_ROLE) nonReentrant {
+        gmx_GMXRewardRouter.unstakeEsGmx(_amount);
+    }
+
+    /**
      * @notice Unstakes and redeems GLP to native token
      * @param _glpAmount    Amount of GLP to unstake
      * @param _minOut       Min amount to receive

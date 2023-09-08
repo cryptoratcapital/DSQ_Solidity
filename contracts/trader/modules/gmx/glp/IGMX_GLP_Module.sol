@@ -34,6 +34,10 @@ interface IGMX_GLP_Module {
         bool _shouldConvertWethToEth
     ) external;
 
+    function gmx_unstakeGmx(uint256 _amount) external;
+
+    function gmx_unstakeEsGmx(uint256 _amount) external;
+
     // ---------- Getters ----------
 
     function gmx_GLPRewardRouter() external returns (IRewardRouterV2);

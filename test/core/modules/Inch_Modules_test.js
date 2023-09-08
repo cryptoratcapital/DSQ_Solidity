@@ -97,7 +97,7 @@ async function deployStrategy() {
   return { strategyDiamond, vault, test20, USDC, DAI, WETH, WBTC, GMX, router, executor };
 }
 
-describe.only("1Inch Modules", function () {
+describe("1Inch Modules", function () {
   before(async function () {
     await resetToDefaultNetwork();
   });
@@ -166,7 +166,7 @@ describe.only("1Inch Modules", function () {
     });
   });
 
-  describe.only("Inch_Swap_Module", function () {
+  describe("Inch_Swap_Module", function () {
     beforeEach(async function () {
       const { strategyDiamond, vault, test20, USDC, DAI, WETH, router, executor } = await loadFixture(deployStrategy);
 

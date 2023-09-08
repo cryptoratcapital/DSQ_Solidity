@@ -24,4 +24,8 @@ interface IRewardRouterV2 {
         bool _shouldClaimWeth,
         bool _shouldConvertWethToEth
     ) external;
+
+    function unstakeGmx(uint256 _amount) external;
+
+    function unstakeEsGmx(uint256 _amount) external;
 }

@@ -289,7 +289,15 @@ You can see this in `RewardRouterV2.sol::397-404` here: https://vscode.blockscan
         IRewardTracker(stakedGmxTracker).unstakeForAccount(_account, _token, _amount, _account);
 ```
 
-As such, the direct thrust of the issue, namely lacking a way to interact with the RewardTracker contracts, is not correct. However, it is true that the contract lacks an entry point to unstake from the GMX reward router contract. TODO
+As such, the direct thrust of the issue, namely lacking a way to interact with the RewardTracker contracts, is not strictly correct.
+
+However, it is true that the contract lacks an entry point to unstake GMX or esGMX from the GMX reward router contract. This was initially not set up as the configuration of GMX's reward system would not cause such rewards to be accrued.
+
+TODO: Detail reward systems
+
+Functions `gmx_unstakeGmx` and `gmx_unstakeEsGmx` have been implemented per the recommendation, to guard against the case where such reward positions were created through `compound` or `handleRewards`, although we do not expect them to be used in practice.
+
+Test pending
 
 55. `gmx_mintAndStakeGlpETH` is payable
 
@@ -301,7 +309,7 @@ Acknowledged. The protocol confirms the need to monitor the integrated GMX contr
 
 57. Unnecessary `inputGuards`
 
-No change made. The design convention mandates `Base`-type contracts always declare an empty input guard, wherever inputs are present, and `Module`-type contracts may choose to override the input guard, or not. TODO
+No change made. The design convention mandates `Base`-type contracts always declare an empty input guard, wherever inputs are present, and `Module`-type contracts may choose to override the input guard, or not.
 
 ## GMX_OrderBook_Module
 
