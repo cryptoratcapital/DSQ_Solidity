@@ -260,9 +260,13 @@ Acknowledged.
 
 52. Missing logic for entering Algebra’s farming
 
-TODO
+Camelot team has confirmed that they do not use the Algebra farming system, and instead use their own [spNFT system](https://docs.camelot.exchange/protocol/staked-positions-spnfts). This finding is disputed.
 
-Added functionality to farm Camelot V3 positions
+From Camelot's Myrddin:
+
+> hey @BowTiedPickle we aren't using at all the farming system from Algebra
+> currently we're using our spnft rewards layer for integrated ALMs with their receipt token
+> and we're working with Merkl to integrate their solution as well
 
 53. Unused SafeERC20 import
 

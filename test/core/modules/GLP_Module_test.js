@@ -100,7 +100,7 @@ async function deployStrategy() {
   };
 }
 
-describe.only("TestFixture_Strategy_GLP_Module", function () {
+describe("TestFixture_Strategy_GLP_Module", function () {
   before(async function () {
     if (await forkOrSkip(forkConfig)) this.skip();
   });
