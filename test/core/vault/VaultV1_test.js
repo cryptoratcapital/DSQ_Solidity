@@ -589,6 +589,21 @@ describe("Vault V1", function () {
     expect(await vault.previewDeposit(1e9)).to.eq(1e9 * 2);
   });
 
+  it('should NOT fail with share attack', async function () {
+    await vault.connect(devWallet).startEpoch(fundingStart + 100, epochStart, epochEnd);
+    await network.provider.send("evm_setNextBlockTimestamp", [fundingStart + 100]);
+
+    await expect(vault.connect(citizen1).deposit(1, citizen1.address))
+      .to.emit(vault, "Deposit")
+      .withArgs(citizen1.address, citizen1.address, 1, 1);
+
+    await USDC.connect(citizen1).transfer(vault.address, 100e6 - 1);
+
+    expect(await vault.connect(citizen2).deposit(190e6, citizen2.address));
+    expect(await vault.balanceOf(citizen1.address)).to.eq(1);
+    expect(await vault.balanceOf(citizen2.address)).to.be.gt(1);
+  });
+
   describe("ERC4626 Property Tests", function () {
     it("Should return 0 for previewDeposit when not funding or custodied", async function () {
       expect(await vault.connect(citizen1).previewDeposit(1e9)).to.eq(0);
