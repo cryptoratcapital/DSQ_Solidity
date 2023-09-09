@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import "./Lyra_Rewards_Base.sol";
 import "../../dsq/DSQ_Trader_Storage.sol";
+import "../../../external/lyra_interfaces/IMultiDistributor.sol";
 
 /**
  * @title   DSquared Lyra Rewards Module
@@ -26,9 +27,10 @@ contract Lyra_Rewards_Module is Lyra_Rewards_Base, DSQ_Trader_Storage {
     // solhint-enable no-empty-blocks, var-name-mixedcase
 
     /// @inheritdoc Lyra_Rewards_Base
-    function inputGuard_lyra_claimRewards(IERC20[] memory tokens) internal view override {
-        for (uint256 i; i < tokens.length; ) {
-            validateToken(address(tokens[i]));
+    function inputGuard_lyra_claimRewards(uint[] memory _claimList) internal view override {
+        for (uint256 i; i < _claimList.length; ) {
+            IMultiDistributor.Batch memory batch = multi_distributor.batchApprovals(_claimList[i]);
+            validateToken(address(batch.token));
             unchecked {
                 ++i;
             }
@@ -36,11 +38,12 @@ contract Lyra_Rewards_Module is Lyra_Rewards_Base, DSQ_Trader_Storage {
     }
 
     /// @inheritdoc Lyra_Rewards_Base
-    function inputGuard_lyra_claimAndDump(IERC20[] memory _tokens, SwapInput[] memory _inputs) internal view override {
+    function inputGuard_lyra_claimAndDump(uint[] memory _claimList, SwapInput[] memory _inputs) internal view override {
         for (uint256 i; i < _inputs.length; ) {
             require(_inputs[i].path.length > 0, "Lyra_Rewards_Module: Empty path");
             // solhint-disable-next-line reason-string
-            require(_inputs[i].path[0] == address(_tokens[i]), "Lyra_Rewards_Module: Claim token does not start path");
+            IMultiDistributor.Batch memory batch = multi_distributor.batchApprovals(_claimList[i]);
+            require(_inputs[i].path[0] == address(batch.token), "Lyra_Rewards_Module: Claim token does not start path");
 
             // The first token is allowed to not be in the strategy mandate, but all others in the path must be
             for (uint256 j = 1; j < _inputs[i].path.length; ) {

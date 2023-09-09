@@ -48,11 +48,12 @@ abstract contract Lyra_Rewards_Base is AccessControl, ReentrancyGuard, Lyra_Comm
 
     /**
      * @notice  Claims rewards from Lyra MultiDistributor contract
+     * @param   _claimList   List of batchIds to claim
      */
-    function lyra_claimRewards(IERC20[] memory _tokens) external onlyRole(EXECUTOR_ROLE) nonReentrant {
-        inputGuard_lyra_claimRewards(_tokens);
+    function lyra_claimRewards(uint[] memory _claimList) external onlyRole(EXECUTOR_ROLE) nonReentrant {
+        inputGuard_lyra_claimRewards(_claimList);
 
-        multi_distributor.claim(_tokens);
+        multi_distributor.claim(_claimList);
     }
 
     /**
@@ -66,20 +67,21 @@ abstract contract Lyra_Rewards_Base is AccessControl, ReentrancyGuard, Lyra_Comm
 
     /**
      * @notice  Claims rewards from Lyra MultiDistributor contract and swaps them for output tokens via Camelot
-     * @param   _tokens     Array of tokens to claim
+     * @param   _claimList   List of batchIds to claim
      * @param   _inputs     Array of SwapInput structs
      */
-    function lyra_claimAndDump(IERC20[] memory _tokens, SwapInput[] memory _inputs) external onlyRole(EXECUTOR_ROLE) nonReentrant {
-        require(_tokens.length == _inputs.length, "Lyra_Rewards_Module: Length mismatch"); // solhint-disable-line reason-string
+    function lyra_claimAndDump(uint[] memory _claimList, SwapInput[] memory _inputs) external onlyRole(EXECUTOR_ROLE) nonReentrant {
+        require(_claimList.length == _inputs.length, "Lyra_Rewards_Module: Length mismatch"); // solhint-disable-line reason-string
 
-        inputGuard_lyra_claimAndDump(_tokens, _inputs);
+        inputGuard_lyra_claimAndDump(_claimList, _inputs);
 
-        multi_distributor.claim(_tokens);
+        multi_distributor.claim(_claimList);
 
         for (uint256 i; i < _inputs.length; ) {
-            uint256 bal = _tokens[i].balanceOf(address(this));
+            IMultiDistributor.Batch memory batch = multi_distributor.batchApprovals(_claimList[i]);
+            uint256 bal = IERC20(_inputs[i].path[0]).balanceOf(address(this));
             if (bal > 0) {
-                _tokens[i].approve(address(camelot_router), bal);
+                IERC20(_inputs[i].path[0]).approve(address(camelot_router), bal);
                 camelot_router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
                     bal,
                     _inputs[i].minOut,
@@ -127,16 +129,16 @@ abstract contract Lyra_Rewards_Base is AccessControl, ReentrancyGuard, Lyra_Comm
 
     /**
      * @notice  Validates inputs for lyra_claimRewards
-     * @param   _tokens     Array of token addresses
+     * @param   _claimList   List of batchIds to claim
      */
-    function inputGuard_lyra_claimRewards(IERC20[] memory _tokens) internal virtual {}
+    function inputGuard_lyra_claimRewards(uint[] memory _claimList) internal virtual {}
 
     /**
      * @notice  Validates inputs for lyra_claimAndDump
-     * @param   _tokens     Array of token addresses
+     * @param   _claimList   List of batchIds to claim
      * @param   _inputs     Array of SwapInput structs
      */
-    function inputGuard_lyra_claimAndDump(IERC20[] memory _tokens, SwapInput[] memory _inputs) internal virtual {}
+    function inputGuard_lyra_claimAndDump(uint[] memory _claimList, SwapInput[] memory _inputs) internal virtual {}
 
     /**
      * @notice  Sell the contract's balance of specified tokens via Camelot

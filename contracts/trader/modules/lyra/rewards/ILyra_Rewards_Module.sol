@@ -11,14 +11,14 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
  * @custom:developer    BowTiedOriole
  */
 interface ILyra_Rewards_Module {
-    function lyra_claimRewards(IERC20[] memory _tokens) external;
-
     struct SwapInput {
         address[] path;
         uint256 minOut;
     }
 
-    function lyra_claimAndDump(IERC20[] memory _tokens, SwapInput[] memory _inputs) external;
+    function lyra_claimRewards(uint[] memory _claimList) external;
+
+    function lyra_claimAndDump(uint[] memory _claimList, SwapInput[] memory _inputs) external;
 
     function lyra_dump(SwapInput[] memory _inputs) external;
 }

@@ -9,7 +9,27 @@ interface IMultiDistributor {
         uint256 amount;
     }
 
-    function claim(IERC20[] memory tokens) external;
+    struct Batch {
+        IERC20 token;
+        bool approved;
+    }
 
-    function addToClaims(UserAmounts[] memory claimsToAdd, IERC20 tokenAddress, uint256 epochTimestamp, string memory tag) external;
+    function batchApprovals(uint _batchId) external view returns (Batch memory);
+
+    function claim(uint[] memory _claimList) external;
+
+    function addToClaims(
+        uint[] memory tokenAmounts,
+        address[] memory users,
+        IERC20 token,
+        uint epochTimestamp,
+        string memory tag
+    ) external;
+
+    function getClaimableAmountForUser(uint[] memory batchIds, address user, IERC20 token)
+    external
+    view
+    returns (uint amount);
+
+    function approveClaims(uint[] memory batchIds, bool approve) external;
 }
