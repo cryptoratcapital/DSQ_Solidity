@@ -111,7 +111,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _executors    Array of executor addresses
      * @param _status       Array of statuses
      */
-    function manageExecutors(address[] calldata _executors, bool[] calldata _status) external onlyRole(EXECUTOR_ROLE) {
+    function manageExecutors(address[] calldata _executors, bool[] calldata _status) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // solhint-disable-next-line reason-string
         require(_executors.length == _status.length, "Camelot_Storage_Module: Length mismatch");
         for (uint256 i; i < _executors.length; ) {
@@ -141,7 +141,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _receivers    Array of receiver addresses
      * @param _status       Array of statuses
      */
-    function manageReceivers(address[] calldata _receivers, bool[] calldata _status) external onlyRole(EXECUTOR_ROLE) {
+    function manageReceivers(address[] calldata _receivers, bool[] calldata _status) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // solhint-disable-next-line reason-string
         require(_receivers.length == _status.length, "Camelot_Storage_Module: Length mismatch");
         for (uint256 i; i < _receivers.length; ) {

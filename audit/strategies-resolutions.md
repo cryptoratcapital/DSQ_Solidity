@@ -252,7 +252,7 @@ Acknowledged. The protocol has elected to enforce that all tokens in the swap pa
 
 50. Configurational risks
 
-TODO: Review and acknowledge if nothing else can be done.
+Changed the governance function to manage executor and receiver addresses to `DEFAULT_ADMIN_ROLE` permission instead of `EXECUTOR_ROLE` given the sensitivity of these parameters.
 
 51. Flexibility in ticks allows the theft of reserves
 
