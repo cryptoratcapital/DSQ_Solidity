@@ -56,8 +56,11 @@ async function deployStrategy() {
   CamelotLPFacet = await ethers.getContractFactory("Camelot_LP_Module");
   camelotLPFacet = await CamelotLPFacet.deploy(addresses.CAMELOT_ROUTER, addresses.WETH);
 
-  CamelotV3Facet = await ethers.getContractFactory("Camelot_V3_Module");
-  camelotV3Facet = await CamelotV3Facet.deploy(addresses.CAMELOT_POSITION_MANAGER, addresses.CAMELOT_ODOS_ROUTER);
+  CamelotV3LPFacet = await ethers.getContractFactory("Camelot_V3LP_Module");
+  camelotV3LPFacet = await CamelotV3LPFacet.deploy(addresses.CAMELOT_POSITION_MANAGER);
+
+  CamelotV3SwapFacet = await ethers.getContractFactory("Camelot_V3Swap_Module");
+  camelotV3SwapFacet = await CamelotV3SwapFacet.deploy(addresses.CAMELOT_ODOS_ROUTER);
 
   CamelotNFTPoolFacet = await ethers.getContractFactory("Camelot_NFTPool_Module");
   camelotNFTPoolFacet = await CamelotNFTPoolFacet.deploy();
@@ -81,7 +84,8 @@ async function deployStrategy() {
     camelotNitroPoolFacet.address,
     camelotSwapFacet.address,
     camelotStorageFacet.address,
-    camelotV3Facet.address,
+    camelotV3LPFacet.address,
+    camelotV3SwapFacet.address,
   );
 
   strategyDiamond = await ethers.getContractAt("StrategyDiamond_TestFixture_Camelot", strategy.address);
@@ -1156,6 +1160,7 @@ describe("Camelot Modules", function () {
     });
   });
 
+  // TODO: Tests failing
   describe("Camelot_V3_Module: LP", function () {
     beforeEach(async function () {
       reset(process.env.ARBITRUM_URL, 83000000);
@@ -1187,6 +1192,7 @@ describe("Camelot Modules", function () {
         strategyDiamond.address,
         timestamp + 10,
       ]);
+      console.log(tokenId);
     });
 
     it("Should camelot_v3_mint (create liquidityPosition)", async function () {

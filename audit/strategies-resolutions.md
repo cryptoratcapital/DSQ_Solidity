@@ -2,6 +2,13 @@
 
 The protocol was audited by Paladin Blockchain Security on commit `xxx`. The repository has been migrated since then, and git history has been lost. The resolution process has been undertaken starting from commit `835b2f17b2afb6015011b1576174b373415bae18` of `theMLtrader/DSQ_Solidity` repo, which is believed to be identical to the audited commit.
 
+## Significant Changes
+
+Two substantial changes have been made to the code which are not directly related to the audit findings.
+
+1. Camelot V3 has been split into two part, swap and LP, as Strategy_GLP was not supposed to have LP functionality, only swap.
+2. The Lyra Reward module has been reworked due to a change in the MultiDistributor contract. When audited, the MultiDistributor was 0xecB73D4621Cabbf199e778CAEBc74bE27f2EcEe1, now the contract is at 0x835f827E3D4ab11Dd0B4a0B894B43b308A0e41FF, with different code.
+
 ## Global Issues
 
 1. Governance should be under a multi-signature wallet with known or

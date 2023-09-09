@@ -101,8 +101,11 @@ async function deployStrategy() {
   CamelotSwapFacet = await ethers.getContractFactory("Camelot_Swap_Module");
   camelotSwapFacet = await CamelotSwapFacet.deploy(addresses.CAMELOT_ROUTER);
 
-  CamelotV3Facet = await ethers.getContractFactory("Camelot_V3_Module");
-  camelotV3Facet = await CamelotV3Facet.deploy(addresses.CAMELOT_POSITION_MANAGER, addresses.CAMELOT_ODOS_ROUTER);
+  CamelotV3LPFacet = await ethers.getContractFactory("Camelot_V3LP_Module");
+  camelotV3LPFacet = await CamelotV3LPFacet.deploy(addresses.CAMELOT_POSITION_MANAGER);
+
+  CamelotV3SwapFacet = await ethers.getContractFactory("Camelot_V3Swap_Module");
+  camelotV3SwapFacet = await CamelotV3SwapFacet.deploy(addresses.CAMELOT_ODOS_ROUTER);
 
   CamelotStorageFacet = await ethers.getContractFactory("Camelot_Storage_Module");
   camelotStorageFacet = await CamelotStorageFacet.deploy(addresses.CAMELOT_NFTPOOL_FACTORY, addresses.CAMELOT_NITROPOOL_FACTORY);
@@ -144,7 +147,8 @@ async function deployStrategy() {
     camelotNFTPoolFacet.address,
     camelotNitroPoolFacet.address,
     camelotSwapFacet.address,
-    camelotV3Facet.address,
+    camelotV3LPFacet.address,
+    camelotV3SwapFacet.address,
     camelotStorageFacet.address,
     lyraStorageFacet.address,
     lyraLPFacet.address,
@@ -218,7 +222,7 @@ describe("ETH++ Strategy", function () {
     it("Should link the expected facet addresses", async function () {
       let expectedFacets = [traderFacet.address];
       expectedFacets = expectedFacets.concat(facets);
-      expect(expectedFacets.length).to.eq(20);
+      expect(expectedFacets.length).to.eq(21);
       expect(await strategy.facetAddresses()).to.deep.eq(expectedFacets);
     });
 
@@ -242,7 +246,17 @@ describe("ETH++ Strategy", function () {
       ];
       expect(await strategy.facetFunctionSelectors(gmxOrderbookModule.address)).to.deep.eq(selectors);
 
-      selectors = ["0xc9274977", "0x0f208703", "0xd6c9d62a", "0x55583e31", "0xdd56398d", "0xe33a6e2c", "0xa4364f66"];
+      selectors = [
+        "0xc9274977",
+        "0x0f208703",
+        "0xd6c9d62a",
+        "0x55583e31",
+        "0xdd56398d",
+        "0xe33a6e2c",
+        "0xa4364f66",
+        "0x4215fefa",
+        "0xf3bf4a0f",
+      ];
       expect(await strategy.facetFunctionSelectors(gmxGLPModule.address)).to.deep.eq(selectors);
     });
 
@@ -276,8 +290,11 @@ describe("ETH++ Strategy", function () {
       selectors = ["0x3b6a43d7", "0x150c8b37", "0x86009784", "0x5fc484a1", "0x49ed80c4", "0x357f7051", "0xa00906c7", "0xbecfb24f"];
       expect(await strategy.facetFunctionSelectors(camelotStorageFacet.address)).to.deep.eq(selectors);
 
-      selectors = ["0x84e4a75b", "0xa3392765", "0xd82b60df", "0x269e72ce", "0x2b0d0a4a", "0xb5a7fdac", "0xc59969a6", "0xceeb6619"];
-      expect(await strategy.facetFunctionSelectors(camelotV3Facet.address)).to.deep.eq(selectors);
+      selectors = ["0xa3392765", "0xd82b60df", "0x269e72ce", "0x2b0d0a4a", "0xb5a7fdac", "0xc59969a6", "0xceeb6619"];
+      expect(await strategy.facetFunctionSelectors(camelotV3LPFacet.address)).to.deep.eq(selectors);
+
+      selectors = ["0x84e4a75b"];
+      expect(await strategy.facetFunctionSelectors(camelotV3SwapFacet.address)).to.deep.eq(selectors);
     });
 
     it("Aave: Should correctly assign selectors to their facet", async function () {

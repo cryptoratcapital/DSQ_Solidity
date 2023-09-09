@@ -5,7 +5,8 @@ import "../trader/diamonds/StrategyDiamond.sol";
 import "../trader/trader/ITraderV0.sol";
 import "../trader/trader/TraderV0_Cutter.sol";
 import "../trader/modules/camelot/lp/Camelot_LP_Cutter.sol";
-import "../trader/modules/camelot/v3/Camelot_V3_Cutter.sol";
+import "../trader/modules/camelot/v3LP/Camelot_V3LP_Cutter.sol";
+import "../trader/modules/camelot/v3Swap/Camelot_V3Swap_Cutter.sol";
 import "../trader/modules/camelot/nftpool/Camelot_NFTPool_Cutter.sol";
 import "../trader/modules/camelot/nitropool/Camelot_NitroPool_Cutter.sol";
 import "../trader/modules/camelot/swap/Camelot_Swap_Cutter.sol";
@@ -27,7 +28,8 @@ contract TestFixture_Strategy_Camelot is
     Camelot_NitroPool_Cutter,
     Camelot_Swap_Cutter,
     Camelot_Storage_Cutter,
-    Camelot_V3_Cutter
+    Camelot_V3LP_Cutter,
+    Camelot_V3Swap_Cutter
 {
     constructor(
         address _admin,
@@ -38,7 +40,8 @@ contract TestFixture_Strategy_Camelot is
         address _camelotNitroPoolFacet,
         address _camelotSwapFacet,
         address _camelotStorageFacet,
-        address _camelotV3LPFacet
+        address _camelotV3LPFacet,
+        address _camelotV3SwapFacet
     ) StrategyDiamond(_admin) {
         cut_TraderV0(_traderFacet, _traderV0Params);
         cut_Camelot_LP(_camelotLPFacet);
@@ -46,6 +49,7 @@ contract TestFixture_Strategy_Camelot is
         cut_Camelot_NitroPool(_camelotNitroPoolFacet);
         cut_Camelot_Swap(_camelotSwapFacet);
         cut_Camelot_Storage(_camelotStorageFacet);
-        cut_Camelot_V3(_camelotV3LPFacet);
+        cut_Camelot_V3LP(_camelotV3LPFacet);
+        cut_Camelot_V3Swap(_camelotV3SwapFacet);
     }
 }
