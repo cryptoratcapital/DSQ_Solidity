@@ -97,7 +97,7 @@ async function deployStrategy() {
   return { strategyDiamond, vault, test20, USDC, DAI, WETH, WBTC, GMX, router, executor };
 }
 
-describe("1Inch Modules", function () {
+describe.only("1Inch Modules", function () {
   before(async function () {
     await resetToDefaultNetwork();
   });
@@ -521,6 +521,35 @@ describe("1Inch Modules", function () {
         // allowedSender = ZERO_ADDRESS,
       });
       await expect(strategyDiamond.inch_fillOrder(0, limitOrder, "0x69", "0x00", 0, 500, 0)).to.be.revertedWith("Invalid token");
+
+      limitOrder = limitOrderBuilder.buildLimitOrder({
+        makerAssetAddress: DAI.address,
+        takerAssetAddress: USDC.address,
+        makerAddress: citizen1.address,
+        makingAmount: "1000000000000000000000",
+        takingAmount: "1000000000",
+        getMakingAmount: "0x2222",
+        getTakingAmount: "",
+        // receiver: ZERO_ADDRESS,
+        // allowedSender = ZERO_ADDRESS,
+      });
+      await expect(strategyDiamond.inch_fillOrder(0, limitOrder, "0x69", "0x00", 0, 500, 0)).to.be.revertedWith(
+        "GuardError: Only linear proportions accepted",
+      );
+      limitOrder = limitOrderBuilder.buildLimitOrder({
+        makerAssetAddress: DAI.address,
+        takerAssetAddress: USDC.address,
+        makerAddress: citizen1.address,
+        makingAmount: "1000000000000000000000",
+        takingAmount: "1000000000",
+        getMakingAmount: "",
+        getTakingAmount: "0x2222",
+        // receiver: ZERO_ADDRESS,
+        // allowedSender = ZERO_ADDRESS,
+      });
+      await expect(strategyDiamond.inch_fillOrder(0, limitOrder, "0x69", "0x00", 0, 500, 0)).to.be.revertedWith(
+        "GuardError: Only linear proportions accepted",
+      );
     });
 
     it("Should cancelOrder", async function () {

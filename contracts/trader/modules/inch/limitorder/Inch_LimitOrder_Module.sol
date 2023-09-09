@@ -44,6 +44,8 @@ contract Inch_LimitOrder_Module is Inch_LimitOrder_Base, DSQ_Trader_Storage {
     ) internal view override {
         validateToken(order.makerAsset);
         validateToken(order.takerAsset);
+        validateLinearOrder(order, IAggregationRouter.DynamicField.GetTakingAmount);
+        validateLinearOrder(order, IAggregationRouter.DynamicField.GetMakingAmount);
 
         (, int256 makerPrice, , , ) = getInchLimitOrderStorage().assetToOracle[order.makerAsset].latestRoundData();
         (, int256 takerPrice, , , ) = getInchLimitOrderStorage().assetToOracle[order.takerAsset].latestRoundData();
