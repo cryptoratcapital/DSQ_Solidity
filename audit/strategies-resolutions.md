@@ -272,7 +272,7 @@ Implemented the recommended changes.
 
 54. Compounded funds will be locked forever
 
-For auditor's reference: the various `RewardTracker` contracts daisy-chain into each other.
+For auditor's reference: the various `RewardTracker` contracts daisy-chain into each other, with the receipt token of one being used as staking token for the other.
 
 Example of a user [unstaking](https://arbiscan.io/tx/0x3ef811790e9b53560673042a14f6091251575f5ef6f2a79ce2a232a72b5354ad) and [staking](https://arbiscan.io/tx/0x96d5903c11f6e87337b5202f7258279b2e35e6cf2571c03d5698d730fc97ae46) show the multiple transfers of these tokens.
 
@@ -291,11 +291,19 @@ You can see this in `RewardRouterV2.sol::397-404` here: https://vscode.blockscan
 
 As such, the direct thrust of the issue, namely lacking a way to interact with the RewardTracker contracts, is not strictly correct.
 
-However, it is true that the contract lacks an entry point to unstake GMX or esGMX from the GMX reward router contract. This was initially not set up as the configuration of GMX's reward system would not cause such rewards to be accrued.
+It is true that the contract lacks an entry point to unstake GMX or esGMX from the GMX reward router contract. This was initially not set up as the configuration of GMX's reward system will not cause such rewards to be accrued.
 
-TODO: Detail reward systems
+There are two reward routers within the GMX system: The GLP reward router at arb1:0xB95DB5B167D75e6d04227CfFFA61069348d271F5, and the GMX reward router at arb1:0xA906F338CB21815cBc4Bc87ace9e68c87eF8d8F1.
 
-Functions `gmx_unstakeGmx` and `gmx_unstakeEsGmx` have been implemented per the recommendation, to guard against the case where such reward positions were created through `compound` or `handleRewards`, although we do not expect them to be used in practice.
+The two contracts have roughly identical code, being slight variants of the RewardRouterV2 contract, but the majority of the tokens in the GLP reward router are not configured (set to address 0). This means that all the reward handling functions in this contract will revert. It is exclusively used to stake and unstake GLP.
+
+The GMX reward router is not a handler in the GLP manager contract (arb1:0x45096e7aA921f27590f8F19e457794EB09678141), so it cannot stake or unstake GLP. The GLP reward router is a handler in the GLP manager contract, allowing it to stake GLP.
+
+The GMX reward router is a handler for Fee GLP and Staked Fee GLP contracts, allowing it to claim rewards from those reward trackers.
+
+The fsGLP contract (arb1:0x1addd80e6039594ee970e5872d247bf0414c8903) is configured to reward esGMX. The reward rate is currently 0. Although this could be changed by the GMX protocol, it has been 0 for 150+ days. [source: esGMX distributor](https://arbiscan.io/address/0x60519b48ec4183a61ca2b8e37869e675fd203b34). The fGLP contract is configured to reward WETH, and is actively rewarding.
+
+Functions `gmx_unstakeGmx` and `gmx_unstakeEsGmx` have been implemented per the recommendation, to guard against the case where such reward positions are created through `compound` or `handleRewards`, although we do not expect them to be used in practice as the configuration of the GMX reward system will not result in accumulating GMX or esGMX positions. There are no entry points to stake GMX or esGMX as those actions are not in the strategy mandate.
 
 Test pending
 

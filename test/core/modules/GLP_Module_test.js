@@ -71,6 +71,7 @@ async function deployStrategy() {
   gmx_fsglp = await ethers.getContractAt("TestFixture_ERC20", addresses.GMX_FSGLP);
   gmx_rewardRouterV2 = await ethers.getContractAt("IRewardRouterV2", addresses.GMX_GLP_REWARDROUTER);
   gmx_gmx = await ethers.getContractAt("TestFixture_ERC20", addresses.GMX);
+  gmx_esgmx = await ethers.getContractAt("TestFixture_ERC20", addresses.GMX_ESGMX);
 
   Vault = await ethers.getContractFactory("VaultV1");
   vault = await Vault.deploy(USDC.address, "USDC Vault", "DSQ-USDC-V1", strategyDiamond.address, 1e12);
@@ -95,6 +96,7 @@ async function deployStrategy() {
     gmx_fsglp,
     gmx_rewardRouterV2,
     gmx_gmx,
+    gmx_esgmx,
   };
 }
 
@@ -252,7 +254,7 @@ describe.only("TestFixture_Strategy_GLP_Module", function () {
       await expect(strategyDiamond.gmx_compound()).to.not.be.reverted;
     });
 
-    it.only("gmx_compound: Should unstake after compounding", async function () {
+    it("gmx_compound: Should unstake after compounding", async function () {
       // Stake
       const glpAmount = await getGLPPurchaseOutput(gmx_vault, gmx_vaultUtils, gmx_glpManager, gmx_glp, USDC.address, 6, initialUSDCBalance);
       await strategyDiamond.gmx_mintAndStakeGlp(USDC.address, initialUSDCBalance, 0, glpAmount);
@@ -291,6 +293,30 @@ describe.only("TestFixture_Strategy_GLP_Module", function () {
         WNATIVE,
         strategyDiamond,
         data[0],
+      );
+    });
+
+    it("gmx_handleRewards: Should execute a well-formed call with all parameters true", async function () {
+      // Stake
+      const glpAmount = await getGLPPurchaseOutput(gmx_vault, gmx_vaultUtils, gmx_glpManager, gmx_glp, USDC.address, 6, initialUSDCBalance);
+      await strategyDiamond.gmx_mintAndStakeGlp(USDC.address, initialUSDCBalance, 0, glpAmount);
+      expect(await gmx_fsglp.balanceOf(strategyDiamond.address)).to.eq(glpAmount);
+
+      // Time passes, rewards accrue
+      let data = await gmx_rewardReader.getStakingInfo(strategyDiamond.address, [gmx_fglp.address]);
+      console.log(data);
+      time.increase(31 * 24 * 3600);
+      data = await gmx_rewardReader.getStakingInfo(strategyDiamond.address, [gmx_fglp.address]);
+      console.log(data);
+
+      // TODO: It is claiming but the calculation is failing, need to write a helper
+      // 969857507584849857
+      // 969840434895932622
+      // 969846125792238367
+      await expect(() => strategyDiamond.gmx_handleRewards(true, true, true, true, true, true, true)).to.changeTokenBalance(
+        gmx_esgmx,
+        strategyDiamond,
+        0,
       );
     });
   });
