@@ -8,6 +8,7 @@ import "../../../external/lyra_interfaces/IMultiDistributor.sol";
 /**
  * @title   DSquared Lyra Rewards Module
  * @notice  Allows claiming rewards from Lyra MultiDistributor
+ * @dev     This module adds Camelot swap functionality. Ensure that the strategy mandate does not conflict with this.
  * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
  *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
@@ -41,8 +42,8 @@ contract Lyra_Rewards_Module is Lyra_Rewards_Base, DSQ_Trader_Storage {
     function inputGuard_lyra_claimAndDump(uint[] memory _claimList, SwapInput[] memory _inputs) internal view override {
         for (uint256 i; i < _inputs.length; ) {
             require(_inputs[i].path.length > 0, "Lyra_Rewards_Module: Empty path");
-            // solhint-disable-next-line reason-string
             IMultiDistributor.Batch memory batch = multi_distributor.batchApprovals(_claimList[i]);
+            // solhint-disable-next-line reason-string
             require(_inputs[i].path[0] == address(batch.token), "Lyra_Rewards_Module: Claim token does not start path");
 
             // The first token is allowed to not be in the strategy mandate, but all others in the path must be

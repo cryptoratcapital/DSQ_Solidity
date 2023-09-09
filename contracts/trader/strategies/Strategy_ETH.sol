@@ -18,6 +18,7 @@ import "../modules/camelot/storage/Camelot_Storage_Cutter.sol";
 import "../modules/lyra/storage/Lyra_Storage_Cutter.sol";
 import "../modules/lyra/lp/Lyra_LP_Cutter.sol";
 import "../modules/lyra/options/Lyra_Options_Cutter.sol";
+import "../modules/lyra/rewards/Lyra_Rewards_Cutter.sol";
 import "../modules/aave/Aave_Lending_Cutter.sol";
 import "../modules/traderjoe/swap/TraderJoe_Swap_Cutter.sol";
 import "../modules/traderjoe/legacy_lp/TraderJoe_Legacy_LP_Cutter.sol";
@@ -42,6 +43,7 @@ import "../modules/inch/limitorder/Inch_LimitOrder_Cutter.sol";
  *          - Lyra
  *              - Options
  *              - LP
+ *              - Rewards
  *          - Aave
  *              - Lending and borrowing
  *          - TraderJoe
@@ -73,6 +75,7 @@ contract Strategy_ETH is
     Lyra_Storage_Cutter,
     Lyra_LP_Cutter,
     Lyra_Options_Cutter,
+    Lyra_Rewards_Cutter,
     Aave_Lending_Cutter,
     TraderJoe_Swap_Cutter,
     TraderJoe_Legacy_LP_Cutter,
@@ -103,11 +106,12 @@ contract Strategy_ETH is
         cut_Lyra_Storage(_facets[11]);
         cut_Lyra_LP(_facets[12]);
         cut_Lyra_Options(_facets[13]);
-        cut_Aave_Lending(_facets[14]);
-        cut_TraderJoe_Swap(_facets[15]);
-        cut_TraderJoe_Legacy_LP(_facets[16]);
-        cut_TraderJoe_LP(_facets[17]);
-        cut_Inch_Swap(_facets[18]);
-        cut_Inch_LimitOrder(_facets[19], _assets, _oracles);
+        cut_Lyra_Rewards(_facets[14]);
+        cut_Aave_Lending(_facets[15]);
+        cut_TraderJoe_Swap(_facets[16]);
+        cut_TraderJoe_Legacy_LP(_facets[17]);
+        cut_TraderJoe_LP(_facets[18]);
+        cut_Inch_Swap(_facets[19]);
+        cut_Inch_LimitOrder(_facets[20], _assets, _oracles);
     }
 }

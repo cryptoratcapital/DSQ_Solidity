@@ -134,8 +134,6 @@ Acknowledged. The `DEFAULT_ADMIN_ROLE` is only to be granted to a multisignature
 
 27. Camelot V3 is not cut
 
-TODO: Escalate - V3 has LP functions, this strategy does not have Camelot LP in its mandates. Will have to change the module or the mandate.
-
 Implemented the recommended change.
 
 28. Rysk module is implemented
@@ -430,26 +428,17 @@ Acknowledged.
 
 77. Hardcoded swap path might not be the most optimal/liquid one
 
-TODO: Test fully TEST PENDING
-TODO: Fix interface issue
-
 Implemented the recommended changes.
 
 78. No flexibility for token claims
-
-TODO: Test fully
 
 Implemented the recommended changes.
 
 79. Lack of referrer setting
 
-TODO: Test fully
-
 Implemented the recommended changes.
 
 80. Lack of validation
-
-TODO: Test fully
 
 Implemented the recommended changes.
 

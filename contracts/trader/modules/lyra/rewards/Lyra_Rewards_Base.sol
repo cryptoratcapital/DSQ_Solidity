@@ -12,6 +12,7 @@ import "../../../external/camelot_interfaces/ICamelotRouter.sol";
 /**
  * @title   HessianX Lyra Rewards Base
  * @notice  Allows claiming and swapping rewards from Lyra MultiDistributor
+ * @dev     This module adds Camelot swap functionality. Ensure that the strategy mandate does not conflict with this.
  * @dev     The inputGuard functions are designed to be overriden by the inheriting contract.
  *          Key assumptions:
  *              1. Inheritor MUST ensure that the swap output token is valid.
@@ -50,7 +51,7 @@ abstract contract Lyra_Rewards_Base is AccessControl, ReentrancyGuard, Lyra_Comm
      * @notice  Claims rewards from Lyra MultiDistributor contract
      * @param   _claimList   List of batchIds to claim
      */
-    function lyra_claimRewards(uint[] memory _claimList) external onlyRole(EXECUTOR_ROLE) nonReentrant {
+    function lyra_claimRewards(uint256[] memory _claimList) external onlyRole(EXECUTOR_ROLE) nonReentrant {
         inputGuard_lyra_claimRewards(_claimList);
 
         multi_distributor.claim(_claimList);
@@ -70,7 +71,7 @@ abstract contract Lyra_Rewards_Base is AccessControl, ReentrancyGuard, Lyra_Comm
      * @param   _claimList   List of batchIds to claim
      * @param   _inputs     Array of SwapInput structs
      */
-    function lyra_claimAndDump(uint[] memory _claimList, SwapInput[] memory _inputs) external onlyRole(EXECUTOR_ROLE) nonReentrant {
+    function lyra_claimAndDump(uint256[] memory _claimList, SwapInput[] memory _inputs) external onlyRole(EXECUTOR_ROLE) nonReentrant {
         require(_claimList.length == _inputs.length, "Lyra_Rewards_Module: Length mismatch"); // solhint-disable-line reason-string
 
         inputGuard_lyra_claimAndDump(_claimList, _inputs);
@@ -78,7 +79,6 @@ abstract contract Lyra_Rewards_Base is AccessControl, ReentrancyGuard, Lyra_Comm
         multi_distributor.claim(_claimList);
 
         for (uint256 i; i < _inputs.length; ) {
-            IMultiDistributor.Batch memory batch = multi_distributor.batchApprovals(_claimList[i]);
             uint256 bal = IERC20(_inputs[i].path[0]).balanceOf(address(this));
             if (bal > 0) {
                 IERC20(_inputs[i].path[0]).approve(address(camelot_router), bal);

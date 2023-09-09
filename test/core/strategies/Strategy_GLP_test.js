@@ -115,6 +115,9 @@ async function deployStrategy() {
   LyraOptionsFacet = await ethers.getContractFactory("Lyra_Options_Module");
   lyraOptionsFacet = await LyraOptionsFacet.deploy();
 
+  LyraRewardsFacet = await ethers.getContractFactory("Lyra_Rewards_Module");
+  lyraRewardsFacet = await LyraRewardsFacet.deploy(addresses.LYRA_MULTI_DISTRIBUTOR, addresses.CAMELOT_ROUTER);
+
   AaveLendingFacet = await ethers.getContractFactory("Aave_Lending_Module");
   aaveLendingFacet = await AaveLendingFacet.deploy(addresses.AAVE_POOL);
 
@@ -144,6 +147,7 @@ async function deployStrategy() {
     lyraStorageFacet.address,
     lyraLPFacet.address,
     lyraOptionsFacet.address,
+    lyraRewardsFacet.address,
     aaveLendingFacet.address,
     traderJoeSwapFacet.address,
     traderJoeLegacyLPFacet.address,
@@ -213,7 +217,7 @@ describe("GLP++ Strategy", function () {
     it("Should link the expected facet addresses", async function () {
       let expectedFacets = [traderFacet.address];
       expectedFacets = expectedFacets.concat(facets);
-      expect(expectedFacets.length).to.eq(16);
+      expect(expectedFacets.length).to.eq(17);
       expect(await strategy.facetAddresses()).to.deep.eq(expectedFacets);
     });
 
@@ -280,6 +284,9 @@ describe("GLP++ Strategy", function () {
 
       selectors = ["0x58fef3cf", "0xccfe1624", "0x10e3cae8", "0xd83610c0", "0xffafd099"];
       expect(await strategy.facetFunctionSelectors(lyraStorageFacet.address)).to.deep.eq(selectors);
+
+      selectors = ["0x6848edb9", "0x87af2f50", "0x503fcee7"];
+      expect(await strategy.facetFunctionSelectors(lyraRewardsFacet.address)).to.deep.eq(selectors);
     });
 
     it("Trader Joe: Should correctly assign selectors to their facet", async function () {

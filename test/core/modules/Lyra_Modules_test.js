@@ -600,6 +600,12 @@ describe("Lyra", function () {
       await expect(strategyDiamond.lyra_claimAndDump([batchId], [[[], 10]])).to.be.revertedWith("Lyra_Rewards_Module: Empty path");
     });
 
+    it("Should NOT lyra_claimAndDump if array lengths do not match", async function () {
+      await expect(strategyDiamond.lyra_claimAndDump([batchId, batchId], [[[USDC.address, WETH.address], 10]])).to.be.revertedWith(
+        "Lyra_Rewards_Module: Length mismatch",
+      );
+    });
+
     it("Should NOT lyra_claimAndDump if path contains bad token", async function () {
       await multiDistributor
         .connect(distributorRewardsWhitelisted)
