@@ -40,7 +40,7 @@ Implementation (aka. "facet") contracts are intended for delegate call only. The
 
 7. Lack of validation for `_facet`
 
-Implemented the suggested change. TEST PENDING
+Implemented the suggested change.
 
 8. tx.origin usage by projects
 
@@ -314,8 +314,6 @@ The fsGLP contract (arb1:0x1addd80e6039594ee970e5872d247bf0414c8903) is configur
 
 Functions `gmx_unstakeGmx` and `gmx_unstakeEsGmx` have been implemented per the recommendation, to guard against the case where such reward positions are created through `compound` or `handleRewards`, although we do not expect them to be used in practice as the configuration of the GMX reward system will not result in accumulating GMX or esGMX positions. There are no entry points to stake GMX or esGMX as those actions are not in the strategy mandate.
 
-Test pending
-
 55. `gmx_mintAndStakeGlpETH` is payable
 
 Implemented the recommended changes.
@@ -449,8 +447,6 @@ Acknowledged.
 ## Lyra_Storage_Module
 
 82. Missing safeguards when adding Lyra components
-
-TODO: Test fully TEST PENDING
 
 Implemented the recommended change to verify that `quoteAsset` and `baseAsset` are in `allowedTokens`. Implemented the recommended change to remove USDC hardcoded address and store the quote asset of each lyra pool.
 

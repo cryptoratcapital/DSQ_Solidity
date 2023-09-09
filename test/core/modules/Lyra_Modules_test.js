@@ -156,6 +156,36 @@ describe("Lyra", function () {
       await expect(strategyDiamond.connect(devWallet).addLyraMarket(addresses.LYRA_LIQUIDITY_POOL)).to.be.reverted;
     });
 
+    it("Should NOT addLyraMarket with a quote or base asset outside the mandate", async function () {
+      strategy2 = await Strategy.deploy(
+        devWallet.address,
+        traderFacet.address,
+        [
+          "Lyra Strategy",
+          [addresses.USDC, addresses.WETH, addresses.DAI, addresses.GMX, addresses.LYRA],
+          [
+            addresses.GMX_ROUTER,
+            addresses.GMX_POSITIONROUTER,
+            addresses.GMX_ORDERBOOK,
+            addresses.CAMELOT_ROUTER,
+            addresses.LYRA_LIQUIDITY_POOL_WETH,
+            addresses.LYRA_WETH_OPTION_MARKET,
+          ],
+          parseEther("0.1"),
+          parseEther("0.01"),
+        ],
+        lyraStorageFacet.address,
+        lyraLPFacet.address,
+        lyraOptionsFacet.address,
+        lyraRewardsFacet.address,
+      );
+
+      strategyDiamond2 = await ethers.getContractAt("StrategyDiamond_TestFixture_Lyra", strategy2.address);
+      await expect(strategyDiamond2.connect(devWallet).addLyraMarket(addresses.LYRA_WBTC_OPTION_MARKET)).to.be.revertedWith(
+        "Invalid token",
+      );
+    });
+
     it("Should removeLyraMarket", async function () {
       await strategyDiamond.connect(devWallet).addLyraMarket(addresses.LYRA_WBTC_OPTION_MARKET);
       await expect(strategyDiamond.connect(devWallet).removeLyraMarket(addresses.LYRA_WBTC_OPTION_MARKET))
