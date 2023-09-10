@@ -18,18 +18,9 @@ interface IMultiDistributor {
 
     function claim(uint[] memory _claimList) external;
 
-    function addToClaims(
-        uint[] memory tokenAmounts,
-        address[] memory users,
-        IERC20 token,
-        uint epochTimestamp,
-        string memory tag
-    ) external;
+    function addToClaims(uint[] memory tokenAmounts, address[] memory users, IERC20 token, uint epochTimestamp, string memory tag) external;
 
-    function getClaimableAmountForUser(uint[] memory batchIds, address user, IERC20 token)
-    external
-    view
-    returns (uint amount);
+    function getClaimableAmountForUser(uint[] memory batchIds, address user, IERC20 token) external view returns (uint amount);
 
     function approveClaims(uint[] memory batchIds, bool approve) external;
 }

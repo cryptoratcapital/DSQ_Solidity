@@ -476,7 +476,11 @@ describe("Vault V1", function () {
     expect(await vault.balanceOf(citizen1.address)).to.eq(1e9);
     expect(await USDC.balanceOf(vault.address)).to.eq(2e9);
 
-    await expect(() => vault.connect(citizen1).redeem(1e9, citizen1.address, citizen1.address)).to.changeTokenBalance(USDC, citizen1, 2e9 - 1);
+    await expect(() => vault.connect(citizen1).redeem(1e9, citizen1.address, citizen1.address)).to.changeTokenBalance(
+      USDC,
+      citizen1,
+      2e9 - 1,
+    );
   });
 
   it("Should return max deposit of zero if custodied", async function () {
@@ -589,7 +593,7 @@ describe("Vault V1", function () {
     expect(await vault.previewDeposit(1e9)).to.eq(1e9 * 2 - 1);
   });
 
-  it('should NOT fail with share attack', async function () {
+  it("should NOT fail with share attack", async function () {
     await vault.connect(devWallet).startEpoch(fundingStart + 100, epochStart, epochEnd);
     await network.provider.send("evm_setNextBlockTimestamp", [fundingStart + 100]);
 

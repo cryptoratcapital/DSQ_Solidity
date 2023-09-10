@@ -63,6 +63,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
     function _manageNFTPool(address _pool, bool _status) internal {
         if (_status) {
             (address lptoken, , , , , , , ) = INFTPool(_pool).getPoolInfo();
+            // solhint-disable-next-line reason-string
             require(camelot_nftpool_factory.getPool(lptoken) == _pool, "Camelot_Storage_Module: Invalid pool");
             getCamelotCommonStorage().allowedNFTPools.add(_pool);
         } else {
@@ -82,6 +83,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
     ) external onlyRole(EXECUTOR_ROLE) {
         // solhint-disable-next-line reason-string
         uint256 poolsLen = _pools.length;
+        // solhint-disable-next-line reason-string
         require(poolsLen == _status.length && poolsLen == _indexes.length, "Camelot_Storage_Module: Length mismatch");
         for (uint256 i; i < poolsLen; ) {
             _manageNitroPool(_pools[i], _status[i], _indexes[i]);
@@ -99,6 +101,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
     function _manageNitroPool(address _pool, bool _status, uint256 _index) internal {
         if (_status) {
             address nitroPool = camelot_nitropool_factory.getNitroPool(_index);
+            // solhint-disable-next-line reason-string
             require(nitroPool == _pool, "Camelot_Storage_Module: Pool/index mismatch");
             getCamelotCommonStorage().allowedNitroPools.add(_pool);
         } else {
@@ -128,6 +131,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _status       Status
      */
     function _manageExecutor(address _executor, bool _status) internal {
+        // solhint-disable-next-line reason-string
         require(_executor != address(0), "Camelot_Storage_Module: Zero address");
         if (_status) {
             getCamelotCommonStorage().allowedExecutors.add(_executor);
@@ -158,6 +162,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _status       Status
      */
     function _manageReceiver(address _receiver, bool _status) internal {
+        // solhint-disable-next-line reason-string
         require(_receiver != address(0), "Camelot_Storage_Module: Zero address");
         if (_status) {
             getCamelotCommonStorage().allowedReceivers.add(_receiver);
