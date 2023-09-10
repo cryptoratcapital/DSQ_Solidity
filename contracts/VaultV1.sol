@@ -309,30 +309,19 @@ contract VaultV1 is ERC4626, Ownable {
 
     /// @dev    See EIP-4626
     // (uint256 assets, uint256 shares)
-    function _deposit(
-        address caller,
-        address receiver,
-        uint256 assets,
-        uint256 shares
-    ) internal override {
+    function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal override {
         super._deposit(caller, receiver, assets, shares);
         totalDeposits += assets;
     }
 
     /// @dev    See EIP-4626
     // (uint256 assets, uint256 shares)
-    function _withdraw(
-        address caller,
-        address receiver,
-        address owner,
-        uint256 assets,
-        uint256 shares
-    ) internal override {
+    function _withdraw(address caller, address receiver, address _owner, uint256 assets, uint256 shares) internal override {
         if (totalDeposits > assets) {
             totalDeposits -= assets;
         } else {
             totalDeposits = 0;
         }
-        super._withdraw(caller, receiver, owner, assets, shares);
+        super._withdraw(caller, receiver, _owner, assets, shares);
     }
 }

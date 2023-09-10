@@ -59,9 +59,7 @@ Acknowledged. These risks are inherent in the architecture, and plain-language r
 
 11. Malicious users can manipulate share calculation
 
-TODO: Pending testing by Oriole TEST PENDING
-
-Implemented the recommended change to use OpenZeppelin virtual shares pattern. This was done by migrating to the OpenZeppelin ERC-4626 implementation instead of Solmate.
+Implemented the recommended change to use OpenZeppelin virtual shares pattern. This was done by migrating to the OpenZeppelin ERC-4626 implementation Version ^4.9.0, which has the decimal offset, instead of the previous Solmate implementation. The offset math introduces a rounding error which may round 1 wei/unit of value against the favor of users in a few instances, such as all shares being redeemed, but this has been deemed acceptable as it rounds in a direction which will not cause DoS.
 
 12. Malicious user can DoS deposits of other users
 
