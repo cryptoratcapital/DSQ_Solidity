@@ -7,6 +7,8 @@ import "../../../external/lyra_interfaces/IOptionMarket.sol";
 /**
  * @title   DSquared Lyra Options Module
  * @notice  Allows opening and closing option positions via the Lyra OptionMarket Contract
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

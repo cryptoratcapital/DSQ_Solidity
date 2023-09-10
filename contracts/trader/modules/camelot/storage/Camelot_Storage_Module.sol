@@ -8,10 +8,13 @@ import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "./Camelot_Common_Storage.sol";
 import "../../../external/camelot_interfaces/INFTPool.sol";
 import "../../../external/camelot_interfaces/INFTPoolFactory.sol";
+import "../../../external/camelot_interfaces/INitroPoolFactory.sol";
 
 /**
  * @title   DSquared Camelot Storage Module
  * @notice  Manage Camelot storage
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole
@@ -22,13 +25,16 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
 
     /// @notice Camelot NFT pool factory address
     INFTPoolFactory public immutable camelot_nftpool_factory;
+    /// @notice Camelot Nitro pool factory address
+    INitroPoolFactory public immutable camelot_nitropool_factory;
 
     /**
      * @notice Sets the address of the Camelot nft pool factory
      * @param _camelot_nftpool_factory  Camelot nft pool factory address
      */
-    constructor(address _camelot_nftpool_factory) {
+    constructor(address _camelot_nftpool_factory, address _camelot_nitropool_factory) {
         camelot_nftpool_factory = INFTPoolFactory(_camelot_nftpool_factory);
+        camelot_nitropool_factory = INitroPoolFactory(_camelot_nitropool_factory);
     }
 
     // solhint-enable var-name-mixedcase
@@ -57,7 +63,8 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
     function _manageNFTPool(address _pool, bool _status) internal {
         if (_status) {
             (address lptoken, , , , , , , ) = INFTPool(_pool).getPoolInfo();
-            require(camelot_nftpool_factory.getPool(lptoken) == _pool, "Invalid pool");
+            // solhint-disable-next-line reason-string
+            require(camelot_nftpool_factory.getPool(lptoken) == _pool, "Camelot_Storage_Module: Invalid pool");
             getCamelotCommonStorage().allowedNFTPools.add(_pool);
         } else {
             getCamelotCommonStorage().allowedNFTPools.remove(_pool);
@@ -69,11 +76,17 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _pools    Array of pool addresses
      * @param _status   Array of statuses
      */
-    function manageNitroPools(address[] calldata _pools, bool[] calldata _status) external onlyRole(EXECUTOR_ROLE) {
+    function manageNitroPools(
+        address[] calldata _pools,
+        bool[] calldata _status,
+        uint256[] calldata _indexes
+    ) external onlyRole(EXECUTOR_ROLE) {
         // solhint-disable-next-line reason-string
-        require(_pools.length == _status.length, "Camelot_Storage_Module: Length mismatch");
-        for (uint256 i; i < _pools.length; ) {
-            _manageNitroPool(_pools[i], _status[i]);
+        uint256 poolsLen = _pools.length;
+        // solhint-disable-next-line reason-string
+        require(poolsLen == _status.length && poolsLen == _indexes.length, "Camelot_Storage_Module: Length mismatch");
+        for (uint256 i; i < poolsLen; ) {
+            _manageNitroPool(_pools[i], _status[i], _indexes[i]);
             unchecked {
                 ++i;
             }
@@ -85,8 +98,11 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _pool     Pool address
      * @param _status   Status
      */
-    function _manageNitroPool(address _pool, bool _status) internal {
+    function _manageNitroPool(address _pool, bool _status, uint256 _index) internal {
         if (_status) {
+            address nitroPool = camelot_nitropool_factory.getNitroPool(_index);
+            // solhint-disable-next-line reason-string
+            require(nitroPool == _pool, "Camelot_Storage_Module: Pool/index mismatch");
             getCamelotCommonStorage().allowedNitroPools.add(_pool);
         } else {
             getCamelotCommonStorage().allowedNitroPools.remove(_pool);
@@ -98,7 +114,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _executors    Array of executor addresses
      * @param _status       Array of statuses
      */
-    function manageExecutors(address[] calldata _executors, bool[] calldata _status) external onlyRole(EXECUTOR_ROLE) {
+    function manageExecutors(address[] calldata _executors, bool[] calldata _status) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // solhint-disable-next-line reason-string
         require(_executors.length == _status.length, "Camelot_Storage_Module: Length mismatch");
         for (uint256 i; i < _executors.length; ) {
@@ -115,6 +131,8 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _status       Status
      */
     function _manageExecutor(address _executor, bool _status) internal {
+        // solhint-disable-next-line reason-string
+        require(_executor != address(0), "Camelot_Storage_Module: Zero address");
         if (_status) {
             getCamelotCommonStorage().allowedExecutors.add(_executor);
         } else {
@@ -127,7 +145,7 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _receivers    Array of receiver addresses
      * @param _status       Array of statuses
      */
-    function manageReceivers(address[] calldata _receivers, bool[] calldata _status) external onlyRole(EXECUTOR_ROLE) {
+    function manageReceivers(address[] calldata _receivers, bool[] calldata _status) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // solhint-disable-next-line reason-string
         require(_receivers.length == _status.length, "Camelot_Storage_Module: Length mismatch");
         for (uint256 i; i < _receivers.length; ) {
@@ -144,6 +162,8 @@ contract Camelot_Storage_Module is AccessControl, Camelot_Common_Storage {
      * @param _status       Status
      */
     function _manageReceiver(address _receiver, bool _status) internal {
+        // solhint-disable-next-line reason-string
+        require(_receiver != address(0), "Camelot_Storage_Module: Zero address");
         if (_status) {
             getCamelotCommonStorage().allowedReceivers.add(_receiver);
         } else {

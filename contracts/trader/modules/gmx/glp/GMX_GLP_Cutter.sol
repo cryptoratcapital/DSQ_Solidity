@@ -18,9 +18,12 @@ abstract contract GMX_GLP_Cutter is DiamondWritableInternal, ERC165Base {
      * @param   _facet  GMX_GLP_Module address
      */
     function cut_GMX_GLP(address _facet) internal {
+        // solhint-disable-next-line reason-string
+        require(_facet != address(0), "GMX_GLP_Cutter: _facet cannot be 0 address");
+
         uint256 selectorIndex;
         // Register
-        bytes4[] memory selectors = new bytes4[](7);
+        bytes4[] memory selectors = new bytes4[](9);
 
         selectors[selectorIndex++] = IGMX_GLP_Module.gmx_mintAndStakeGlp.selector;
         selectors[selectorIndex++] = IGMX_GLP_Module.gmx_mintAndStakeGlpETH.selector;
@@ -29,6 +32,8 @@ abstract contract GMX_GLP_Cutter is DiamondWritableInternal, ERC165Base {
         selectors[selectorIndex++] = IGMX_GLP_Module.gmx_claim.selector;
         selectors[selectorIndex++] = IGMX_GLP_Module.gmx_compound.selector;
         selectors[selectorIndex++] = IGMX_GLP_Module.gmx_handleRewards.selector;
+        selectors[selectorIndex++] = IGMX_GLP_Module.gmx_unstakeGmx.selector;
+        selectors[selectorIndex++] = IGMX_GLP_Module.gmx_unstakeEsGmx.selector;
 
         _setSupportsInterface(type(IGMX_GLP_Module).interfaceId, true);
 

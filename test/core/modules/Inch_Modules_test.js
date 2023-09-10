@@ -125,7 +125,44 @@ describe("1Inch Modules", function () {
           assets,
           [addresses.CHAINLINK_DAI_USD, addresses.CHAINLINK_USDC_USD],
         ),
-      ).to.be.revertedWith("Inch_LimitOrder_Base: Invalid input");
+      ).to.be.revertedWith("Inch_LimitOrder_Cutter: arrays must be the same length");
+    });
+
+    it("Should NOT deploy with facet as zero address", async function () {
+      TraderV0 = await ethers.getContractFactory("TraderV0");
+      traderFacet = await TraderV0.deploy(maxPerformanceFee, maxManagementFee);
+
+      InchSwapFacet = await ethers.getContractFactory("Inch_Swap_Module");
+      inchSwapFacet = await InchSwapFacet.deploy(addresses.INCH_AGGREGATION_ROUTER, addresses.INCH_CLIPPER_EXCHANGE);
+
+      InchLimitOrderFacet = await ethers.getContractFactory("Inch_LimitOrder_Module");
+      inchLimitOrderFacet = await InchLimitOrderFacet.deploy(addresses.INCH_AGGREGATION_ROUTER);
+
+      Strategy = await ethers.getContractFactory("TestFixture_Strategy_InchModule");
+
+      await expect(
+        Strategy.deploy(
+          devWallet.address,
+          traderFacet.address,
+          traderInitializerParams,
+          inchSwapFacet.address,
+          ethers.constants.AddressZero,
+          assets,
+          oracles,
+        ),
+      ).to.be.revertedWith("Inch_LimitOrder_Cutter: _facet cannot be 0 address");
+
+      await expect(
+        Strategy.deploy(
+          devWallet.address,
+          traderFacet.address,
+          traderInitializerParams,
+          ethers.constants.AddressZero,
+          inchLimitOrderFacet.address,
+          assets,
+          oracles,
+        ),
+      ).to.be.revertedWith("Inch_Swap_Cutter: _facet cannot be 0 address");
     });
   });
 
@@ -236,6 +273,16 @@ describe("1Inch Modules", function () {
       expect(await WETH.balanceOf(strategyDiamond.address)).to.be.gt(0);
     });
 
+    it("Should NOT single-pool uniswapV3Swap to or from a token outside the mandate", async function () {
+      pool = "0xcda53b1f66614552f834ceef361a8d12a0b8dad8"; // ARB/USDC
+      uintAddress = convertToUint256Address(false, false, pool);
+      console.log(uintAddress);
+      await expect(strategyDiamond.inch_uniswapV3Swap(0, initialUSDCBalance, 0, [uintAddress])).to.be.revertedWith("Invalid token");
+      uintAddress = convertToUint256Address(true, false, pool);
+      console.log(uintAddress);
+      await expect(strategyDiamond.inch_uniswapV3Swap(0, initialUSDCBalance, 0, [uintAddress])).to.be.revertedWith("Invalid token");
+    });
+
     // USDC -> WETH
     it("Should do uniswapV3Swap multi-pool token swap with non-approved middle token", async function () {
       pool1Address = convertToUint256Address(false, false, UNI_USDC);
@@ -344,7 +391,7 @@ describe("1Inch Modules", function () {
       await expect(strategyDiamond.connect(citizen1).init_Inch_LimitOrder(assets, oracles)).to.be.reverted; // Proxy__ImplementationIsNotContract
     });
 
-    it("Should allow citizen1 to fill order made by devWallet", async function () {
+    it("inch_addOrder: Should allow citizen1 to fill order made by devWallet", async function () {
       const citizenIndex = getSlot(citizen1.address, DAI_SLOT);
       await setStorageAt(DAI.address, citizenIndex, toBytes32(parseEther("1000")));
       await DAI.connect(citizen1).approve(router.address, ethers.constants.MaxUint256);
@@ -374,33 +421,35 @@ describe("1Inch Modules", function () {
 
     it("Should fillOrder", async function () {
       const citizenIndex = getSlot(citizen1.address, DAI_SLOT);
-      await setStorageAt(DAI.address, citizenIndex, toBytes32(parseEther("100")));
+      await setStorageAt(DAI.address, citizenIndex, toBytes32(parseEther("1000")));
       await DAI.connect(citizen1).approve(router.address, ethers.constants.MaxUint256);
 
       // Citizen1 makes an order and signs it
+      // Offering 1000 DAI for 1000 USDC
       limitOrderBuilder = new LimitOrderBuilder("", 1, ethers.provider);
       limitOrder = limitOrderBuilder.buildLimitOrder({
         makerAssetAddress: DAI.address,
         takerAssetAddress: USDC.address,
         makerAddress: citizen1.address,
-        makingAmount: "1000",
-        takingAmount: "1000",
+        makingAmount: "1000000000000000000000",
+        takingAmount: "1000000000",
         // receiver: ZERO_ADDRESS,
         // allowedSender = ZERO_ADDRESS,
       });
       limitOrderHash = await router.hashOrder(limitOrder);
       signature = ethers.utils.joinSignature(citizen1._signingKey().signDigest(limitOrderHash));
 
-      await expect(() => strategyDiamond.inch_fillOrder(0, limitOrder, signature, "0x00", 0, 500, 0)).to.changeTokenBalance(
+      await expect(() => strategyDiamond.inch_fillOrder(0, limitOrder, signature, "0x00", 0, 500e6, 0)).to.changeTokenBalance(
         USDC,
         strategyDiamond,
-        -500,
+        -500e6,
       );
-      expect(await USDC.balanceOf(citizen1.address)).to.eq(500);
-      expect(await DAI.balanceOf(strategyDiamond.address)).to.eq(500);
+
+      expect(await USDC.balanceOf(citizen1.address)).to.eq(500e6);
+      expect(await DAI.balanceOf(strategyDiamond.address)).to.eq(ethers.utils.parseEther("500"));
     });
 
-    it("Should fillOrder using msg.value", async function () {
+    it("Should fillOrder using valueIn", async function () {
       const citizenIndex = getSlot(citizen1.address, DAI_SLOT);
       await setStorageAt(DAI.address, citizenIndex, toBytes32(parseEther("3500")));
       await DAI.connect(citizen1).approve(router.address, ethers.constants.MaxUint256);
@@ -472,6 +521,35 @@ describe("1Inch Modules", function () {
         // allowedSender = ZERO_ADDRESS,
       });
       await expect(strategyDiamond.inch_fillOrder(0, limitOrder, "0x69", "0x00", 0, 500, 0)).to.be.revertedWith("Invalid token");
+
+      limitOrder = limitOrderBuilder.buildLimitOrder({
+        makerAssetAddress: DAI.address,
+        takerAssetAddress: USDC.address,
+        makerAddress: citizen1.address,
+        makingAmount: "1000000000000000000000",
+        takingAmount: "1000000000",
+        getMakingAmount: "0x2222",
+        getTakingAmount: "",
+        // receiver: ZERO_ADDRESS,
+        // allowedSender = ZERO_ADDRESS,
+      });
+      await expect(strategyDiamond.inch_fillOrder(0, limitOrder, "0x69", "0x00", 0, 500, 0)).to.be.revertedWith(
+        "GuardError: Only linear proportions accepted",
+      );
+      limitOrder = limitOrderBuilder.buildLimitOrder({
+        makerAssetAddress: DAI.address,
+        takerAssetAddress: USDC.address,
+        makerAddress: citizen1.address,
+        makingAmount: "1000000000000000000000",
+        takingAmount: "1000000000",
+        getMakingAmount: "",
+        getTakingAmount: "0x2222",
+        // receiver: ZERO_ADDRESS,
+        // allowedSender = ZERO_ADDRESS,
+      });
+      await expect(strategyDiamond.inch_fillOrder(0, limitOrder, "0x69", "0x00", 0, 500, 0)).to.be.revertedWith(
+        "GuardError: Only linear proportions accepted",
+      );
     });
 
     it("Should cancelOrder", async function () {

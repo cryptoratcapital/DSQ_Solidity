@@ -249,6 +249,39 @@ describe("GMX Modules Test", function () {
           { value: ethers.utils.parseEther("0.01") },
         ),
       ).to.be.revertedWith("Invalid swap path");
+
+      await expect(
+        strategyDiamond.gmx_createIncreaseOrder(
+          [addresses.USDC],
+          amountIn,
+          addresses.WETH,
+          0,
+          0, //TODO - Size parameter is weird
+          addresses.WETH,
+          true,
+          BigNumber.from("11970000000000000000000000000000"),
+          false,
+          ethers.utils.parseEther("0.01"),
+          false,
+          { value: ethers.utils.parseEther("0.02") },
+        ),
+      ).to.be.revertedWith("GuardError: GMX execution fee");
+
+      await expect(
+        strategyDiamond.gmx_createIncreaseOrder(
+          [addresses.USDC],
+          amountIn,
+          addresses.WETH,
+          0,
+          0, //TODO - Size parameter is weird
+          addresses.WETH,
+          true,
+          BigNumber.from("11970000000000000000000000000000"),
+          false,
+          ethers.utils.parseEther("0.01"),
+          false,
+        ),
+      ).to.be.revertedWith("GuardError: GMX execution fee");
     });
 
     it("createDecreaseOrder: Should create a well-formed limit decrease order for AVAX", async function () {
@@ -295,6 +328,33 @@ describe("GMX Modules Test", function () {
           { value: ethers.utils.parseEther("0.02") },
         ),
       ).to.be.revertedWith("Invalid token");
+
+      await expect(
+        strategyDiamond.gmx_createDecreaseOrder(
+          addresses.WETH,
+          1, //TODO - Size parameter is weird
+          addresses.WETH,
+          0,
+          true,
+          BigNumber.from("11970000000000000000000000000000"),
+          true,
+          ethers.utils.parseEther("0.02"),
+          { value: ethers.utils.parseEther("0.03") },
+        ),
+      ).to.be.revertedWith("GuardError: GMX execution fee");
+
+      await expect(
+        strategyDiamond.gmx_createDecreaseOrder(
+          addresses.WETH,
+          1, //TODO - Size parameter is weird
+          addresses.WETH,
+          0,
+          true,
+          BigNumber.from("11970000000000000000000000000000"),
+          true,
+          ethers.utils.parseEther("0.02"),
+        ),
+      ).to.be.revertedWith("GuardError: GMX execution fee");
     });
 
     it("createSwapOrder: Should create a well-formed limit swap order for AVAX", async function () {
@@ -335,6 +395,35 @@ describe("GMX Modules Test", function () {
           },
         ),
       ).to.be.revertedWith("Invalid swap path");
+
+      await expect(
+        strategyDiamond.gmx_createSwapOrder(
+          [addresses.USDC, addresses.WETH],
+          amountIn,
+          0,
+          0,
+          true,
+          ethers.utils.parseEther("0.01"),
+          false,
+          false,
+          {
+            value: ethers.utils.parseEther("0.02"),
+          },
+        ),
+      ).to.be.revertedWith("GuardError: GMX execution fee");
+
+      await expect(
+        strategyDiamond.gmx_createSwapOrder(
+          [addresses.USDC, addresses.WETH],
+          amountIn,
+          0,
+          0,
+          true,
+          ethers.utils.parseEther("0.01"),
+          false,
+          false,
+        ),
+      ).to.be.revertedWith("GuardError: GMX execution fee");
     });
   });
 
@@ -439,6 +528,37 @@ describe("GMX Modules Test", function () {
           { value: ethers.utils.parseEther("0.02") },
         ),
       ).to.be.revertedWith("GuardError: GMX callback target");
+
+      await expect(
+        strategyDiamond.gmx_createIncreasePosition(
+          [addresses.USDC],
+          addresses.WETH,
+          amountIn,
+          0,
+          0, //TODO - Size parameter is weird
+          true,
+          BigNumber.from("11970000000000000000000000000000"),
+          ethers.utils.parseEther("0.02"),
+          ethers.constants.HashZero,
+          ethers.constants.AddressZero,
+          { value: ethers.utils.parseEther("0.03") },
+        ),
+      ).to.be.revertedWith("GuardError: GMX execution fee");
+
+      await expect(
+        strategyDiamond.gmx_createIncreasePosition(
+          [addresses.USDC],
+          addresses.WETH,
+          amountIn,
+          0,
+          0, //TODO - Size parameter is weird
+          true,
+          BigNumber.from("11970000000000000000000000000000"),
+          ethers.utils.parseEther("0.02"),
+          ethers.constants.HashZero,
+          ethers.constants.AddressZero,
+        ),
+      ).to.be.revertedWith("GuardError: GMX execution fee");
     });
 
     it("createIncreasePositionETH: Should create a well-formed increase position for AVAX", async function () {
@@ -455,7 +575,7 @@ describe("GMX Modules Test", function () {
         ethers.utils.parseEther("0.02"),
         ethers.constants.HashZero,
         ethers.constants.AddressZero,
-        { value: ethers.utils.parseEther("1.02") },
+        { value: ethers.utils.parseEther("0.02") },
       );
     });
 
@@ -474,7 +594,7 @@ describe("GMX Modules Test", function () {
           ethers.utils.parseEther("0.02"),
           ethers.constants.HashZero,
           ethers.constants.AddressZero,
-          { value: ethers.utils.parseEther("1.02") },
+          { value: ethers.utils.parseEther("0.02") },
         ),
       ).to.be.revertedWith("Invalid token");
 
@@ -490,7 +610,7 @@ describe("GMX Modules Test", function () {
           ethers.utils.parseEther("0.02"),
           ethers.constants.HashZero,
           ethers.constants.AddressZero,
-          { value: ethers.utils.parseEther("1.02") },
+          { value: ethers.utils.parseEther("0.02") },
         ),
       ).to.be.revertedWith("Invalid swap path");
 
@@ -506,7 +626,7 @@ describe("GMX Modules Test", function () {
           ethers.utils.parseEther("0.02"),
           ethers.constants.HashZero,
           ethers.constants.AddressZero,
-          { value: ethers.utils.parseEther("1.02") },
+          { value: ethers.utils.parseEther("0.02") },
         ),
       ).to.be.revertedWith("Invalid swap path");
 
@@ -522,9 +642,40 @@ describe("GMX Modules Test", function () {
           ethers.utils.parseEther("0.02"),
           ethers.constants.HashZero,
           devWallet.address,
-          { value: ethers.utils.parseEther("1.02") },
+          { value: ethers.utils.parseEther("0.02") },
         ),
       ).to.be.revertedWith("GuardError: GMX callback target");
+
+      await expect(
+        strategyDiamond.gmx_createIncreasePositionETH(
+          valueIn,
+          [addresses.WETH],
+          addresses.WETH,
+          0,
+          0, //TODO - Size parameter is weird
+          true,
+          BigNumber.from("11970000000000000000000000000000"),
+          ethers.utils.parseEther("0.02"),
+          ethers.constants.HashZero,
+          ethers.constants.AddressZero,
+          { value: ethers.utils.parseEther("1.02") },
+        ),
+      ).to.be.revertedWith("GuardError: GMX execution fee");
+
+      await expect(
+        strategyDiamond.gmx_createIncreasePositionETH(
+          valueIn,
+          [addresses.WETH],
+          addresses.WETH,
+          0,
+          0, //TODO - Size parameter is weird
+          true,
+          BigNumber.from("11970000000000000000000000000000"),
+          ethers.utils.parseEther("0.02"),
+          ethers.constants.HashZero,
+          ethers.constants.AddressZero,
+        ),
+      ).to.be.revertedWith("GuardError: GMX execution fee");
     });
 
     it("createDecreasePosition: Should create a well-formed decrease position for AVAX", async function () {
@@ -616,6 +767,39 @@ describe("GMX Modules Test", function () {
           { value: ethers.utils.parseEther("0.02") },
         ),
       ).to.be.revertedWith("GuardError: GMX DecreasePosition recipient");
+
+      await expect(
+        strategyDiamond.gmx_createDecreasePosition(
+          [addresses.USDC],
+          addresses.WETH,
+          addresses.USDC,
+          0, //TODO - Size parameter is weird
+          true,
+          strategyDiamond.address,
+          BigNumber.from("11970000000000000000000000000000"),
+          0,
+          ethers.utils.parseEther("0.02"),
+          false,
+          ethers.constants.AddressZero,
+          { value: ethers.utils.parseEther("0.03") },
+        ),
+      ).to.be.revertedWith("GuardError: GMX execution fee");
+
+      await expect(
+        strategyDiamond.gmx_createDecreasePosition(
+          [addresses.USDC],
+          addresses.WETH,
+          addresses.USDC,
+          0, //TODO - Size parameter is weird
+          true,
+          strategyDiamond.address,
+          BigNumber.from("11970000000000000000000000000000"),
+          0,
+          ethers.utils.parseEther("0.02"),
+          false,
+          ethers.constants.AddressZero,
+        ),
+      ).to.be.revertedWith("GuardError: GMX execution fee");
     });
   });
 

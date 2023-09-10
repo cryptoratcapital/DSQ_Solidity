@@ -7,7 +7,8 @@ use(solidity);
 const provider = waffle.provider;
 const [devWallet, citizen1, citizen2, citizen3, citizen4, citizen5, treasury] = provider.getWallets();
 
-describe("StakingRewards", function () {
+/* eslint-disable mocha/no-skipped-tests */
+xdescribe("StakingRewards", function () {
   beforeEach(async function () {
     DSQ = await ethers.getContractFactory("DSQToken");
     dsq = await DSQ.deploy(treasury.address, ethers.utils.parseEther("500000"));

@@ -44,7 +44,7 @@ abstract contract DSQ_Trader_Storage {
     }
 
     /// @dev    EIP-2535 Diamond Storage struct location
-    bytes32 internal constant TRADERV0_POSITION = keccak256("TraderV0.storage");
+    bytes32 internal constant TRADERV0_POSITION = bytes32(uint256(keccak256("TraderV0.storage")) - 1);
 
     /**
      * @return  storageStruct   TraderV0Storage storage pointer

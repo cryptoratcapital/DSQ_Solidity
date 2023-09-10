@@ -18,13 +18,18 @@ abstract contract Lyra_Storage_Cutter is DiamondWritableInternal, ERC165Base {
      * @param   _facet  Lyra_Storage_Module address
      */
     function cut_Lyra_Storage(address _facet) internal {
+        // solhint-disable-next-line reason-string
+        require(_facet != address(0), "Lyra_Storage_Cutter: _facet cannot be 0 address");
+
         uint256 selectorIndex;
         // Register
-        bytes4[] memory selectors = new bytes4[](3);
+        bytes4[] memory selectors = new bytes4[](5);
 
         selectors[selectorIndex++] = ILyra_Storage_Module.addLyraMarket.selector;
+        selectors[selectorIndex++] = ILyra_Storage_Module.removeLyraMarket.selector;
         selectors[selectorIndex++] = ILyra_Storage_Module.getAllowedLyraMarkets.selector;
         selectors[selectorIndex++] = ILyra_Storage_Module.getAllowedLyraPools.selector;
+        selectors[selectorIndex++] = ILyra_Storage_Module.getLyraPoolQuoteAsset.selector;
 
         _setSupportsInterface(type(ILyra_Storage_Module).interfaceId, true);
 

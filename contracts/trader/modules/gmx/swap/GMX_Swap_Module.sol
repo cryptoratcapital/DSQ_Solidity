@@ -14,6 +14,8 @@ import "../../dsq/DSQ_Trader_Storage.sol";
  *              3. Inheritor MUST validate the receiver address.
  *              4. Input guards MUST revert if their criteria are not met.
  *          Failure to meet these assumptions may result in unsafe behavior!
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

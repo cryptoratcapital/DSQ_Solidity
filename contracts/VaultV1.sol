@@ -3,10 +3,9 @@ pragma solidity ^0.8.13;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-
-import "solmate/src/tokens/ERC20.sol";
-import "solmate/src/mixins/ERC4626.sol";
-import "solmate/src/utils/SafeTransferLib.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.sol";
 
 /**
  * @title   DSquared Investment Vault V1
@@ -19,7 +18,7 @@ import "solmate/src/utils/SafeTransferLib.sol";
  */
 contract VaultV1 is ERC4626, Ownable {
     using Counters for Counters.Counter;
-    using SafeTransferLib for ERC20;
+    using SafeERC20 for IERC20;
 
     // ----- Events -----
 
@@ -34,9 +33,9 @@ contract VaultV1 is ERC4626, Ownable {
     uint256 public constant MIN_FUNDING_DURATION = 2 days;
 
     struct Epoch {
-        uint256 fundingStart;
-        uint256 epochStart;
-        uint256 epochEnd;
+        uint80 fundingStart;
+        uint80 epochStart;
+        uint80 epochEnd;
     }
 
     mapping(uint256 => Epoch) public epochs;
@@ -74,19 +73,19 @@ contract VaultV1 is ERC4626, Ownable {
 
     modifier duringFunding() {
         Epoch storage epoch = epochs[epochId.current()];
-        require(block.timestamp >= epoch.fundingStart && block.timestamp < epoch.epochStart, "!funding");
+        require(uint80(block.timestamp) >= epoch.fundingStart && uint80(block.timestamp) < epoch.epochStart, "!funding");
         _;
     }
 
     modifier notDuringEpoch() {
         Epoch storage epoch = epochs[epochId.current()];
-        require(block.timestamp < epoch.epochStart || block.timestamp >= epoch.epochEnd, "during");
+        require(uint80(block.timestamp) < epoch.epochStart || uint80(block.timestamp) >= epoch.epochEnd, "during");
         _;
     }
 
     modifier duringEpoch() {
         Epoch storage epoch = epochs[epochId.current()];
-        require(block.timestamp >= epoch.epochStart && block.timestamp < epoch.epochEnd, "!during");
+        require(uint80(block.timestamp) >= epoch.epochStart && uint80(block.timestamp) < epoch.epochEnd, "!during");
         _;
     }
 
@@ -100,12 +99,12 @@ contract VaultV1 is ERC4626, Ownable {
      * @param   _maxDeposits    Initial maximum deposits allowed
      */
     constructor(
-        ERC20 _asset,
+        IERC20 _asset,
         string memory _name,
         string memory _symbol,
         address _trader,
         uint256 _maxDeposits
-    ) ERC4626(_asset, _name, _symbol) {
+    ) ERC4626(_asset) ERC20(_name, _symbol) {
         require(_trader != address(0), "!zeroAddr");
         trader = _trader;
         maxDeposits = _maxDeposits;
@@ -119,10 +118,10 @@ contract VaultV1 is ERC4626, Ownable {
      * @param   _epochStart   Start timestamp of the epoch in unix epoch seconds
      * @param   _epochEnd     End timestamp of the epoch in unix epoch seconds
      */
-    function startEpoch(uint256 _fundingStart, uint256 _epochStart, uint256 _epochEnd) external onlyOwner notDuringEpoch {
+    function startEpoch(uint80 _fundingStart, uint80 _epochStart, uint80 _epochEnd) external onlyOwner notDuringEpoch {
         require(!started || !custodied, "!allowed");
         require(
-            _epochEnd > _epochStart && _epochStart >= _fundingStart + MIN_FUNDING_DURATION && _fundingStart >= block.timestamp,
+            _epochEnd > _epochStart && _epochStart >= _fundingStart + MIN_FUNDING_DURATION && _fundingStart >= uint80(block.timestamp),
             "!timing"
         );
         require(_epochEnd <= _epochStart + MAX_EPOCH_DURATION, "!epochLen");
@@ -160,7 +159,7 @@ contract VaultV1 is ERC4626, Ownable {
 
         custodied = true;
         custodiedAmount = amount;
-        asset.safeTransfer(trader, amount);
+        IERC20(asset()).safeTransfer(trader, amount);
 
         emit FundsCustodied(epochId.current(), amount);
         return amount;
@@ -176,11 +175,11 @@ contract VaultV1 is ERC4626, Ownable {
     function returnFunds(uint256 _amount) external onlyTrader {
         require(custodied, "!custody");
         require(_amount > 0, "!amount");
-        asset.safeTransferFrom(trader, address(this), _amount);
+        IERC20(asset()).safeTransferFrom(trader, address(this), _amount);
 
         uint256 currentEpoch = getCurrentEpoch();
         Epoch storage epoch = epochs[currentEpoch];
-        epoch.epochEnd = block.timestamp;
+        epoch.epochEnd = uint80(block.timestamp);
 
         custodiedAmount = 0;
         custodied = false;
@@ -214,7 +213,7 @@ contract VaultV1 is ERC4626, Ownable {
      */
     function isFunding() external view returns (bool) {
         Epoch storage epoch = epochs[epochId.current()];
-        return block.timestamp >= epoch.fundingStart && block.timestamp < epoch.epochStart;
+        return uint80(block.timestamp) >= epoch.fundingStart && uint80(block.timestamp) < epoch.epochStart;
     }
 
     /**
@@ -223,7 +222,7 @@ contract VaultV1 is ERC4626, Ownable {
      */
     function isInEpoch() external view returns (bool) {
         Epoch storage epoch = epochs[epochId.current()];
-        return block.timestamp >= epoch.epochStart && block.timestamp < epoch.epochEnd;
+        return uint80(block.timestamp) >= epoch.epochStart && uint80(block.timestamp) < epoch.epochEnd;
     }
 
     /**
@@ -232,7 +231,7 @@ contract VaultV1 is ERC4626, Ownable {
      */
     function notCustodiedAndDuringFunding() public view returns (bool) {
         Epoch storage epoch = epochs[epochId.current()];
-        return (!custodied && (block.timestamp >= epoch.fundingStart && block.timestamp < epoch.epochStart));
+        return (!custodied && (uint80(block.timestamp) >= epoch.fundingStart && uint80(block.timestamp) < epoch.epochStart));
     }
 
     /**
@@ -241,7 +240,7 @@ contract VaultV1 is ERC4626, Ownable {
      */
     function notCustodiedAndNotDuringEpoch() public view returns (bool) {
         Epoch storage epoch = epochs[epochId.current()];
-        return (!custodied && (block.timestamp < epoch.epochStart || block.timestamp >= epoch.epochEnd));
+        return (!custodied && (uint80(block.timestamp) < epoch.epochStart || uint80(block.timestamp) >= epoch.epochEnd));
     }
 
     // ----- Overrides -----
@@ -305,22 +304,24 @@ contract VaultV1 is ERC4626, Ownable {
 
     /// @dev    See EIP-4626
     function totalAssets() public view override returns (uint256) {
-        return custodied ? custodiedAmount : asset.balanceOf(address(this));
+        return custodied ? custodiedAmount : IERC20(asset()).balanceOf(address(this));
     }
 
     /// @dev    See EIP-4626
     // (uint256 assets, uint256 shares)
-    function beforeWithdraw(uint256 assets, uint256) internal override {
+    function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal override {
+        super._deposit(caller, receiver, assets, shares);
+        totalDeposits += assets;
+    }
+
+    /// @dev    See EIP-4626
+    // (uint256 assets, uint256 shares)
+    function _withdraw(address caller, address receiver, address _owner, uint256 assets, uint256 shares) internal override {
         if (totalDeposits > assets) {
             totalDeposits -= assets;
         } else {
             totalDeposits = 0;
         }
-    }
-
-    /// @dev    See EIP-4626
-    // (uint256 assets, uint256 shares)
-    function afterDeposit(uint256 assets, uint256) internal override {
-        totalDeposits += assets;
+        super._withdraw(caller, receiver, _owner, assets, shares);
     }
 }

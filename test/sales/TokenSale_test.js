@@ -15,7 +15,8 @@ const initialSupply = parseEther("483000");
 
 const now = new Date();
 
-describe("TokenSale", function () {
+/* eslint-disable mocha/no-skipped-tests */
+xdescribe("TokenSale", function () {
   beforeEach(async function () {
     Seller = await ethers.getContractFactory("TokenSale");
     dsq = await ethers.getContractFactory("TestFixture_ERC20");

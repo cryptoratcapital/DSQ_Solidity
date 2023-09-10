@@ -7,6 +7,8 @@ import "../../dsq/DSQ_Trader_Storage.sol";
 /**
  * @title   DSquared Camelot LP Module
  * @notice  Allows adding and removing liquidity via the Camelot Router contract
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

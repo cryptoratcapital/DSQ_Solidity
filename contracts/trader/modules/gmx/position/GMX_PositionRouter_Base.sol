@@ -20,8 +20,9 @@ import "../../../external/gmx_interfaces/IPositionRouter.sol";
  *              5. Input guards MUST revert if their criteria are not met.
  *          Failure to meet these assumptions may result in unsafe behavior!
  * @dev     Several functions are payable to allow passing an execution fee to the Position Router.
- *          Execution fee ETH may be provided with msg.value or as a general pool in this contract's balance.
- *          This contract does not pass through msg.value or enforce a dedicated fee fund pool.
+ *          The base contract does not enforce a source of execution fee ETH.
+ * @dev     WARNING: This module can leave a strategy with a balance of native ETH.
+ *          It MUST be deployed alongside another module capable of withdrawing native ETH or swapping it to a mandate token.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole
@@ -50,6 +51,7 @@ abstract contract GMX_PositionRouter_Base is AccessControl, ReentrancyGuard, DSQ
 
     /**
      * @notice  Approves the GMX PositionRouter plugin on the GMX Router
+     * @dev     This is an initialization function which should not be added to any diamond's selectors
      */
     function init_GMX_PositionRouter() external {
         gmx_router.approvePlugin(address(gmx_positionRouter));

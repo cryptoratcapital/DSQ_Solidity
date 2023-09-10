@@ -13,6 +13,8 @@ import "../DSQ_Common_Roles.sol";
  * @notice  Allows arbitrary calls to any address
  * @dev     Intended to retrieve funds in the event of an integration bug
  * @dev     WARNING - NOT FOR PRODUCTION USE - WHITELISTED TEAM FUNDED STRATEGIES ONLY
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
 

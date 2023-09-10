@@ -14,16 +14,21 @@ interface ILyra_Storage_Module {
     // ----- Events -----
 
     event NewLyraMarket(address market, address pool);
+    event RemovedLyraMarket(address market, address pool);
 
     // --------- External Functions ---------
 
     function addLyraMarket(address _optionMarket) external;
+
+    function removeLyraMarket(address _optionMarket) external;
 
     // --------- Views ---------
 
     function getAllowedLyraMarkets() external view returns (address[] memory);
 
     function getAllowedLyraPools() external view returns (address[] memory);
+
+    function getLyraPoolQuoteAsset(address _pool) external view returns (address);
 
     function lyra_registry() external view returns (ILyraRegistry);
 }

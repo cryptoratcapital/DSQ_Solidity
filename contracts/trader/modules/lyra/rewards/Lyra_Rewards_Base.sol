@@ -11,7 +11,8 @@ import "../../../external/camelot_interfaces/ICamelotRouter.sol";
 
 /**
  * @title   HessianX Lyra Rewards Base
- * @notice  Allows claiming LYRA and ARB rewards from Lyra MultiDistributor
+ * @notice  Allows claiming and swapping rewards from Lyra MultiDistributor
+ * @dev     This module adds Camelot swap functionality. Ensure that the strategy mandate does not conflict with this.
  * @dev     The inputGuard functions are designed to be overriden by the inheriting contract.
  *          Key assumptions:
  *              1. Inheritor MUST ensure that the swap output token is valid.
@@ -27,26 +28,18 @@ abstract contract Lyra_Rewards_Base is AccessControl, ReentrancyGuard, Lyra_Comm
 
     /// @notice Lyra MultiDistributor contract address
     IMultiDistributor public immutable multi_distributor;
-    /// @notice ARB token address
-    IERC20 public immutable arb_token;
-    /// @notice Lyra token address
-    IERC20 public immutable lyra_token;
     /// @notice Camelot router address
     ICamelotRouter public immutable camelot_router;
 
     /**
-     * @notice Sets the address of the Lyra MultiDistributor, ARB token, Lyra token, and Camelot router
+     * @notice Sets the address of the Lyra MultiDistributor and Camelot router
      * @param   _multi_distributor   Lyra MultiDistributor address
-     * @param   _arb_token           ARB Token address
-     * @param   _lyra_token          Lyra token address
      * @param   _camelot_router      Camelot router address
      */
-    constructor(address _multi_distributor, address _arb_token, address _lyra_token, address _camelot_router) {
+    constructor(address _multi_distributor, address _camelot_router) {
         // solhint-disable-next-line reason-string
-        require(_multi_distributor != address(0), "Lyra_Rewards_Module: Zero address");
+        require(_multi_distributor != address(0) && _camelot_router != address(0), "Lyra_Rewards_Module: Zero address");
         multi_distributor = IMultiDistributor(_multi_distributor);
-        arb_token = IERC20(_arb_token);
-        lyra_token = IERC20(_lyra_token);
         camelot_router = ICamelotRouter(_camelot_router);
     }
 
@@ -56,53 +49,77 @@ abstract contract Lyra_Rewards_Base is AccessControl, ReentrancyGuard, Lyra_Comm
 
     /**
      * @notice  Claims rewards from Lyra MultiDistributor contract
+     * @param   _claimList   List of batchIds to claim
      */
-    function lyra_claimRewards() external onlyRole(EXECUTOR_ROLE) nonReentrant {
-        IERC20[] memory tokens = new IERC20[](2);
-        (tokens[0], tokens[1]) = (arb_token, lyra_token);
-        multi_distributor.claim(tokens);
+    function lyra_claimRewards(uint256[] memory _claimList) external onlyRole(EXECUTOR_ROLE) nonReentrant {
+        inputGuard_lyra_claimRewards(_claimList);
+
+        multi_distributor.claim(_claimList);
     }
 
     /**
-     * @notice  Converts Lyra and ARB tokens to output token
-     * @param   _outputToken Output token address
-     * @param   _arbSwapMinOut Minimum output amount for ARB swap
-     * @param   _lyraSwapMinOut Minimum output amount for Lyra swap
+     * @param   path    Swap path to use
+     * @param   minOut  Minimum swap output amount in units of output token
      */
-    function lyra_dump(
-        address _outputToken,
-        uint256 _arbSwapMinOut,
-        uint256 _lyraSwapMinOut
-    ) external onlyRole(EXECUTOR_ROLE) nonReentrant {
-        inputGuard_lyra_dump(_outputToken, _arbSwapMinOut, _lyraSwapMinOut);
+    struct SwapInput {
+        address[] path;
+        uint256 minOut;
+    }
 
-        uint256 bal = arb_token.balanceOf(address(this));
-        address[] memory path = new address[](2);
-        if (bal > 0) {
-            arb_token.approve(address(camelot_router), bal);
-            (path[0], path[1]) = (address(arb_token), _outputToken);
-            camelot_router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
-                bal,
-                _arbSwapMinOut,
-                path,
-                address(this),
-                address(0),
-                block.timestamp
-            );
+    /**
+     * @notice  Claims rewards from Lyra MultiDistributor contract and swaps them for output tokens via Camelot
+     * @param   _claimList   List of batchIds to claim
+     * @param   _inputs     Array of SwapInput structs
+     */
+    function lyra_claimAndDump(uint256[] memory _claimList, SwapInput[] memory _inputs) external onlyRole(EXECUTOR_ROLE) nonReentrant {
+        require(_claimList.length == _inputs.length, "Lyra_Rewards_Module: Length mismatch"); // solhint-disable-line reason-string
+
+        inputGuard_lyra_claimAndDump(_claimList, _inputs);
+
+        multi_distributor.claim(_claimList);
+
+        for (uint256 i; i < _inputs.length; ) {
+            uint256 bal = IERC20(_inputs[i].path[0]).balanceOf(address(this));
+            if (bal > 0) {
+                IERC20(_inputs[i].path[0]).approve(address(camelot_router), bal);
+                camelot_router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+                    bal,
+                    _inputs[i].minOut,
+                    _inputs[i].path,
+                    address(this),
+                    address(this),
+                    block.timestamp
+                );
+            }
+            unchecked {
+                ++i;
+            }
         }
+    }
 
-        bal = lyra_token.balanceOf(address(this));
-        if (bal > 0) {
-            lyra_token.approve(address(camelot_router), bal);
-            (path[0], path[1]) = (address((lyra_token)), _outputToken);
-            camelot_router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
-                bal,
-                _lyraSwapMinOut,
-                path,
-                address(this),
-                address(0),
-                block.timestamp
-            );
+    /**
+     * @notice  Sell the contract's balance of specified tokens via Camelot
+     * @param   _inputs     Array of SwapInput structs
+     */
+    function lyra_dump(SwapInput[] memory _inputs) external onlyRole(EXECUTOR_ROLE) nonReentrant {
+        inputGuard_lyra_dump(_inputs);
+
+        for (uint256 i; i < _inputs.length; ) {
+            uint256 bal = IERC20(_inputs[i].path[0]).balanceOf(address(this));
+            if (bal > 0) {
+                IERC20(_inputs[i].path[0]).approve(address(camelot_router), bal);
+                camelot_router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+                    bal,
+                    _inputs[i].minOut,
+                    _inputs[i].path,
+                    address(this),
+                    address(this),
+                    block.timestamp
+                );
+            }
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -111,12 +128,23 @@ abstract contract Lyra_Rewards_Base is AccessControl, ReentrancyGuard, Lyra_Comm
     // solhint-disable no-empty-blocks
 
     /**
-     * @notice  Validates inputs for lyra_dump
-     * @param   _outputToken Output token address
-     * @param   _arbSwapMinOut Minimum output amount for ARB swap
-     * @param   _lyraSwapMinOut Minimum output amount for Lyra swap
+     * @notice  Validates inputs for lyra_claimRewards
+     * @param   _claimList   List of batchIds to claim
      */
-    function inputGuard_lyra_dump(address _outputToken, uint256 _arbSwapMinOut, uint256 _lyraSwapMinOut) internal virtual {}
+    function inputGuard_lyra_claimRewards(uint[] memory _claimList) internal virtual {}
+
+    /**
+     * @notice  Validates inputs for lyra_claimAndDump
+     * @param   _claimList   List of batchIds to claim
+     * @param   _inputs     Array of SwapInput structs
+     */
+    function inputGuard_lyra_claimAndDump(uint[] memory _claimList, SwapInput[] memory _inputs) internal virtual {}
+
+    /**
+     * @notice  Sell the contract's balance of specified tokens via Camelot
+     * @param   _inputs     Array of SwapInput structs
+     */
+    function inputGuard_lyra_dump(SwapInput[] memory _inputs) internal virtual {}
 
     // solhint-enable no-empty-blocks
 }

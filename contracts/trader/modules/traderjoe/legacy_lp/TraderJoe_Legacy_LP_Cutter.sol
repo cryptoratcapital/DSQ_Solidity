@@ -18,6 +18,9 @@ abstract contract TraderJoe_Legacy_LP_Cutter is DiamondWritableInternal, ERC165B
      * @param   _facet  TraderJoe_Legacy_LP_Module address
      */
     function cut_TraderJoe_Legacy_LP(address _facet) internal {
+        // solhint-disable-next-line reason-string
+        require(_facet != address(0), "TraderJoe_Legacy_LP_Cutter: _facet cannot be 0 address");
+
         uint256 selectorIndex;
         // Register
         bytes4[] memory selectors = new bytes4[](5);

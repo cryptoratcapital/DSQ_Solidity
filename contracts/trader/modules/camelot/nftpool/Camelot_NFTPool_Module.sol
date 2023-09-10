@@ -8,6 +8,8 @@ import "../../../external/camelot_interfaces/INFTPool.sol";
 /**
  * @title   DSquared Camelot NFTPool Module
  * @notice  Allows integration with Camelot NFT Pools
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

@@ -3,16 +3,13 @@ pragma solidity ^0.8.13;
 
 import "@solidstate/contracts/access/access_control/AccessControl.sol";
 import "@solidstate/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "../storage/Camelot_Common_Storage.sol";
 import "../../../external/camelot_interfaces/INonfungiblePositionManager.sol";
-import "../../../external/camelot_interfaces/IOdosRouter.sol";
 
 /**
  * @title   DSquared Camelot V3 Base
  * @notice  Allows adding and removing liquidity via the NonfungiblePositionManager contract
- * @notice  Allows swapping via the OdosRouter contract
  * @dev     The inputGuard functions are designed to be overriden by the inheriting contract.
  *          Key assumptions:
  *              1. Inheritor MUST ensure that the tokens are valid
@@ -24,54 +21,25 @@ import "../../../external/camelot_interfaces/IOdosRouter.sol";
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole
  */
-abstract contract Camelot_V3_Base is AccessControl, ReentrancyGuard, Camelot_Common_Storage {
+abstract contract Camelot_V3LP_Base is AccessControl, ReentrancyGuard, Camelot_Common_Storage {
     // solhint-disable var-name-mixedcase
-    using SafeERC20 for IERC20;
 
     /// @notice Algebra position manager address
     INonfungiblePositionManager public immutable position_manager;
-    /// @notice Odos router address
-    IOdosRouter public immutable odos_router;
 
     /**
-     * @notice  Sets the address of the Algebra position manager and Odos router
+     * @notice  Sets the address of the Algebra position manager
      * @param   _position_manager   Algebra position manager address
-     * @param   _odos_router        Odos router address
      */
-    constructor(address _position_manager, address _odos_router) {
+    constructor(address _position_manager) {
         // solhint-disable-next-line reason-string
-        require(_position_manager != address(0) && _odos_router != address(0), "Camelot_V3_Base: Zero address");
+        require(_position_manager != address(0), "Camelot_V3_Base: Zero address");
         position_manager = INonfungiblePositionManager(_position_manager);
-        odos_router = IOdosRouter(_odos_router);
     }
 
     // solhint-enable var-name-mixedcase
 
     // ---------- Functions ----------
-
-    /**
-     * @notice  Performs a swap via the Odos router
-     * @dev     This function uses the odos router
-     * @param   valueIn         Msg.value to send with the swap
-     * @param   inputs          List of input token structs for the path being executed
-     * @param   outputs         List of output token structs for the path being executed
-     * @param   valueOutQuote   Value of destination tokens quoted for the path
-     * @param   valueOutMin     Minimum amount of value out the user will accept
-     * @param   executor        Address of contract that will execute the path
-     * @param   pathDefinition  Encoded path definition for executor
-     */
-    function camelot_v3_swap(
-        uint256 valueIn,
-        IOdosRouter.inputToken[] memory inputs,
-        IOdosRouter.outputToken[] memory outputs,
-        uint256 valueOutQuote,
-        uint256 valueOutMin,
-        address executor,
-        bytes calldata pathDefinition
-    ) external onlyRole(EXECUTOR_ROLE) nonReentrant {
-        inputGuard_camelot_v3_swap(valueIn, inputs, outputs, valueOutQuote, valueOutMin, executor, pathDefinition);
-        odos_router.swap{ value: valueIn }(inputs, outputs, valueOutQuote, valueOutMin, executor, pathDefinition);
-    }
 
     /**
      * @notice  Mints a new CamelotV3 liquidity position via the position manager
@@ -165,26 +133,6 @@ abstract contract Camelot_V3_Base is AccessControl, ReentrancyGuard, Camelot_Com
 
     // ---------- Hooks ----------
     // solhint-disable no-empty-blocks
-
-    /**
-     * @notice  Validates inputs for camelot_v3_swap
-     * @param   valueIn         Msg.value to send with the swap
-     * @param   inputs          List of input token structs for the path being executed
-     * @param   outputs         List of output token structs for the path being executed
-     * @param   valueOutQuote   Value of destination tokens quoted for the path
-     * @param   valueOutMin     Minimum amount of value out the user will accept
-     * @param   executor        Address of contract that will execute the path
-     * @param   pathDefinition  Encoded path definition for executor
-     */
-    function inputGuard_camelot_v3_swap(
-        uint256 valueIn,
-        IOdosRouter.inputToken[] memory inputs,
-        IOdosRouter.outputToken[] memory outputs,
-        uint256 valueOutQuote,
-        uint256 valueOutMin,
-        address executor,
-        bytes calldata pathDefinition
-    ) internal virtual {}
 
     /**
      * @notice  Validates inputs for camelot_v3_mint

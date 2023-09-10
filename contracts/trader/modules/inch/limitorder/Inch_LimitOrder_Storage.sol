@@ -25,7 +25,7 @@ abstract contract Inch_LimitOrder_Storage is DSQ_Common_Roles {
     }
 
     /// @dev    EIP-2535 Diamond Storage struct location
-    bytes32 internal constant INCH_POSITION = keccak256("Inch_LimitOrder.storage");
+    bytes32 internal constant INCH_POSITION = bytes32(uint256(keccak256("Inch_LimitOrder.storage")) - 1);
 
     /**
      * @return  storageStruct   InchLimitOrderStorage storage pointer

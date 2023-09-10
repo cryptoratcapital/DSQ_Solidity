@@ -26,7 +26,7 @@ abstract contract Camelot_Common_Storage is DSQ_Common_Roles {
     }
 
     /// @dev    EIP-2535 Diamond Storage struct location
-    bytes32 internal constant CAMELOT_POSITION = keccak256("Camelot_Common.storage");
+    bytes32 internal constant CAMELOT_POSITION = bytes32(uint256(keccak256("Camelot_Common.storage")) - 1);
 
     function getCamelotCommonStorage() internal pure returns (CamelotCommonStorage storage storageStruct) {
         bytes32 position = CAMELOT_POSITION;

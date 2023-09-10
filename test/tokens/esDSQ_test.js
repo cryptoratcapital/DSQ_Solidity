@@ -7,6 +7,7 @@ use(solidity);
 const provider = waffle.provider;
 const [devWallet, citizen1, citizen2, router] = provider.getWallets();
 
+/* eslint-disable mocha/no-skipped-tests */
 describe("esDSQ", function () {
   beforeEach(async function () {
     ESDSQ = await ethers.getContractFactory("esDSQToken");

@@ -18,6 +18,9 @@ abstract contract Camelot_NitroPool_Cutter is DiamondWritableInternal, ERC165Bas
      * @param   _facet  Camelot_NitroPool_Module address
      */
     function cut_Camelot_NitroPool(address _facet) internal {
+        // solhint-disable-next-line reason-string
+        require(_facet != address(0), "Camelot_NitroPool_Cutter: _facet cannot be 0 address");
+
         uint256 selectorIndex;
         // Register
         bytes4[] memory selectors = new bytes4[](4);

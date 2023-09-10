@@ -476,7 +476,11 @@ describe("Vault V1", function () {
     expect(await vault.balanceOf(citizen1.address)).to.eq(1e9);
     expect(await USDC.balanceOf(vault.address)).to.eq(2e9);
 
-    await expect(() => vault.connect(citizen1).redeem(1e9, citizen1.address, citizen1.address)).to.changeTokenBalance(USDC, citizen1, 2e9);
+    await expect(() => vault.connect(citizen1).redeem(1e9, citizen1.address, citizen1.address)).to.changeTokenBalance(
+      USDC,
+      citizen1,
+      2e9 - 1,
+    );
   });
 
   it("Should return max deposit of zero if custodied", async function () {
@@ -526,7 +530,7 @@ describe("Vault V1", function () {
 
     expect(await vault.connect(citizen1).redeem(1e9, citizen1.address, citizen1.address))
       .to.emit(vault, "Withdraw")
-      .withArgs(citizen1.address, citizen1.address, citizen1.address, 2e9, 1e9);
+      .withArgs(citizen1.address, citizen1.address, citizen1.address, 2e9 - 1, 1e9);
 
     expect(await vault.connect(citizen2).redeem(1e9, citizen2.address, citizen2.address))
       .to.emit(vault, "Withdraw")
@@ -586,7 +590,22 @@ describe("Vault V1", function () {
 
     // assets / total assets * total supply
     // (1e9 / 1e9) * 2e9 = 2e9
-    expect(await vault.previewDeposit(1e9)).to.eq(1e9 * 2);
+    expect(await vault.previewDeposit(1e9)).to.eq(1e9 * 2 - 1);
+  });
+
+  it("should NOT fail with share attack", async function () {
+    await vault.connect(devWallet).startEpoch(fundingStart + 100, epochStart, epochEnd);
+    await network.provider.send("evm_setNextBlockTimestamp", [fundingStart + 100]);
+
+    await expect(vault.connect(citizen1).deposit(1, citizen1.address))
+      .to.emit(vault, "Deposit")
+      .withArgs(citizen1.address, citizen1.address, 1, 1);
+
+    await USDC.connect(citizen1).transfer(vault.address, 100e6 - 1);
+
+    expect(await vault.connect(citizen2).deposit(190e6, citizen2.address));
+    expect(await vault.balanceOf(citizen1.address)).to.eq(1);
+    expect(await vault.balanceOf(citizen2.address)).to.be.gt(1);
   });
 
   describe("ERC4626 Property Tests", function () {

@@ -175,6 +175,19 @@ describe("Aave Modules", function () {
         .reverted; // Invalid enum
     });
 
+    it("Should NOT borrow more than allowed percentage of Aave LTV", async function () {
+      reserveData = await pool.getReserveData(DAI.address);
+      stableDebtToken = await ethers.getContractAt("IStableDebtToken", reserveData.stableDebtTokenAddress);
+      await expect(() =>
+        strategyDiamond.connect(devWallet).aave_supply(USDC.address, initialUSDCBalance, strategyDiamond.address, 0),
+      ).to.changeTokenBalance(USDC, strategyDiamond, -10000e6);
+      await expect(
+        strategyDiamond.connect(devWallet).aave_borrow(DAI.address, parseEther("7500"), 1, 0, strategyDiamond.address),
+      ).to.be.revertedWith("Aave_Lending_Base: Borrow amount exceeds max LTV");
+      await expect(strategyDiamond.connect(devWallet).aave_borrow(DAI.address, parseEther("5000"), 1, 0, strategyDiamond.address)).to.not.be
+        .reverted;
+    });
+
     it("Should repay", async function () {
       reserveData = await pool.getReserveData(DAI.address);
       stableDebtToken = await ethers.getContractAt("IStableDebtToken", reserveData.stableDebtTokenAddress);
@@ -291,6 +304,41 @@ describe("Aave Modules", function () {
       await expect(() =>
         strategyDiamond.connect(devWallet).aave_withdraw(USDC.address, 700e6, strategyDiamond.address),
       ).to.changeTokenBalance(USDC, strategyDiamond, 700e6);
+    });
+  });
+
+  describe("Payable simulation", function () {
+    beforeEach(async function () {
+      const { strategyDiamond, vault, test20, USDC, WETH, DAI, pool, aaveMath } = await loadFixture(deployStrategy);
+
+      const index = getSlot(strategyDiamond.address, USDC_SLOT);
+      const daiIndex = getSlot(strategyDiamond.address, DAI_SLOT);
+
+      await setStorageAt(USDC.address, index, toBytes32(initialUSDCBalance));
+      await setStorageAt(DAI.address, daiIndex, toBytes32(parseEther("100")));
+      await setBalance(strategyDiamond.address, initialWETHBalance);
+
+      await strategyDiamond.approve(USDC.address, pool.address, initialUSDCBalance);
+
+      reserveData = await pool.getReserveData(USDC.address);
+      aToken = await ethers.getContractAt("TestFixture_ERC20", reserveData.aTokenAddress);
+
+      timestamp = (await ethers.provider.getBlock()).timestamp;
+    });
+
+    it("Should not supply with value", async function () {
+      expect(await USDC.balanceOf(strategyDiamond.address)).to.eq(10000e6);
+
+      aave_supply_interface = new ethers.utils.Interface([
+        "function aave_supply(address asset,uint256 amount, address onBehalfOf,uint16 referralCode) payable",
+      ]);
+      const calldata = aave_supply_interface.encodeFunctionData("aave_supply", [
+        USDC.address,
+        initialUSDCBalance,
+        strategyDiamond.address,
+        0,
+      ]);
+      await expect(devWallet.sendTransaction({ to: strategyDiamond.address, data: calldata, value: 1000 })).to.be.reverted;
     });
   });
 });

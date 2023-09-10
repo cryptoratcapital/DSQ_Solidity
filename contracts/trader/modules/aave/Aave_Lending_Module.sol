@@ -7,6 +7,8 @@ import "../dsq/DSQ_Trader_Storage.sol";
 /**
  * @title   DSquared Aave Lending Module
  * @notice  Validates inputs from Aave Lending Base functions
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

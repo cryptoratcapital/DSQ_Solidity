@@ -1,7 +1,7 @@
 const { expect, use } = require("chai");
 const { solidity, deployMockContract } = require("ethereum-waffle");
 const { BigNumber } = require("ethers");
-const { parseEther, formatEther } = require("ethers/lib/utils");
+const { parseEther, formatEther, parseUnits } = require("ethers/lib/utils");
 const { ethers, network } = require("hardhat");
 const { setBalance, loadFixture, reset } = require("@nomicfoundation/hardhat-network-helpers");
 const { toBytes32, setStorageAt, getSlot, findBalanceSlot } = require("../../helpers/storageHelpers.js");
@@ -38,7 +38,7 @@ if (forkConfig !== undefined) {
   const initialManagementFee = parseEther("0.01"); // 1% fee
 
   const strategyDiamondName = "ARB++";
-  const allowedTokens = [addresses.USDC, addresses.WETH, addresses.DAI, addresses.GMX, addresses.WBTC];
+  const allowedTokens = [addresses.USDC, addresses.WETH, addresses.DAI, addresses.GMX, addresses.WBTC, addresses.LYRA];
   const allowedSpenders = [
     addresses.GMX_ROUTER,
     addresses.GMX_POSITIONROUTER,
@@ -63,18 +63,13 @@ async function deployStrategy() {
   lyraStorageFacet = await LyraStorageFacet.deploy(addresses.LYRA_REGISTRY);
 
   LyraLPFacet = await ethers.getContractFactory("Lyra_LP_Module");
-  lyraLPFacet = await LyraLPFacet.deploy(addresses.USDC);
+  lyraLPFacet = await LyraLPFacet.deploy();
 
   LyraOptionsFacet = await ethers.getContractFactory("Lyra_Options_Module");
   lyraOptionsFacet = await LyraOptionsFacet.deploy();
 
   LyraRewardsFacet = await ethers.getContractFactory("Lyra_Rewards_Module");
-  lyraRewardsFacet = await LyraRewardsFacet.deploy(
-    addresses.LYRA_MULTI_DISTRIBUTOR,
-    addresses.ARB,
-    addresses.LYRA,
-    addresses.CAMELOT_ROUTER,
-  );
+  lyraRewardsFacet = await LyraRewardsFacet.deploy(addresses.LYRA_MULTI_DISTRIBUTOR, addresses.CAMELOT_ROUTER);
 
   Strategy = await ethers.getContractFactory("TestFixture_Strategy_Lyra");
   strategy = await Strategy.deploy(
@@ -121,18 +116,36 @@ describe("Lyra", function () {
   describe("Lyra_Common_Storage", function () {
     beforeEach(async function () {
       const { strategyDiamond, vault, test20, USDC, WETH, pool, liquidityToken } = await loadFixture(deployStrategy);
+      const index = getSlot(strategyDiamond.address, USDC_SLOT);
+
+      await setStorageAt(USDC.address, index, toBytes32(initialUSDCBalance));
       await setBalance(strategyDiamond.address, initialWETHBalance);
+
+      await strategyDiamond.approve(USDC.address, weth_option_market.address, initialUSDCBalance);
+
+      timestamp = (await ethers.provider.getBlock()).timestamp;
     });
 
     it("Should addLyraMarket", async function () {
-      await expect(strategyDiamond.connect(devWallet).addLyraMarket(addresses.LYRA_WBTC_OPTION_MARKET))
+      await expect(strategyDiamond.connect(devWallet).addLyraMarket(addresses.LYRA_WETH_OPTION_MARKET))
         .to.emit(strategyDiamond, "NewLyraMarket")
-        .withArgs(addresses.LYRA_WBTC_OPTION_MARKET, addresses.LYRA_LIQUIDITY_POOL_WBTC);
+        .withArgs(addresses.LYRA_WETH_OPTION_MARKET, addresses.LYRA_LIQUIDITY_POOL_WETH);
       await expect(
         strategyDiamond
           .connect(devWallet)
-          .lyra_openPosition(addresses.LYRA_WBTC_OPTION_MARKET, 89, 0, 3, 0, parseEther("1"), 0, 0, ethers.constants.MaxUint256),
-      ).to.not.be.revertedWith("Invalid market");
+          .lyra_openPosition(weth_option_market.address, [
+            89,
+            0,
+            3,
+            0,
+            parseEther("1"),
+            0,
+            0,
+            ethers.constants.MaxUint256,
+            ethers.constants.AddressZero,
+          ]),
+      ).to.not.be.reverted;
+      expect(await strategyDiamond.getAllowedLyraMarkets()).to.include(addresses.LYRA_WETH_OPTION_MARKET);
     });
 
     it("Should NOT addLyraMarket if not EXECUTOR_ROLE", async function () {
@@ -141,6 +154,66 @@ describe("Lyra", function () {
 
     it("Should NOT addLyraMarket for incorrect address", async function () {
       await expect(strategyDiamond.connect(devWallet).addLyraMarket(addresses.LYRA_LIQUIDITY_POOL)).to.be.reverted;
+    });
+
+    it("Should NOT addLyraMarket with a quote or base asset outside the mandate", async function () {
+      strategy2 = await Strategy.deploy(
+        devWallet.address,
+        traderFacet.address,
+        [
+          "Lyra Strategy",
+          [addresses.USDC, addresses.WETH, addresses.DAI, addresses.GMX, addresses.LYRA],
+          [
+            addresses.GMX_ROUTER,
+            addresses.GMX_POSITIONROUTER,
+            addresses.GMX_ORDERBOOK,
+            addresses.CAMELOT_ROUTER,
+            addresses.LYRA_LIQUIDITY_POOL_WETH,
+            addresses.LYRA_WETH_OPTION_MARKET,
+          ],
+          parseEther("0.1"),
+          parseEther("0.01"),
+        ],
+        lyraStorageFacet.address,
+        lyraLPFacet.address,
+        lyraOptionsFacet.address,
+        lyraRewardsFacet.address,
+      );
+
+      strategyDiamond2 = await ethers.getContractAt("StrategyDiamond_TestFixture_Lyra", strategy2.address);
+      await expect(strategyDiamond2.connect(devWallet).addLyraMarket(addresses.LYRA_WBTC_OPTION_MARKET)).to.be.revertedWith(
+        "Invalid token",
+      );
+    });
+
+    it("Should removeLyraMarket", async function () {
+      await strategyDiamond.connect(devWallet).addLyraMarket(addresses.LYRA_WBTC_OPTION_MARKET);
+      await expect(strategyDiamond.connect(devWallet).removeLyraMarket(addresses.LYRA_WBTC_OPTION_MARKET))
+        .to.emit(strategyDiamond, "RemovedLyraMarket")
+        .withArgs(addresses.LYRA_WBTC_OPTION_MARKET, addresses.LYRA_LIQUIDITY_POOL_WBTC);
+      await expect(
+        strategyDiamond
+          .connect(devWallet)
+          .lyra_openPosition(addresses.LYRA_WBTC_OPTION_MARKET, [
+            89,
+            0,
+            3,
+            0,
+            parseEther("1"),
+            0,
+            0,
+            ethers.constants.MaxUint256,
+            ethers.constants.AddressZero,
+          ]),
+      ).to.be.revertedWith("Invalid market");
+      expect(await strategyDiamond.getAllowedLyraMarkets()).to.not.include(addresses.LYRA_WBTC_OPTION_MARKET);
+    });
+
+    it("Should NOT removeLyraMarket if not EXECUTOR_ROLE", async function () {
+      await strategyDiamond.connect(devWallet).addLyraMarket(addresses.LYRA_WBTC_OPTION_MARKET);
+      await expect(strategyDiamond.connect(citizen1).removeLyraMarket(addresses.LYRA_WBTC_OPTION_MARKET)).to.be.revertedWith(
+        "AccessControl: ",
+      );
     });
 
     it("Should getAllowedLyraMarkets", async function () {
@@ -159,6 +232,11 @@ describe("Lyra", function () {
         addresses.LYRA_LIQUIDITY_POOL_WETH,
         addresses.LYRA_LIQUIDITY_POOL_WBTC,
       ]);
+    });
+
+    it("Should getLyraPoolQuoteAsset", async function () {
+      await strategyDiamond.connect(devWallet).addLyraMarket(addresses.LYRA_WETH_OPTION_MARKET);
+      expect(await strategyDiamond.getLyraPoolQuoteAsset(addresses.LYRA_LIQUIDITY_POOL_WETH)).to.eq(addresses.USDC);
     });
   });
 
@@ -453,90 +531,120 @@ describe("Lyra", function () {
 
   describe("Lyra_Rewards_Module", function () {
     beforeEach(async function () {
-      reset(process.env.ARBITRUM_URL, 80000000);
+      await reset(forkConfig.url, 126531323);
       const { strategyDiamond, vault, test20, USDC, WETH, weth_option_market, weth_option_token } = await deployStrategy();
       await setBalance(strategyDiamond.address, initialWETHBalance);
+
       timestamp = (await ethers.provider.getBlock()).timestamp;
       multiDistributor = await ethers.getContractAt("IMultiDistributor", addresses.LYRA_MULTI_DISTRIBUTOR);
+      const distributorSlot = getSlot(multiDistributor.address, USDC_SLOT);
+      await setStorageAt(USDC.address, distributorSlot, toBytes32(initialUSDCBalance));
+
+      distributorRewardsWhitelisted = await ethers.getImpersonatedSigner("0x8ca2c6d79dbc78ceca382136be590ea63eb28b89");
       distributorOwner = await ethers.getImpersonatedSigner("0x2CcF21e5912e9ecCcB0ecdEe9744E5c507cf88AE");
+      await setBalance(distributorOwner.address, initialWETHBalance);
 
       lyra = await ethers.getContractAt("TestFixture_ERC20", addresses.LYRA);
       arb = await ethers.getContractAt("TestFixture_ERC20", addresses.ARB);
       arb_weth_pair = await ethers.getContractAt("ICamelotPair", "0xa6c5C7D189fA4eB5Af8ba34E63dCDD3a635D433f");
       lyra_weth_pair = await ethers.getContractAt("ICamelotPair", "0x5Fa594Dd5e198DE5E7EF539F1b8fB154AeFD3891");
 
+      batchId = await ethers.provider.getStorageAt(multiDistributor.address, 1);
+    });
+
+    it("lyra_claimRewards: should NOT claim a token that is not in the mandate", async function () {
       await multiDistributor
-        .connect(distributorOwner)
-        .addToClaims([[strategyDiamond.address, parseEther("100")]], addresses.LYRA, timestamp, "StrategyDiamond");
+        .connect(distributorRewardsWhitelisted)
+        .addToClaims([parseEther("100")], [strategyDiamond.address], addresses.USDT, timestamp, "StrategyDiamond");
+      await multiDistributor.connect(distributorOwner).approveClaims([batchId], true);
+      await expect(strategyDiamond.lyra_claimRewards([batchId])).to.be.revertedWith("Invalid token");
     });
 
-    it("Should lyra_claimRewards", async function () {
-      await expect(() => strategyDiamond.lyra_claimRewards()).to.changeTokenBalance(lyra, strategyDiamond, parseEther("100"));
+    it("lyra_claimRewards: should claim a token in the mandate", async function () {
+      await multiDistributor
+        .connect(distributorRewardsWhitelisted)
+        .addToClaims([100e6], [strategyDiamond.address], addresses.USDC, timestamp, "StrategyDiamond");
+      await multiDistributor.connect(distributorOwner).approveClaims([batchId], true);
+      await expect(() => strategyDiamond.lyra_claimRewards([batchId])).to.changeTokenBalance(USDC, strategyDiamond, 100e6);
     });
 
-    it("Should lyra_dump lyra", async function () {
-      await strategyDiamond.lyra_claimRewards();
-      amountOut = await lyra_weth_pair.getAmountOut(parseEther("100"), lyra.address);
+    it("Should lyra_dump", async function () {
+      await multiDistributor
+        .connect(distributorRewardsWhitelisted)
+        .addToClaims([100e6], [strategyDiamond.address], addresses.USDC, timestamp, "StrategyDiamond");
+      await multiDistributor.connect(distributorOwner).approveClaims([batchId], true);
+      await expect(() => strategyDiamond.lyra_claimRewards([batchId])).to.changeTokenBalance(USDC, strategyDiamond, 100e6);
 
-      await expect(() => strategyDiamond.lyra_dump(WETH.address, 0, amountOut)).to.changeTokenBalance(
-        lyra,
+      beforeBal = await WETH.balanceOf(strategyDiamond.address);
+      await expect(() => strategyDiamond.lyra_dump([[[USDC.address, WETH.address], 10]])).to.changeTokenBalance(
+        USDC,
         strategyDiamond,
-        parseEther("-100"),
+        -100e6,
       );
-      expect(await WETH.balanceOf(strategyDiamond.address)).to.eq(amountOut);
+      expect(await WETH.balanceOf(strategyDiamond.address)).to.be.gt(beforeBal);
     });
 
-    it("Should NOT lyra_dump lyra if less than amountOut", async function () {
-      await strategyDiamond.lyra_claimRewards();
-      amountOut = await lyra_weth_pair.getAmountOut(parseEther("100"), lyra.address);
+    it("Should NOT lyra_dump if less than amountOut", async function () {
+      await multiDistributor
+        .connect(distributorRewardsWhitelisted)
+        .addToClaims([100e6], [strategyDiamond.address], addresses.USDC, timestamp, "StrategyDiamond");
+      await multiDistributor.connect(distributorOwner).approveClaims([batchId], true);
+      await expect(() => strategyDiamond.lyra_claimRewards([batchId])).to.changeTokenBalance(USDC, strategyDiamond, 100e6);
 
-      await expect(strategyDiamond.lyra_dump(WETH.address, 0, amountOut.add(1))).to.be.revertedWith(
+      await expect(strategyDiamond.lyra_dump([[[USDC.address, WETH.address], parseEther("100")]])).to.be.revertedWith(
         "CamelotRouter: INSUFFICIENT_OUTPUT_AMOUNT",
       );
     });
 
-    it("Should lyra_dump arb", async function () {
-      const index = getSlot(strategyDiamond.address, ARB_SLOT);
-      await setStorageAt(arb.address, index, toBytes32(parseEther("100")));
-      amountOut = await arb_weth_pair.getAmountOut(parseEther("100"), arb.address);
-
-      await expect(() => strategyDiamond.lyra_dump(WETH.address, amountOut, 0)).to.changeTokenBalance(
-        arb,
-        strategyDiamond,
-        parseEther("-100"),
-      );
-      expect(await WETH.balanceOf(strategyDiamond.address)).to.eq(amountOut);
+    it("Should NOT lyra_dump if swap path is empty", async function () {
+      await expect(strategyDiamond.lyra_dump([[[], parseEther("100")]])).to.be.revertedWith("Lyra_Rewards_Module: Empty path");
     });
 
-    it("Should NOT lyra_dump arb if less than amountOut", async function () {
-      const index = getSlot(strategyDiamond.address, ARB_SLOT);
-      await setStorageAt(arb.address, index, toBytes32(parseEther("100")));
-      amountOut = await arb_weth_pair.getAmountOut(parseEther("100"), arb.address);
+    it("Should NOT lyra_dump if swap path contains bad token", async function () {
+      await expect(strategyDiamond.lyra_dump([[[USDC.address, addresses.USDT], parseEther("100")]])).to.be.revertedWith("Invalid token");
+    });
 
-      await expect(strategyDiamond.lyra_dump(WETH.address, amountOut.add(1), 0)).to.be.revertedWith(
-        "CamelotRouter: INSUFFICIENT_OUTPUT_AMOUNT",
+    it("Should lyra_claimAndDump", async function () {
+      await multiDistributor
+        .connect(distributorRewardsWhitelisted)
+        .addToClaims([100e6], [strategyDiamond.address], addresses.USDC, timestamp, "StrategyDiamond");
+      await multiDistributor.connect(distributorOwner).approveClaims([batchId], true);
+
+      beforeBal = await WETH.balanceOf(strategyDiamond.address);
+      await expect(strategyDiamond.lyra_claimAndDump([batchId], [[[USDC.address, WETH.address], 10]]));
+      expect(await WETH.balanceOf(strategyDiamond.address)).to.be.gt(beforeBal);
+    });
+
+    it("Should NOT lyra_claimAndDump if first swap token doesn't match reward token", async function () {
+      await multiDistributor
+        .connect(distributorRewardsWhitelisted)
+        .addToClaims([100e6], [strategyDiamond.address], addresses.USDC, timestamp, "StrategyDiamond");
+      await multiDistributor.connect(distributorOwner).approveClaims([batchId], true);
+
+      await expect(strategyDiamond.lyra_claimAndDump([batchId], [[[WETH.address, WETH.address], 10]])).to.be.revertedWith(
+        "Lyra_Rewards_Module: Claim token does not start path",
       );
     });
 
-    it("Should lyra_dump arb & lyra", async function () {
-      await strategyDiamond.lyra_claimRewards();
-      const index = getSlot(strategyDiamond.address, ARB_SLOT);
-      await setStorageAt(arb.address, index, toBytes32(parseEther("100")));
-      arbOut = await arb_weth_pair.getAmountOut(parseEther("100"), arb.address);
-      lyraOut = await lyra_weth_pair.getAmountOut(parseEther("100"), lyra.address);
-
-      await expect(() => strategyDiamond.lyra_dump(WETH.address, arbOut, lyraOut)).to.changeTokenBalance(
-        arb,
-        strategyDiamond,
-        parseEther("-100"),
-      );
-      expect(await lyra.balanceOf(strategyDiamond.address)).to.eq(0);
-
-      expect(await WETH.balanceOf(strategyDiamond.address)).to.eq(arbOut.add(lyraOut));
+    it("Should NOT lyra_claimAndDump if path is empty", async function () {
+      await expect(strategyDiamond.lyra_claimAndDump([batchId], [[[], 10]])).to.be.revertedWith("Lyra_Rewards_Module: Empty path");
     });
 
-    it("Should NOT execute ill-formed lyra_dump", async function () {
-      await expect(strategyDiamond.lyra_dump(test20.address, 0, 0)).to.be.revertedWith("Invalid token");
+    it("Should NOT lyra_claimAndDump if array lengths do not match", async function () {
+      await expect(strategyDiamond.lyra_claimAndDump([batchId, batchId], [[[USDC.address, WETH.address], 10]])).to.be.revertedWith(
+        "Lyra_Rewards_Module: Length mismatch",
+      );
+    });
+
+    it("Should NOT lyra_claimAndDump if path contains bad token", async function () {
+      await multiDistributor
+        .connect(distributorRewardsWhitelisted)
+        .addToClaims([100e6], [strategyDiamond.address], addresses.USDC, timestamp, "StrategyDiamond");
+      await multiDistributor.connect(distributorOwner).approveClaims([batchId], true);
+
+      await expect(strategyDiamond.lyra_claimAndDump([batchId], [[[USDC.address, addresses.USDT], 10]])).to.be.revertedWith(
+        "Invalid token",
+      );
     });
   });
 

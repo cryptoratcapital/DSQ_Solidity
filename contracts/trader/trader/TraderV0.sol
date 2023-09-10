@@ -2,7 +2,6 @@
 pragma solidity ^0.8.13;
 
 import "@solidstate/contracts/access/access_control/AccessControl.sol";
-import "@solidstate/contracts/utils/ReentrancyGuard.sol";
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -15,11 +14,13 @@ import "./ITraderV0.sol";
 /**
  * @title   DSquared Trader V0 Core
  * @notice  Interfaces with the Vault contract, handling custody, returning, and fee-taking
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole
  */
-contract TraderV0 is ITraderV0, AccessControl, ReentrancyGuard, DSQ_Common_Roles, DSQ_Trader_Storage {
+contract TraderV0 is ITraderV0, AccessControl, DSQ_Common_Roles, DSQ_Trader_Storage {
     using SafeERC20 for IERC20;
     using EnumerableSet for EnumerableSet.AddressSet;
 
@@ -108,6 +109,7 @@ contract TraderV0 is ITraderV0, AccessControl, ReentrancyGuard, DSQ_Common_Roles
      */
     function custodyFunds() external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         TraderV0Storage storage s = getTraderV0Storage();
+        require(s.totalFees == 0, "!fees");
         s.custodyTime = block.timestamp;
         s.custodiedAmount = s.vault.custodyFunds();
     }
@@ -126,6 +128,12 @@ contract TraderV0 is ITraderV0, AccessControl, ReentrancyGuard, DSQ_Common_Roles
         uint256 managementFee = (cachedCustodiedAmount * s.managementFeeRate * (block.timestamp - s.custodyTime)) /
             365 days /
             FEE_DENOMINATOR;
+
+        // If fees exceed balance, take no fees
+        if (performanceFee + managementFee > balance) {
+            performanceFee = 0;
+            managementFee = 0;
+        }
 
         s.totalFees = s.totalFees + performanceFee + managementFee;
         s.custodiedAmount = 0;
@@ -172,6 +180,7 @@ contract TraderV0 is ITraderV0, AccessControl, ReentrancyGuard, DSQ_Common_Roles
      * @param   _feeReceiver   Address which will receive fees from the contract
      */
     function setFeeReceiver(address _feeReceiver) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_feeReceiver != address(0), "!zeroAddress");
         TraderV0Storage storage s = getTraderV0Storage();
         emit FeeReceiverSet(s.feeReceiver, _feeReceiver);
         s.feeReceiver = _feeReceiver;

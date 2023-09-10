@@ -71,7 +71,7 @@ abstract contract GMX_GLP_Base is AccessControl, ReentrancyGuard, DSQ_Common_Rol
         uint256 _valueIn,
         uint256 _minUsdg,
         uint256 _minGlp
-    ) external payable onlyRole(EXECUTOR_ROLE) nonReentrant returns (uint256) {
+    ) external onlyRole(EXECUTOR_ROLE) nonReentrant returns (uint256) {
         inputGuard_gmx_mintAndStakeGlpETH(_valueIn, _minUsdg, _minGlp);
 
         return gmx_GLPRewardRouter.mintAndStakeGlpETH{ value: _valueIn }(_minUsdg, _minGlp);
@@ -93,6 +93,22 @@ abstract contract GMX_GLP_Base is AccessControl, ReentrancyGuard, DSQ_Common_Rol
         inputGuard_gmx_unstakeAndRedeemGlp(_tokenOut, _glpAmount, _minOut, _receiver);
 
         return gmx_GLPRewardRouter.unstakeAndRedeemGlp(_tokenOut, _glpAmount, _minOut, _receiver);
+    }
+
+    /**
+     * @notice Unstakes GMX
+     * @param _amount   Amount of GMX to unstake
+     */
+    function gmx_unstakeGmx(uint256 _amount) external onlyRole(EXECUTOR_ROLE) nonReentrant {
+        gmx_GMXRewardRouter.unstakeGmx(_amount);
+    }
+
+    /**
+     * @notice Unstakes esGMX
+     * @param _amount   Amount of esGMX to unstake
+     */
+    function gmx_unstakeEsGmx(uint256 _amount) external onlyRole(EXECUTOR_ROLE) nonReentrant {
+        gmx_GMXRewardRouter.unstakeEsGmx(_amount);
     }
 
     /**

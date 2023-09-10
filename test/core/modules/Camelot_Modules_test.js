@@ -56,8 +56,11 @@ async function deployStrategy() {
   CamelotLPFacet = await ethers.getContractFactory("Camelot_LP_Module");
   camelotLPFacet = await CamelotLPFacet.deploy(addresses.CAMELOT_ROUTER, addresses.WETH);
 
-  CamelotV3Facet = await ethers.getContractFactory("Camelot_V3_Module");
-  camelotV3Facet = await CamelotV3Facet.deploy(addresses.CAMELOT_POSITION_MANAGER, addresses.CAMELOT_ODOS_ROUTER);
+  CamelotV3LPFacet = await ethers.getContractFactory("Camelot_V3LP_Module");
+  camelotV3LPFacet = await CamelotV3LPFacet.deploy(addresses.CAMELOT_POSITION_MANAGER);
+
+  CamelotV3SwapFacet = await ethers.getContractFactory("Camelot_V3Swap_Module");
+  camelotV3SwapFacet = await CamelotV3SwapFacet.deploy(addresses.CAMELOT_ODOS_ROUTER);
 
   CamelotNFTPoolFacet = await ethers.getContractFactory("Camelot_NFTPool_Module");
   camelotNFTPoolFacet = await CamelotNFTPoolFacet.deploy();
@@ -69,7 +72,7 @@ async function deployStrategy() {
   camelotSwapFacet = await CamelotSwapFacet.deploy(addresses.CAMELOT_ROUTER);
 
   CamelotStorageFacet = await ethers.getContractFactory("Camelot_Storage_Module");
-  camelotStorageFacet = await CamelotStorageFacet.deploy(addresses.CAMELOT_NFTPOOL_FACTORY);
+  camelotStorageFacet = await CamelotStorageFacet.deploy(addresses.CAMELOT_NFTPOOL_FACTORY, addresses.CAMELOT_NITROPOOL_FACTORY);
 
   Strategy = await ethers.getContractFactory("TestFixture_Strategy_Camelot");
   strategy = await Strategy.deploy(
@@ -81,7 +84,8 @@ async function deployStrategy() {
     camelotNitroPoolFacet.address,
     camelotSwapFacet.address,
     camelotStorageFacet.address,
-    camelotV3Facet.address,
+    camelotV3LPFacet.address,
+    camelotV3SwapFacet.address,
   );
 
   strategyDiamond = await ethers.getContractAt("StrategyDiamond_TestFixture_Camelot", strategy.address);
@@ -146,10 +150,23 @@ describe("Camelot Modules", function () {
 
     it("Should manageNitroPools", async function () {
       expect(await strategyDiamond.getAllowedNitroPools()).to.deep.equal([]);
-      await strategyDiamond.manageNitroPools([citizen1.address], [true]);
-      expect(await strategyDiamond.getAllowedNitroPools()).to.deep.equal([citizen1.address]);
-      await strategyDiamond.manageNitroPools([citizen1.address], [false]);
+      await strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [true], [0]);
+      expect(await strategyDiamond.getAllowedNitroPools()).to.deep.equal([addresses.CAMELOT_NITROPOOL_INDEX0]);
+      await strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [false], [0]);
       expect(await strategyDiamond.getAllowedNitroPools()).to.deep.equal([]);
+    });
+
+    it("Should NOT manageNitroPools with different array lengths", async function () {
+      await expect(strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [true], [])).to.be.revertedWith(
+        "Camelot_Storage_Module: Length mismatch",
+      );
+      await expect(strategyDiamond.manageNitroPools([], [true], [0])).to.be.revertedWith("Camelot_Storage_Module: Length mismatch");
+    });
+
+    it("Should NOT add nitro pool with invalid index", async function () {
+      await expect(strategyDiamond.manageNitroPools([addresses.CAMELOT_NITROPOOL_INDEX0], [true], [1])).to.be.revertedWith(
+        "Camelot_Storage_Module: Pool/index mismatch",
+      );
     });
 
     it("Should manageExecutors", async function () {
@@ -160,12 +177,24 @@ describe("Camelot Modules", function () {
       expect(await strategyDiamond.getAllowedExecutors()).to.deep.equal([]);
     });
 
+    it("Should NOT manageExecutors with zero address", async function () {
+      await expect(strategyDiamond.manageExecutors([ethers.constants.AddressZero], [true])).to.be.revertedWith(
+        "Camelot_Storage_Module: Zero address",
+      );
+    });
+
     it("Should manageReceivers", async function () {
       expect(await strategyDiamond.getAllowedReceivers()).to.deep.equal([]);
       await strategyDiamond.manageReceivers([citizen1.address], [true]);
       expect(await strategyDiamond.getAllowedReceivers()).to.deep.equal([citizen1.address]);
       await strategyDiamond.manageReceivers([citizen1.address], [false]);
       expect(await strategyDiamond.getAllowedReceivers()).to.deep.equal([]);
+    });
+
+    it("Should NOT manageReceivers with zero address", async function () {
+      await expect(strategyDiamond.manageReceivers([ethers.constants.AddressZero], [true])).to.be.revertedWith(
+        "Camelot_Storage_Module: Zero address",
+      );
     });
   });
 
@@ -194,7 +223,7 @@ describe("Camelot Modules", function () {
         0,
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         timestamp + 100,
       );
 
@@ -211,7 +240,7 @@ describe("Camelot Modules", function () {
           0,
           badSwapPath,
           strategyDiamond.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.be.revertedWith("Invalid swap path");
@@ -221,10 +250,20 @@ describe("Camelot Modules", function () {
           0,
           swapPath,
           devWallet.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.be.revertedWith("GuardError: Invalid recipient");
+      await expect(
+        strategyDiamond.camelot_swapExactTokensForTokens(
+          initialUSDCBalance,
+          0,
+          swapPath,
+          strategyDiamond.address,
+          citizen1.address,
+          timestamp + 100,
+        ),
+      ).to.be.revertedWith("GuardError: Invalid referrer");
     });
 
     it("Should swapExactETHForTokens", async function () {
@@ -238,7 +277,7 @@ describe("Camelot Modules", function () {
           0,
           swapPath,
           strategyDiamond.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.changeEtherBalance(strategyDiamond, parseEther("-1"));
@@ -254,7 +293,7 @@ describe("Camelot Modules", function () {
           0,
           badSwapPath,
           strategyDiamond.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.be.revertedWith("Invalid swap path");
@@ -264,10 +303,20 @@ describe("Camelot Modules", function () {
           0,
           swapPath,
           devWallet.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.be.revertedWith("GuardError: Invalid recipient");
+      await expect(
+        strategyDiamond.camelot_swapExactETHForTokens(
+          parseEther("1"),
+          0,
+          swapPath,
+          strategyDiamond.address,
+          citizen1.address,
+          timestamp + 100,
+        ),
+      ).to.be.revertedWith("GuardError: Invalid referrer");
     });
 
     it("Should swapExactTokensForETH", async function () {
@@ -280,7 +329,7 @@ describe("Camelot Modules", function () {
         0,
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         timestamp + 100,
       );
       expect(await ethers.provider.getBalance(strategyDiamond.address)).to.eq(amountOut.add(initialBalance));
@@ -296,7 +345,7 @@ describe("Camelot Modules", function () {
           0,
           badSwapPath,
           strategyDiamond.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.be.revertedWith("Invalid swap path");
@@ -306,10 +355,20 @@ describe("Camelot Modules", function () {
           0,
           swapPath,
           devWallet.address,
-          ethers.constants.AddressZero,
+          strategyDiamond.address,
           timestamp + 100,
         ),
       ).to.be.revertedWith("GuardError: Invalid recipient");
+      await expect(
+        strategyDiamond.camelot_swapExactTokensForETH(
+          initialUSDCBalance,
+          0,
+          swapPath,
+          strategyDiamond.address,
+          citizen1.address,
+          timestamp + 100,
+        ),
+      ).to.be.revertedWith("GuardError: Invalid referrer");
     });
   });
 
@@ -338,7 +397,7 @@ describe("Camelot Modules", function () {
         0,
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         timestamp + 100,
       );
       usdcBal = await USDC.balanceOf(strategyDiamond.address);
@@ -380,7 +439,7 @@ describe("Camelot Modules", function () {
         0,
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         timestamp + 100,
       );
       usdcBal = await USDC.balanceOf(strategyDiamond.address);
@@ -773,7 +832,7 @@ describe("Camelot Modules", function () {
     // Block timestamp needs to be before harvest start time
     // Using block 41600000 for testing
     it("Should create NitroPool position via transferring NFT", async function () {
-      await strategyDiamond.manageNitroPools([nitroPool.address], [true]);
+      await strategyDiamond.manageNitroPools([nitroPool.address], [true], [16]);
       await expect(strategyDiamond.camelot_nitropool_transfer(nitroPool.address, nftPool.address, tokenId)).to.emit(nitroPool, "Deposit");
       expect(await nitroPool.userTokenId(strategyDiamond.address, 0)).to.eq(tokenId);
       expect(await nftPool.ownerOf(tokenId)).to.eq(nitroPool.address);
@@ -786,7 +845,7 @@ describe("Camelot Modules", function () {
     });
 
     it("Should withdraw NitroPool position", async function () {
-      await strategyDiamond.manageNitroPools([nitroPool.address], [true]);
+      await strategyDiamond.manageNitroPools([nitroPool.address], [true], [16]);
       await strategyDiamond.camelot_nitropool_transfer(nitroPool.address, nftPool.address, tokenId);
       await expect(strategyDiamond.camelot_nitropool_withdraw(nitroPool.address, tokenId)).to.emit(nitroPool, "Withdraw");
 
@@ -799,7 +858,7 @@ describe("Camelot Modules", function () {
     });
 
     it("Should emergencyWithdraw from NitroPool", async function () {
-      await strategyDiamond.manageNitroPools([nitroPool.address], [true]);
+      await strategyDiamond.manageNitroPools([nitroPool.address], [true], [16]);
       await strategyDiamond.camelot_nitropool_transfer(nitroPool.address, nftPool.address, tokenId);
       await expect(strategyDiamond.camelot_nitropool_emergencyWithdraw(nitroPool.address, tokenId)).to.emit(nitroPool, "EmergencyWithdraw");
       await expect(nitroPool.userTokenId(strategyDiamond.address, 0)).to.be.revertedWith("EnumerableSet: index out of bounds");
@@ -813,7 +872,7 @@ describe("Camelot Modules", function () {
     });
 
     it("Should harvest NitroPool position", async function () {
-      await strategyDiamond.manageNitroPools([nitroPool.address], [true]);
+      await strategyDiamond.manageNitroPools([nitroPool.address], [true], [16]);
       await strategyDiamond.camelot_nitropool_transfer(nitroPool.address, nftPool.address, tokenId);
 
       harvestStartTime = 1670432400;
@@ -845,7 +904,7 @@ describe("Camelot Modules", function () {
         BigInt("994885234205369377265"),
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         1674208841,
       );
       expect(await DAI.balanceOf(strategyDiamond.address)).to.eq(BigInt("999884657492833544990"));
@@ -868,7 +927,7 @@ describe("Camelot Modules", function () {
         BigInt("1960790537961317471"),
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         1672823076,
       );
       expect(await GMX.balanceOf(strategyDiamond.address)).to.eq(BigInt("1970643756745042685"));
@@ -892,7 +951,7 @@ describe("Camelot Modules", function () {
         BigInt("3917190689050743341"),
         swapPath,
         strategyDiamond.address,
-        ethers.constants.AddressZero,
+        strategyDiamond.address,
         1672824320,
       );
       expect(await GMX.balanceOf(strategyDiamond.address)).to.eq(BigInt("3936875064372606373"));
@@ -1101,6 +1160,7 @@ describe("Camelot Modules", function () {
     });
   });
 
+  // TODO: Tests failing
   describe("Camelot_V3_Module: LP", function () {
     beforeEach(async function () {
       reset(process.env.ARBITRUM_URL, 83000000);
@@ -1132,6 +1192,7 @@ describe("Camelot Modules", function () {
         strategyDiamond.address,
         timestamp + 10,
       ]);
+      console.log(tokenId);
     });
 
     it("Should camelot_v3_mint (create liquidityPosition)", async function () {

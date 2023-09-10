@@ -18,6 +18,8 @@ import "../../dsq/DSQ_Trader_Storage.sol";
  *              4. Input guards MUST revert if their criteria are not met.
  *          Failure to meet these assumptions may result in unsafe behavior!
  * @dev     Provides a base set of protections against critical threats, override these only if explicitly necessary.
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole

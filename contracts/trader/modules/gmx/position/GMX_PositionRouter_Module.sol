@@ -16,8 +16,9 @@ import "../../dsq/DSQ_Trader_Storage.sol";
  *              5. Input guards MUST revert if their criteria are not met.
  *          Failure to meet these assumptions may result in unsafe behavior!
  * @dev     Several functions are payable to allow passing an execution fee to the Position Router.
- *          Execution fee ETH may be provided with msg.value or as a general pool in this contract's balance.
- *          This contract does not pass through msg.value or enforce a dedicated fee fund pool.
+ *          Execution fee ETH must be provided with msg.value.
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole
@@ -42,12 +43,13 @@ contract GMX_PositionRouter_Module is GMX_PositionRouter_Base, DSQ_Trader_Storag
         uint256, // _sizeDelta
         bool, // _isLong
         uint256, // _acceptablePrice
-        uint256, // _executionFee
+        uint256 _executionFee,
         bytes32, // _referralCode
         address _callbackTarget
     ) internal view virtual override {
         validateSwapPath(_path);
         validateToken(_indexToken);
+        require(_executionFee == msg.value, "GuardError: GMX execution fee");
         require(_callbackTarget == address(0), "GuardError: GMX callback target");
     }
 
@@ -60,12 +62,13 @@ contract GMX_PositionRouter_Module is GMX_PositionRouter_Base, DSQ_Trader_Storag
         uint256, // _sizeDelta
         bool, // _isLong
         uint256, // _acceptablePrice
-        uint256, // _executionFee
+        uint256 _executionFee,
         bytes32, // _referralCode
         address _callbackTarget
     ) internal view virtual override {
         validateSwapPath(_path);
         validateToken(_indexToken);
+        require(_executionFee == msg.value, "GuardError: GMX execution fee");
         require(_callbackTarget == address(0), "GuardError: GMX callback target");
     }
 
@@ -79,14 +82,33 @@ contract GMX_PositionRouter_Module is GMX_PositionRouter_Base, DSQ_Trader_Storag
         address _receiver,
         uint256, // _acceptablePrice
         uint256, // _minOut
-        uint256, // _executionFee
+        uint256 _executionFee,
         bool, // _withdrawETH
         address _callbackTarget
     ) internal view virtual override {
         validateSwapPath(_path);
         validateToken(_indexToken);
+        require(_executionFee == msg.value, "GuardError: GMX execution fee");
         // solhint-disable-next-line reason-string
         require(_receiver == address(this), "GuardError: GMX DecreasePosition recipient");
         require(_callbackTarget == address(0), "GuardError: GMX callback target");
+    }
+
+    // bytes32 _key, address payable _executionFeeReceiver
+    function inputGuard_gmx_cancelIncreasePosition(bytes32, address payable _executionFeeReceiver) internal view virtual override {
+        // solhint-disable-next-line reason-string
+        require(
+            _hasRole(EXECUTOR_ROLE, _executionFeeReceiver) || _hasRole(DEFAULT_ADMIN_ROLE, _executionFeeReceiver),
+            "GuardError: GMX CancelIncreasePosition recipient"
+        );
+    }
+
+    // bytes32 _key, address payable _executionFeeReceiver
+    function inputGuard_gmx_cancelDecreasePosition(bytes32, address payable _executionFeeReceiver) internal view virtual override {
+        // solhint-disable-next-line reason-string
+        require(
+            _hasRole(EXECUTOR_ROLE, _executionFeeReceiver) || _hasRole(DEFAULT_ADMIN_ROLE, _executionFeeReceiver),
+            "GuardError: GMX CancelDecreasePosition recipient"
+        );
     }
 }

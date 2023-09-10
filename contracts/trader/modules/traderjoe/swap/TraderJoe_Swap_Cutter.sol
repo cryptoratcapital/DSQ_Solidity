@@ -18,6 +18,9 @@ abstract contract TraderJoe_Swap_Cutter is DiamondWritableInternal, ERC165Base {
      * @param   _facet TraderJoe_Swap_Module address
      */
     function cut_TraderJoe_Swap(address _facet) internal {
+        // solhint-disable-next-line reason-string
+        require(_facet != address(0), "TraderJoe_Swap_Cutter: _facet cannot be 0 address");
+
         uint256 selectorIndex;
         // Register
         bytes4[] memory selectors = new bytes4[](9);

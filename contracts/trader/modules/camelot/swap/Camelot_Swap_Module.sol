@@ -7,6 +7,8 @@ import "../../dsq/DSQ_Trader_Storage.sol";
 /**
  * @title   DSquared Camelot Swap Module
  * @notice  Allows direct swapping via the Camelot Router contract
+ * @dev     Warning: This contract is intended for use as a facet of diamond proxy contracts.
+ *          Calling it directly may produce unintended or undesirable results.
  * @author  HessianX
  * @custom:developer    BowTiedPickle
  * @custom:developer    BowTiedOriole
@@ -27,11 +29,12 @@ contract Camelot_Swap_Module is Camelot_Swap_Base, DSQ_Trader_Storage {
         uint, // amountOutMin
         address[] calldata path,
         address to,
-        address, // referrer
+        address referrer,
         uint // deadline
     ) internal view override {
         validateSwapPath(path);
         require(to == address(this), "GuardError: Invalid recipient");
+        require(referrer == address(this), "GuardError: Invalid referrer");
     }
 
     /// @inheritdoc Camelot_Swap_Base
@@ -40,11 +43,12 @@ contract Camelot_Swap_Module is Camelot_Swap_Base, DSQ_Trader_Storage {
         uint, // amountOutMin
         address[] calldata path,
         address to,
-        address, // referrer
+        address referrer,
         uint // deadline
     ) internal view override {
         validateSwapPath(path);
         require(to == address(this), "GuardError: Invalid recipient");
+        require(referrer == address(this), "GuardError: Invalid referrer");
     }
 
     /// @inheritdoc Camelot_Swap_Base
@@ -53,10 +57,11 @@ contract Camelot_Swap_Module is Camelot_Swap_Base, DSQ_Trader_Storage {
         uint, // amountOutMin
         address[] calldata path,
         address to,
-        address, // referrer
+        address referrer,
         uint // deadline
     ) internal view override {
         validateSwapPath(path);
         require(to == address(this), "GuardError: Invalid recipient");
+        require(referrer == address(this), "GuardError: Invalid referrer");
     }
 }

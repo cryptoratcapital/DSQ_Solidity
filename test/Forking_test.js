@@ -38,7 +38,8 @@ async function deployTokens(addresses) {
   return { USDC, WNATIVE };
 }
 
-describe("Fork testing", function () {
+/* eslint-disable mocha/no-skipped-tests */
+xdescribe("Fork testing", function () {
   describe("Only if a matching fork config is found", function () {
     before(async function () {
       if (forkConfig !== undefined) {

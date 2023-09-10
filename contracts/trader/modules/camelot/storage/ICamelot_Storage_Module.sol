@@ -15,7 +15,7 @@ interface ICamelot_Storage_Module {
 
     function manageNFTPools(address[] calldata _pools, bool[] calldata _status) external;
 
-    function manageNitroPools(address[] calldata _pools, bool[] calldata _status) external;
+    function manageNitroPools(address[] calldata _pools, bool[] calldata _status, uint256[] calldata _indexes) external;
 
     function manageExecutors(address[] calldata _executors, bool[] calldata _status) external;
 

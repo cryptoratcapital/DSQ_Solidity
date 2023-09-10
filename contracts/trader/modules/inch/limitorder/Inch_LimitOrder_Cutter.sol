@@ -20,6 +20,11 @@ abstract contract Inch_LimitOrder_Cutter is DiamondWritableInternal, ERC165Base 
      * @param   _oracles    Oracles corresponding to each asset. Order must match assets
      */
     function cut_Inch_LimitOrder(address _facet, address[] memory _assets, address[] memory _oracles) internal {
+        // solhint-disable reason-string
+        require(_facet != address(0), "Inch_LimitOrder_Cutter: _facet cannot be 0 address");
+        require(_assets.length == _oracles.length, "Inch_LimitOrder_Cutter: arrays must be the same length");
+        // solhint-enable reason-string
+
         uint256 selectorIndex;
         // Register
         bytes4[] memory selectors = new bytes4[](7);

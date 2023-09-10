@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 import "@solidstate/contracts/access/access_control/AccessControl.sol";
 import "@solidstate/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import "../storage/Lyra_Common_Storage.sol";
 import "../../../external/lyra_interfaces/IOptionMarket.sol";

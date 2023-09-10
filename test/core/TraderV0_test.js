@@ -43,8 +43,6 @@ async function deployStrategy() {
 
   strategyDiamond = await ethers.getContractAt("StrategyDiamond_TestFixture_TrivialStrategy", strategy.address);
 
-  // await strategyDiamond.initializeTraderV0([traderName, allowedTokens, allowedSpenders, initialPerformanceFee, initialManagementFee]);
-
   Test20 = await ethers.getContractFactory("TestFixture_ERC20");
   test20 = await Test20.deploy("Test20", "Test20");
 
@@ -62,6 +60,55 @@ async function deployStrategy() {
 }
 
 describe("TraderV0", function () {
+  describe("Deployment and initialization", function () {
+    it("Should not deploy with invalid parameters", async function () {
+      setBalance(devWallet.address, parseEther("1000"));
+      Trader = await ethers.getContractFactory("TraderV0");
+      traderFacet = await Trader.deploy(maxPerformanceFee, maxManagementFee);
+
+      Strategy = await ethers.getContractFactory("TestFixture_TrivialStrategy");
+      await expect(Strategy.deploy(ethers.constants.AddressZero, traderFacet.address, traderInitializerParams)).to.be.revertedWith(
+        "StrategyDiamond: Zero address",
+      );
+      await expect(Strategy.deploy(devWallet.address, ethers.constants.AddressZero, traderInitializerParams)).to.be.revertedWith(
+        "TraderV0_Cutter: _traderFacet must not be 0 address",
+      );
+    });
+
+    it("Should not initialize after deployment", async function () {
+      setBalance(devWallet.address, parseEther("1000"));
+      Trader = await ethers.getContractFactory("TraderV0");
+      traderFacet = await Trader.deploy(maxPerformanceFee, maxManagementFee);
+
+      Strategy = await ethers.getContractFactory("TestFixture_TrivialStrategy");
+      strategy = await Strategy.deploy(devWallet.address, traderFacet.address, traderInitializerParams);
+
+      strategyDiamond = await ethers.getContractAt("StrategyDiamond_TestFixture_TrivialStrategy", strategy.address);
+
+      await expect(strategyDiamond.initializeTraderV0(traderInitializerParams)).to.be.revertedWith("Proxy__ImplementationIsNotContract");
+    });
+
+    it("Should declare the correct interfaces", async function () {
+      setBalance(devWallet.address, parseEther("1000"));
+      Trader = await ethers.getContractFactory("TraderV0");
+      traderFacet = await Trader.deploy(maxPerformanceFee, maxManagementFee);
+
+      Strategy = await ethers.getContractFactory("TestFixture_TrivialStrategy");
+      strategy = await Strategy.deploy(devWallet.address, traderFacet.address, traderInitializerParams);
+
+      strategyDiamond = await ethers.getContractAt("StrategyDiamond_TestFixture_TrivialStrategy", strategy.address);
+
+      // ITraderV0
+      expect(await strategyDiamond.supportsInterface("0x9cd19de4")).to.eq(true);
+      // IDiamondReadable
+      expect(await strategyDiamond.supportsInterface("0x48e2b093")).to.eq(true);
+      // IERC165Base
+      expect(await strategyDiamond.supportsInterface("0x01ffc9a7")).to.eq(true);
+      // IAccessControl
+      expect(await strategyDiamond.supportsInterface("0xc48a940a")).to.eq(true);
+    });
+  });
+
   describe("Core", function () {
     beforeEach(async function () {
       const { strategyDiamond, vault, test20, USDC, WNATIVE } = await loadFixture(deployStrategy);
@@ -75,6 +122,11 @@ describe("TraderV0", function () {
       expect(data).to.have.same.members(allowedTokens);
       data = await strategyDiamond.getAllowedSpenders();
       expect(data).to.have.same.members(allowedSpenders);
+    });
+
+    it("Should grant roles on construction", async function () {
+      expect(await strategyDiamond.hasRole(traderFacet.EXECUTOR_ROLE(), devWallet.address)).to.eq(true);
+      expect(await strategyDiamond.hasRole(ethers.constants.HashZero, devWallet.address)).to.eq(true);
     });
 
     it("Should NOT set vault a second time", async function () {
@@ -291,6 +343,53 @@ describe("TraderV0", function () {
       expect(await USDC.balanceOf(strategyDiamond.address)).to.eq(PERFORMANCE_FEE.add(MANAGEMENT_FEE));
     });
 
+    it("Should take NO fees if the fees are higher than the balance", async function () {
+      let index = ethers.utils.solidityKeccak256(
+        ["uint256", "uint256"],
+        [citizen1.address, USDC_SLOT], // key, slot
+      );
+      await setStorageAt(addresses.USDC, index, toBytes32(ethers.utils.parseUnits("1000", 6)));
+
+      await USDC.connect(citizen1).approve(vault.address, 1e9);
+
+      const blockNumBefore = await ethers.provider.getBlockNumber();
+      const blockBefore = await ethers.provider.getBlock(blockNumBefore);
+      const timestampBefore = blockBefore.timestamp;
+      fundingStart = timestampBefore + 10;
+      epochStart = fundingStart + 3 * 24 * 3600;
+      epochEnd = epochStart + 7 * 24 * 3600;
+
+      await network.provider.send("evm_setNextBlockTimestamp", [fundingStart - 1]);
+
+      await vault.connect(devWallet).startEpoch(fundingStart, epochStart, epochEnd);
+      await vault.connect(citizen1).deposit(1e9, citizen1.address);
+
+      await network.provider.send("evm_increaseTime", [7 * 24 * 3600]);
+      await network.provider.send("evm_mine");
+
+      await strategyDiamond.connect(devWallet).custodyFunds();
+
+      // Trade very unsucessfully, to less than the fees :cry:
+
+      const PERFORMANCE_FEE = ethers.utils.parseUnits("0", 6);
+      const MANAGEMENT_FEE = ethers.utils
+        .parseUnits("1000", 6)
+        .mul(initialManagementFee)
+        .mul(DAY_ONE * 7)
+        .div(YEAR_ONE)
+        .div(FEE_DENOMINATOR);
+
+      await setTokenBalance(addresses.USDC, USDC_SLOT, strategyDiamond.address, PERFORMANCE_FEE.add(MANAGEMENT_FEE).sub(1));
+
+      await network.provider.send("evm_increaseTime", [7 * 24 * 3600 - 1]);
+
+      await expect(strategyDiamond.connect(devWallet).returnFunds())
+        .to.emit(strategyDiamond, "FundsReturned")
+        .withArgs(1000e6, PERFORMANCE_FEE.add(MANAGEMENT_FEE).sub(1), 0, 0);
+      expect(await USDC.balanceOf(vault.address)).to.eq(PERFORMANCE_FEE.add(MANAGEMENT_FEE).sub(1));
+      expect(await USDC.balanceOf(strategyDiamond.address)).to.eq(0);
+    });
+
     it("Should withdraw fees", async function () {
       let index = ethers.utils.solidityKeccak256(
         ["uint256", "uint256"],
@@ -372,6 +471,63 @@ describe("TraderV0", function () {
       await expect(strategyDiamond.connect(devWallet).withdrawFees()).to.be.revertedWith("!fees");
     });
 
+    it("Should NOT allow custody if fees have not been withdrawn", async function () {
+      let index = ethers.utils.solidityKeccak256(
+        ["uint256", "uint256"],
+        [citizen1.address, USDC_SLOT], // key, slot
+      );
+      await setStorageAt(addresses.USDC, index, toBytes32(ethers.utils.parseUnits("1000", 6)));
+
+      await USDC.connect(citizen1).approve(vault.address, 1e9);
+
+      let blockNumBefore = await ethers.provider.getBlockNumber();
+      let blockBefore = await ethers.provider.getBlock(blockNumBefore);
+      let timestampBefore = blockBefore.timestamp;
+      fundingStart = timestampBefore + 10;
+      epochStart = fundingStart + 3 * 24 * 3600;
+      epochEnd = epochStart + 7 * 24 * 3600;
+
+      await network.provider.send("evm_setNextBlockTimestamp", [fundingStart - 1]);
+      await vault.connect(devWallet).startEpoch(fundingStart, epochStart, epochEnd);
+      await vault.connect(citizen1).deposit(1e9, citizen1.address);
+
+      await network.provider.send("evm_increaseTime", [7 * 24 * 3600]);
+      await network.provider.send("evm_mine");
+
+      await strategyDiamond.connect(devWallet).custodyFunds();
+
+      // Trade successfully, making 100% profits :rocket:
+      await setTokenBalance(addresses.USDC, USDC_SLOT, strategyDiamond.address, ethers.utils.parseUnits("2000", 6));
+
+      await network.provider.send("evm_increaseTime", [7 * 24 * 3600 - 1]);
+
+      const PERFORMANCE_FEE = ethers.utils.parseUnits("100", 6);
+      const MANAGEMENT_FEE = ethers.utils
+        .parseUnits("1000", 6)
+        .mul(initialManagementFee)
+        .mul(DAY_ONE * 7)
+        .div(YEAR_ONE)
+        .div(FEE_DENOMINATOR);
+
+      await expect(strategyDiamond.connect(devWallet).returnFunds())
+        .to.emit(strategyDiamond, "FundsReturned")
+        .withArgs(1000e6, 2000e6, PERFORMANCE_FEE, MANAGEMENT_FEE);
+      expect(await USDC.balanceOf(vault.address)).to.eq(2000e6 - PERFORMANCE_FEE - MANAGEMENT_FEE);
+      expect(await USDC.balanceOf(strategyDiamond.address)).to.eq(PERFORMANCE_FEE.add(MANAGEMENT_FEE));
+
+      blockNumBefore = await ethers.provider.getBlockNumber();
+      blockBefore = await ethers.provider.getBlock(blockNumBefore);
+      timestampBefore = blockBefore.timestamp;
+      fundingStart = timestampBefore + 10;
+      epochStart = fundingStart + 3 * 24 * 3600;
+      epochEnd = epochStart + 7 * 24 * 3600;
+
+      await network.provider.send("evm_setNextBlockTimestamp", [fundingStart - 1]);
+      await vault.connect(devWallet).startEpoch(fundingStart, epochStart, epochEnd);
+
+      await expect(strategyDiamond.connect(devWallet).custodyFunds()).to.be.revertedWith("!fees");
+    });
+
     it("Should NOT call admin functions without proper role", async function () {
       let index = ethers.utils.solidityKeccak256(
         ["uint256", "uint256"],
@@ -400,6 +556,12 @@ describe("TraderV0", function () {
       await expect(strategyDiamond.connect(citizen1).returnFunds()).to.be.revertedWith("AccessControl:");
       await expect(strategyDiamond.connect(citizen1).withdrawFees()).to.be.revertedWith("AccessControl:");
       await expect(strategyDiamond.connect(citizen1).approve(USDC.address, addresses.GMX_ROUTER, 0)).to.be.revertedWith("AccessControl:");
+      await expect(strategyDiamond.connect(citizen1).setFeeRates(0, 0)).to.be.revertedWith("AccessControl:");
+      await expect(strategyDiamond.connect(citizen1).setFeeReceiver(citizen1.address)).to.be.revertedWith("AccessControl:");
+    });
+
+    it("Should NOT allow setting fee receiver to zero address", async function () {
+      await expect(strategyDiamond.setFeeReceiver(ethers.constants.AddressZero)).to.be.revertedWith("!zeroAddress");
     });
   });
 });

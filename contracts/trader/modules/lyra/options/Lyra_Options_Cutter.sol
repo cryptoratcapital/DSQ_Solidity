@@ -18,6 +18,9 @@ abstract contract Lyra_Options_Cutter is DiamondWritableInternal, ERC165Base {
      * @param   _facet  Lyra_Options_Module address
      */
     function cut_Lyra_Options(address _facet) internal {
+        // solhint-disable-next-line reason-string
+        require(_facet != address(0), "Lyra_Options_Cutter: _facet cannot be 0 address");
+
         uint256 selectorIndex;
         // Register TraderV0
         bytes4[] memory selectors = new bytes4[](4);

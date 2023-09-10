@@ -35,6 +35,7 @@ const DSQ_ADDRESS = "0x760E31672fE489bE1d3cb3447FEB493d03BD55A0";
 // DSQ Treasury Multisig
 const DSQ_MULTISIG = "0xe7eb925300075E49fc5CAaD5d408A50Dd22f92D6";
 
+/* eslint-disable mocha/no-skipped-tests */
 xdescribe("Tokenomics", function () {
   beforeEach(async function () {
     // Impersonate DSQ_MULTISIG
