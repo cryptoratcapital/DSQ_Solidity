@@ -144,6 +144,7 @@ async function deployStrategy() {
     gmxGLPModule.address,
     camelotSwapFacet.address,
     camelotV3SwapFacet.address,
+    camelotStorageFacet.address,
     lyraStorageFacet.address,
     lyraLPFacet.address,
     lyraOptionsFacet.address,
@@ -217,7 +218,7 @@ describe("GLP++ Strategy", function () {
     it("Should link the expected facet addresses", async function () {
       let expectedFacets = [traderFacet.address];
       expectedFacets = expectedFacets.concat(facets);
-      expect(expectedFacets.length).to.eq(17);
+      expect(expectedFacets.length).to.eq(18);
       expect(await strategy.facetAddresses()).to.deep.eq(expectedFacets);
     });
 
@@ -265,7 +266,16 @@ describe("GLP++ Strategy", function () {
 
       expect(await strategy.facetFunctionSelectors(camelotNitroPoolFacet.address)).to.deep.eq([]);
 
-      expect(await strategy.facetFunctionSelectors(camelotStorageFacet.address)).to.deep.eq([]);
+      expect(await strategy.facetFunctionSelectors(camelotStorageFacet.address)).to.deep.eq([
+        "0x3b6a43d7",
+        "0x150c8b37",
+        "0x86009784",
+        "0x5fc484a1",
+        "0x49ed80c4",
+        "0x357f7051",
+        "0xa00906c7",
+        "0xbecfb24f",
+      ]);
 
       expect(await strategy.facetFunctionSelectors(camelotV3SwapFacet.address)).to.deep.eq(["0x84e4a75b"]);
     });

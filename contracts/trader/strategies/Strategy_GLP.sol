@@ -9,6 +9,7 @@ import "../modules/gmx/orderbook/GMX_OrderBook_Cutter.sol";
 import "../modules/gmx/glp/GMX_GLP_Cutter.sol";
 import "../modules/camelot/swap/Camelot_Swap_Cutter.sol";
 import "../modules/camelot/v3Swap/Camelot_V3Swap_Cutter.sol";
+import "../modules/camelot/storage/Camelot_Storage_Cutter.sol";
 import "../modules/lyra/storage/Lyra_Storage_Cutter.sol";
 import "../modules/lyra/lp/Lyra_LP_Cutter.sol";
 import "../modules/lyra/options/Lyra_Options_Cutter.sol";
@@ -60,6 +61,7 @@ contract Strategy_GLP is
     GMX_GLP_Cutter,
     Camelot_Swap_Cutter,
     Camelot_V3Swap_Cutter,
+    Camelot_Storage_Cutter,
     Lyra_Storage_Cutter,
     Lyra_LP_Cutter,
     Lyra_Options_Cutter,
@@ -86,15 +88,16 @@ contract Strategy_GLP is
         cut_GMX_GLP(_facets[3]);
         cut_Camelot_Swap(_facets[4]);
         cut_Camelot_V3Swap(_facets[5]);
-        cut_Lyra_Storage(_facets[6]);
-        cut_Lyra_LP(_facets[7]);
-        cut_Lyra_Options(_facets[8]);
-        cut_Lyra_Rewards(_facets[9]);
-        cut_Aave_Lending(_facets[10]);
-        cut_TraderJoe_Swap(_facets[11]);
-        cut_TraderJoe_Legacy_LP(_facets[12]);
-        cut_TraderJoe_LP(_facets[13]);
-        cut_Inch_Swap(_facets[14]);
-        cut_Inch_LimitOrder(_facets[15], _assets, _oracles);
+        cut_Camelot_Storage(_facets[6]);
+        cut_Lyra_Storage(_facets[7]);
+        cut_Lyra_LP(_facets[8]);
+        cut_Lyra_Options(_facets[9]);
+        cut_Lyra_Rewards(_facets[10]);
+        cut_Aave_Lending(_facets[11]);
+        cut_TraderJoe_Swap(_facets[12]);
+        cut_TraderJoe_Legacy_LP(_facets[13]);
+        cut_TraderJoe_LP(_facets[14]);
+        cut_Inch_Swap(_facets[15]);
+        cut_Inch_LimitOrder(_facets[16], _assets, _oracles);
     }
 }
