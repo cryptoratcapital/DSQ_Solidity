@@ -1,20 +1,22 @@
 # Strategies Audit Response
 
-The protocol was audited by Paladin Blockchain Security on commit `xxx`. The repository has been migrated since then, and git history has been lost. The resolution process has been undertaken starting from commit `835b2f17b2afb6015011b1576174b373415bae18` of `theMLtrader/DSQ_Solidity` repo, which is believed to be identical to the audited commit.
+The protocol was audited by Paladin Blockchain Security on commit `xxx`. The repository has been migrated since then, and git history has been lost. The resolution process has been undertaken starting from commit `835b2f17b2afb6015011b1576174b373415bae18` of `Bondi-Wealth-Security/DSQ_Solidity` repo, which is believed to be identical to the audited commit. The resolution is submitted on commit `xxx`.
+
+TODO: Commit
 
 ## Significant Changes
 
-Two substantial changes have been made to the code which are not directly related to the audit findings.
+Two substantial changes have been made to the code which were not provoked by the audit findings.
 
-1. Camelot V3 has been split into two part, swap and LP, as Strategy_GLP was not supposed to have LP functionality, only swap.
-2. The Lyra Reward module has been reworked due to a change in the MultiDistributor contract. When audited, the MultiDistributor was 0xecB73D4621Cabbf199e778CAEBc74bE27f2EcEe1, now the contract is at 0x835f827E3D4ab11Dd0B4a0B894B43b308A0e41FF, with different code.
+1. Camelot V3 has been split into two parts, Swap and LP, as Strategy_GLP was not supposed to have LP functionality, only swap.
+2. The Lyra Reward module has been reworked due to a change in the MultiDistributor contract. When audited, the MultiDistributor was at 0xecB73D4621Cabbf199e778CAEBc74bE27f2EcEe1, now the active contract is at 0x835f827E3D4ab11Dd0B4a0B894B43b308A0e41FF, with different code.
 
 ## Global Issues
 
 1. Governance should be under a multi-signature wallet with known or
    doxxed signatories
 
-Acknowledged. The trust model of the DSquared project requires a reputable, trustworthy executor, and all reasonable efforts will be taken to ensure that `EXECUTOR_ROLE` holders are well-vetted and properly incentivized. Admin roles will be held by multisignature wallets.
+Acknowledged. The trust model of the DSquared project requires a reputable, trustworthy executor, and all reasonable efforts will be taken to ensure that `EXECUTOR_ROLE` holders are well-vetted, properly incentivized, and trained and equipped for personal security. Admin roles will be held by multisignature wallets.
 
 2. Several tokens might get locked
 
@@ -59,7 +61,7 @@ Acknowledged. These risks are inherent in the architecture, and plain-language r
 
 11. Malicious users can manipulate share calculation
 
-Implemented the recommended change to use OpenZeppelin virtual shares pattern. This was done by migrating to the OpenZeppelin ERC-4626 implementation Version ^4.9.0, which has the decimal offset, instead of the previous Solmate implementation. The offset math introduces a rounding error which may round 1 wei/unit of value against the favor of users in a few instances, such as all shares being redeemed, but this has been deemed acceptable as it rounds in a direction which will not cause DoS.
+Implemented the recommended change to use OpenZeppelin virtual shares pattern. This was done by migrating to the OpenZeppelin ERC-4626 implementation Version ^4.9.0, which has the decimal offset, instead of the previous Solmate implementation. The offset math introduces a rounding error which may round 1 wei/unit of value against the favor of users in a few instances, such as the total supply of shares being redeemed, but this has been deemed acceptable as it rounds in a direction which will not cause DoS.
 
 12. Malicious user can DoS deposits of other users
 
@@ -75,7 +77,7 @@ This is a global recommendation, not related to VaultV1. Acknowledged. Post-depl
 
 15. Frontend phishing risk
 
-Acknowledged. A bespoke frontend monitoring tool has been developed to provide additional protection to the frontend.
+Acknowledged. A bespoke frontend monitoring tool has been developed and deployed to provide additional protection against unauthorized changes to the frontend.
 
 16. Typographical issues
 
@@ -198,7 +200,7 @@ Acknowledged. This module is designed only for use during soft-launch conditions
 
 40. `EXECUTOR_ROLE` can force liquidation
 
-Aave V3 employs two levels: LTV and Liquidation Threshold. A user of that protocol cannot borrow and then instantly be liquidated, although they are allowed to make risky borrows up to 100% of their LTV. Implemented the recommendation to impose a hardcap as a fraction of Aave's max LTV to give a safety margin.
+Aave V3 employs two levels: LTV and Liquidation Threshold. A user of that protocol cannot borrow and then instantly be liquidated, although they are allowed to make risky borrows up to 100% of their LTV. Implemented the recommendation to impose a hardcap as a fraction of Aave's max LTV to give additional safety margin.
 
 41. Allowed tokens can become an issue if bad-debt occurs
 
